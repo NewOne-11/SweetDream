@@ -1,9 +1,5 @@
 let schema = null;
 
-
-/*
-角色数据对象
-*/
 let player = {};
 
 
@@ -45,16 +41,14 @@ async function loadSchema(){
     }
     catch(error){
 
-        console.error(
-            error
-        );
+        console.error(error);
 
 
         document.getElementById(
             "creator"
         ).innerHTML =
 
-        "角色模板加载失败：<br>" 
+        "角色模板加载失败：<br>"
         + error.message;
 
     }
@@ -65,8 +59,9 @@ async function loadSchema(){
 
 
 
+
 /*
-生成表单
+生成全部表单
 */
 
 function createForm(){
@@ -77,15 +72,54 @@ function createForm(){
     schema.sections.forEach(section=>{
 
 
+        let conditionAttr = "";
+
+
+
+        /*
+        如果存在条件
+
+        写入HTML属性
+
+        */
+
+        if(section.condition){
+
+
+            conditionAttr = `
+
+            data-condition-field="${section.condition.field}"
+
+            data-condition-values='${JSON.stringify(section.condition.values)}'
+
+            `;
+
+
+        }
+
+
+
         html += `
 
-        <div class="section">
+
+        <div class="section"
+
+        ${conditionAttr}
+
+        >
+
+
 
         <h2>
+
         ${section.title}
+
         </h2>
 
+
+
         `;
+
 
 
         section.fields.forEach(field=>{
@@ -97,7 +131,13 @@ function createForm(){
         });
 
 
-        html += "</div>";
+
+        html += `
+
+        </div>
+
+        `;
+
 
     });
 
@@ -108,6 +148,10 @@ function createForm(){
     ).innerHTML = html;
 
 
+
+    bindConditionEvents();
+
+
 }
 
 
@@ -116,8 +160,9 @@ function createForm(){
 
 
 
+
 /*
-生成单个字段
+生成单个输入框
 */
 
 function createField(field){
@@ -128,7 +173,9 @@ function createField(field){
     <div class="field">
 
     <label>
+
     ${field.title}
+
     </label>
 
     `;
@@ -153,6 +200,7 @@ function createField(field){
 
             `;
 
+
             break;
 
 
@@ -172,6 +220,7 @@ function createField(field){
 
             `;
 
+
             break;
 
 
@@ -190,7 +239,9 @@ function createField(field){
 
             `;
 
+
             break;
+
 
 
 
@@ -209,19 +260,25 @@ function createField(field){
             `;
 
 
+
             field.options.forEach(option=>{
 
 
                 html += `
 
-                <option>
+
+                <option value="${option}">
+
                 ${option}
+
                 </option>
+
 
                 `;
 
 
             });
+
 
 
             html += `
@@ -238,6 +295,7 @@ function createField(field){
 
 
 
+
         case "radio":
 
 
@@ -247,7 +305,9 @@ function createField(field){
 
                 html += `
 
+
                 <label>
+
 
                 <input
 
@@ -259,9 +319,12 @@ function createField(field){
 
                 >
 
+
                 ${option}
 
+
                 </label>
+
 
                 <br>
 
@@ -270,6 +333,7 @@ function createField(field){
 
 
             });
+
 
 
             break;
@@ -288,6 +352,7 @@ function createField(field){
 
 
                 html += `
+
 
                 <label>
 
@@ -308,24 +373,31 @@ function createField(field){
 
                 </label>
 
+
                 <br>
 
 
                 `;
 
 
+
             });
 
 
-            break;
 
+            break;
 
 
     }
 
 
 
-    html += "</div>";
+    html += `
+
+    </div>
+
+    `;
+
 
 
     return html;
@@ -341,95 +413,27 @@ function createField(field){
 
 
 /*
-根据路径写入对象
-
-例如：
-
-body.basic.skin
-
-自动生成：
-
-player.body.basic.skin
-
-*/
-
-
-function setValueByPath(
-    obj,
-    path,
-    value
-){
-
-
-    let keys =
-    path.split(".");
-
-
-    let current =
-    obj;
-
-
-
-    for(
-        let i=0;
-        i<keys.length-1;
-        i++
-    ){
-
-
-        if(
-            !current[keys[i]]
-        ){
-
-            current[keys[i]]={};
-
-        }
-
-
-        current =
-        current[keys[i]];
-
-
-    }
-
-
-
-    current[
-        keys[keys.length-1]
-    ]
-    =
-    value;
-
-
-}
-
-
-
-
-
-
-
-/*
-读取radio
+获取radio值
 */
 
 function getRadioValue(path){
 
 
     let checked =
+
     document.querySelector(
+
         `input[name="${path}"]:checked`
+
     );
 
 
-    if(checked){
 
-        return checked.value;
+    return checked?
 
-    }
+    checked.value:
 
-
-    return "";
+    "";
 
 }
 
@@ -439,17 +443,16 @@ function getRadioValue(path){
 
 
 
+
 /*
-读取checkbox
-
-返回数组
-
+获取checkbox数组
 */
 
 function getCheckboxValue(path){
 
 
     let checked =
+
     document.querySelectorAll(
 
         `input[name="${path}"]:checked`
@@ -476,18 +479,83 @@ function getCheckboxValue(path){
 
 
 /*
-保存角色
+根据路径写入对象
 
-目前：
+例如：
 
-生成JSON
+body.basic.skin
 
-下一步接IndexedDB
+生成：
+
+player.body.basic.skin
 
 */
 
-function saveCharacter(){
+function setValueByPath(
+    obj,
+    path,
+    value
+){
 
+
+    let keys =
+
+    path.split(".");
+
+
+    let current = obj;
+
+
+
+    for(
+        let i=0;
+        i<keys.length-1;
+        i++
+    ){
+
+
+
+        if(
+            !current[keys[i]]
+        ){
+
+            current[keys[i]]={};
+
+        }
+
+
+
+        current =
+        current[keys[i]];
+
+
+    }
+
+
+
+    current[
+        keys[keys.length-1]
+    ]
+
+    =
+
+    value;
+
+
+}
+
+
+
+
+
+
+
+
+/*
+保存角色数据
+*/
+
+function saveCharacter(){
 
 
     player = {};
@@ -508,6 +576,7 @@ function saveCharacter(){
                 field.type==="radio"
             ){
 
+
                 value =
                 getRadioValue(
                     field.path
@@ -516,10 +585,10 @@ function saveCharacter(){
 
             }
 
-
             else if(
                 field.type==="checkbox"
             ){
+
 
                 value =
                 getCheckboxValue(
@@ -529,19 +598,23 @@ function saveCharacter(){
 
             }
 
-
             else{
 
 
                 let element =
+
                 document.getElementById(
                     field.path
                 );
 
 
+
                 value =
-                element ?
-                element.value :
+
+                element?
+
+                element.value:
+
                 "";
 
 
@@ -568,7 +641,7 @@ function saveCharacter(){
 
 
     console.log(
-        "生成角色数据：",
+        "角色数据：",
         player
     );
 
@@ -598,8 +671,153 @@ function saveCharacter(){
 
 
 
+
+
+
 /*
-启动
+条件显示系统
 */
+
+
+function getValue(path){
+
+
+    let element =
+
+    document.querySelector(
+
+        `[name="${path}"]:checked`
+
+    );
+
+
+
+    return element?
+
+    element.value:
+
+    "";
+
+}
+
+
+
+
+
+
+
+
+function bindConditionEvents(){
+
+
+    let inputs =
+
+    document.querySelectorAll(
+
+        'input[name="profile.identity.gender"]'
+
+    );
+
+
+
+    inputs.forEach(input=>{
+
+
+        input.addEventListener(
+
+            "change",
+
+            updateConditions
+
+        );
+
+
+    });
+
+
+
+    updateConditions();
+
+
+}
+
+
+
+
+
+
+
+
+function updateConditions(){
+
+
+
+    let sections =
+
+    document.querySelectorAll(
+
+        ".section[data-condition-field]"
+
+    );
+
+
+
+    sections.forEach(section=>{
+
+
+        let field =
+
+        section.dataset.conditionField;
+
+
+
+        let values =
+
+        JSON.parse(
+
+            section.dataset.conditionValues
+
+        );
+
+
+
+        let current =
+
+        getValue(field);
+
+
+
+        if(
+            values.includes(current)
+        ){
+
+
+            section.style.display =
+            "block";
+
+
+        }
+
+        else{
+
+
+            section.style.display =
+            "none";
+
+
+        }
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
 
 loadSchema();
