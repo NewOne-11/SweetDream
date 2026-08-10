@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 
 <head>
@@ -6,22 +7,7 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1,
-maximum-scale=1,
-viewport-fit=cover">
-
-
-<!-- iOS PWA支持 -->
-
-<meta name="apple-mobile-web-app-capable"
-content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style"
-content="black-translucent">
-
-<meta name="apple-mobile-web-app-title"
-content="Sweet Dream">
+content="width=device-width,initial-scale=1.0">
 
 
 <title>
@@ -32,120 +18,79 @@ Sweet Dream
 <style>
 
 
-*{
-box-sizing:border-box;
-}
-
-
 body{
-
-margin:0;
-
-background:#100814;
-
-color:#f5edf7;
 
 font-family:
 -apple-system,
 BlinkMacSystemFont,
-"PingFang SC",
-sans-serif;
+"Helvetica Neue",
+Arial;
 
-}
+background:#f5f5f7;
 
-
-.app{
-
-max-width:850px;
-
-margin:auto;
-
-padding:
-20px
-14px
-40px;
-
-}
-
-
-
-.header{
-
-text-align:center;
+margin:0;
 
 padding:20px;
 
 }
 
 
-.header h1{
+.container{
 
-color:#ff9bd8;
+max-width:600px;
 
-font-size:30px;
+margin:auto;
 
-margin:0;
+background:white;
 
-}
+padding:20px;
 
-
-
-.card{
-
-background:#211527;
-
-border:1px solid #704675;
-
-border-radius:18px;
-
-padding:15px;
-
-margin-bottom:15px;
+border-radius:16px;
 
 }
 
 
 
-.card h3{
+h1{
 
-color:#ffb6df;
-
-margin-top:0;
+text-align:center;
 
 }
 
 
 
-textarea,
+.field{
+
+margin-bottom:18px;
+
+}
+
+
+label{
+
+display:block;
+
+font-weight:bold;
+
+margin-bottom:6px;
+
+}
+
+
+
 input,
-select{
-
+select,
+textarea{
 
 width:100%;
 
-background:#150c1b;
+padding:10px;
 
-border:
+border-radius:8px;
 
-1px solid #704675;
+border:1px solid #ddd;
 
-border-radius:12px;
-
-padding:12px;
-
-color:white;
-
-font-size:15px;
-
-margin:5px 0;
-
-}
-
-
-
-textarea{
-
-min-height:120px;
+box-sizing:border-box;
 
 }
 
@@ -153,179 +98,58 @@ min-height:120px;
 
 button{
 
+width:100%;
 
-background:#d96eb5;
+padding:14px;
 
-border:0;
+border:none;
 
-border-radius:12px;
+border-radius:10px;
 
-padding:10px 16px;
+background:#333;
 
 color:white;
 
-margin:5px;
+font-size:16px;
 
 }
 
 
+.hidden{
 
-button.secondary{
-
-background:#4b3154;
-
-}
-
-
-
-.chat{
-
-
-min-height:300px;
-
-max-height:60vh;
-
-overflow:auto;
-
-white-space:pre-wrap;
-
-line-height:1.8;
-
+display:none;
 
 }
-
-
-
-.stat{
-
-
-display:grid;
-
-grid-template-columns:
-repeat(2,1fr);
-
-gap:10px;
-
-
-}
-
-
-.stat-box{
-
-
-background:#160d1d;
-
-border-radius:12px;
-
-padding:10px;
-
-
-}
-
-
-
-.small{
-
-font-size:12px;
-
-color:#a998aa;
-
-}
-
 
 
 </style>
 
-
 </head>
-
 
 
 <body>
 
 
-<div class="app">
+
+<div class="container">
 
 
-<div class="header">
+<div id="creator">
+
 
 <h1>
-🌙 Sweet Dream
+🌙 创建角色
 </h1>
 
-<div class="small">
-Personal AI Narrative System
-</div>
+
+<div id="form">
 
 </div>
 
 
+<button onclick="nextStep()">
 
-<div class="card">
-
-<h3>
-💾 数据状态
-</h3>
-
-
-<div id="dbStatus">
-
-初始化中……
-
-</div>
-
-
-<button onclick="exportAll()">
-
-导出全部数据
-
-</button>
-
-
-<button
-class="secondary"
-onclick="document.getElementById('file').click()">
-
-导入数据
-
-</button>
-
-
-<input
-id="file"
-type="file"
-accept=".json"
-style="display:none"
-onchange="importAll(event)"
->
-
-
-</div>
-
-
-
-<div class="card">
-
-<h3>
-🎭 当前预设
-</h3>
-
-
-<select id="presetSelect">
-
-</select>
-
-
-<button onclick="loadPreset()">
-
-加载预设
-
-</button>
-
-
-<button onclick="savePreset()">
-
-保存当前为预设
+下一步
 
 </button>
 
@@ -335,188 +159,26 @@ onchange="importAll(event)"
 
 
 
-<div class="card">
+<div id="home"
+class="hidden">
 
 
-<h3>
-💾 存档
-</h3>
+<h1>
+欢迎进入 Sweet Dream
+</h1>
 
 
-<select id="saveSelect">
-
-</select>
-
-
-<button onclick="saveSlot()">
-
-保存存档
-
-</button>
+<p>
+角色创建完成。
+</p>
 
 
-<button onclick="loadSlot()">
-
-读取存档
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-📊 当前状态
-</h3>
-
-
-<div id="stats"
-class="stat">
+<div id="profile">
 
 </div>
 
 
 </div>
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-📖 世界书</h3>
-
-
-<textarea
-id="worldBook"
-placeholder="世界规则、输出要求、背景设定">
-
-</textarea>
-
-
-<button onclick="saveWorld()">
-
-保存世界书
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-🎭 主人设定
-
-</h3>
-
-
-<textarea
-id="owner"
-placeholder="主人角色卡">
-
-</textarea>
-
-
-<button onclick="saveOwner()">
-
-保存主人
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-🧠 长期记忆
-
-</h3>
-
-
-<textarea
-id="memory">
-
-</textarea>
-
-
-<button onclick="saveMemory()">
-
-保存记忆
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-<div class="card">
-
-
-<h3>
-💬 剧情
-
-</h3>
-
-
-<div
-id="chat"
-class="chat">
-
-Sweet Dream 已启动。
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-<div class="card">
-
-
-<textarea
-id="message"
-placeholder="输入行动">
-
-</textarea>
-
-
-<button onclick="sendMessage()">
-
-发送
-
-</button>
-
-
-</div>
-
 
 
 </div>
@@ -530,119 +192,35 @@ placeholder="输入行动">
 
 /*
 
-================================
+====================
 
-Sweet Dream V1.1
+数据库
 
-IndexedDB Core
-
-================================
+====================
 
 */
 
 
-
-const DB_NAME =
-"SweetDreamV11";
-
-
-const DB_VERSION =
-1;
+const DB_NAME=
+"SweetDreamV2";
 
 
-
-const STORES=[
-
-"settings",
-
-"presets",
-
-"saves",
-
-"current",
-
-"backups"
-
-];
+let db;
 
 
-
-let db=null;
-
-
-
-
-/*
-
-默认数据
-
-*/
-
-
-const DEFAULT_GAME={
-
-
-worldBook:"",
-
-
-owner:"",
-
-
-memory:[],
-
-
-messages:[],
-
-flags:[]
-
-state:{
-
-
-level:1,
-
-
-affection:0,
-
-
-trust:0,
-
-
-dependency:0,
-
-
-day:1,
-
-
-relationship:""
-
-}
-
-
-};
-
-
-
-
-
-/*
-
-打开数据库
-
-*/
 
 
 function openDB(){
 
 
 return new Promise(
-
 (resolve,reject)=>{
 
 
 let request=
 indexedDB.open(
 DB_NAME,
-DB_VERSION
+1
 );
 
 
@@ -654,17 +232,14 @@ let database=
 e.target.result;
 
 
-
-STORES.forEach(
-store=>{
-
-
 if(
-!database.objectStoreNames.contains(store)
+!database.objectStoreNames.contains(
+"characters"
+)
 ){
 
 database.createObjectStore(
-store,
+"characters",
 {
 keyPath:"id"
 }
@@ -673,9 +248,21 @@ keyPath:"id"
 }
 
 
+
+if(
+!database.objectStoreNames.contains(
+"profile"
+)
+){
+
+database.createObjectStore(
+"profile",
+{
+keyPath:"id"
 }
 );
 
+}
 
 
 };
@@ -693,18 +280,11 @@ resolve();
 
 
 
-request.onerror=e=>{
-
-reject(e);
-
-};
+request.onerror=e=>reject(e);
 
 
 
-}
-
-);
-
+});
 
 
 }
@@ -712,17 +292,16 @@ reject(e);
 
 
 
-/*
 
-数据库写入
-
-*/
-
-
-function put(store,id,value){
+function saveStore(
+store,
+id,
+data
+){
 
 
-return new Promise(resolve=>{
+return new Promise(
+resolve=>{
 
 
 let tx=
@@ -732,18 +311,20 @@ store,
 );
 
 
+
 tx.objectStore(store)
 .put({
 
 id:id,
 
-value:value
+data:data
 
 });
 
 
 
-tx.oncomplete=resolve;
+tx.oncomplete=
+resolve;
 
 
 
@@ -755,17 +336,15 @@ tx.oncomplete=resolve;
 
 
 
-/*
 
-数据库读取
-
-*/
-
-
-function get(store,id){
+function getStore(
+store,
+id
+){
 
 
-return new Promise(resolve=>{
+return new Promise(
+resolve=>{
 
 
 let tx=
@@ -787,12 +366,13 @@ req.onsuccess=()=>{
 
 resolve(
 req.result?
-req.result.value:
+req.result.data:
 null
 );
 
 
 };
+
 
 
 });
@@ -806,46 +386,93 @@ null
 
 /*
 
-获取当前游戏
+====================
+
+角色模板
+
+====================
 
 */
 
 
-async function getGame(){
+let player={
 
 
-let game=
-await get(
-"current",
-"main"
-);
+basic:{
+
+
+name:"",
+
+age:"",
+
+gender:"",
+
+orientation:"",
+
+rolePreference:"",
+
+height:"",
+
+weight:""
+
+
+},
 
 
 
-if(!game){
+appearance:{
 
 
-game=
-structuredClone(
-DEFAULT_GAME
-);
+skin:"",
+
+hair:"",
+
+eyes:"",
+
+bodyType:"",
+
+features:""
+
+
+},
 
 
 
-await put(
-"current",
-"main",
-game
-);
+personality:{
 
+
+description:""
+
+
+},
+
+
+
+preferences:{
+
+
+sensitivity:"",
+
+sensitiveParts:[],
+
+
+triggers:[]
+
+},
+
+
+
+limits:{
+
+
+items:[]
 
 }
 
 
-return game;
 
+};
 
-}
 
 
 
@@ -853,29 +480,504 @@ return game;
 
 /*
 
-保存当前游戏
+====================
+
+表单配置
+
+====================
 
 */
 
 
-async function saveGame(game){
+const FORM=[
 
 
-await put(
-"current",
+{
+
+title:"姓名",
+
+path:"basic.name",
+
+type:"text"
+
+},
+
+
+
+{
+
+title:"年龄",
+
+path:"basic.age",
+
+type:"number"
+
+},
+
+
+
+{
+
+title:"生理性别",
+
+path:"basic.gender",
+
+type:"select",
+
+options:[
+
+"女",
+
+"男",
+
+"双性"
+
+]
+
+},
+
+
+
+{
+
+title:"性取向",
+
+path:"basic.orientation",
+
+type:"select",
+
+options:[
+
+"只对男性",
+
+"只对女性",
+
+"扶她",
+
+"都有"
+
+]
+
+},
+
+
+
+{
+
+title:"角色倾向",
+
+path:"basic.rolePreference",
+
+type:"select",
+
+options:[
+
+"支配方(Dom/S)",
+
+"被支配方(Sub/M)",
+
+"平等方(Switch)"
+
+]
+
+},
+
+
+
+{
+
+title:"身高(cm)",
+
+path:"basic.height",
+
+type:"number"
+
+},
+
+
+
+{
+
+title:"体重(kg)",
+
+path:"basic.weight",
+
+type:"number"
+
+},
+
+
+
+{
+
+title:"肤色",
+
+path:"appearance.skin",
+
+type:"select",
+
+options:[
+
+"冷白皮",
+
+"粉白皮",
+
+"自然肤色",
+
+"健康小麦色",
+
+"深色巧克力"
+
+]
+
+},
+
+
+
+{
+
+title:"发型/发色",
+
+path:"appearance.hair",
+
+type:"text"
+
+},
+
+
+
+{
+
+title:"瞳色",
+
+path:"appearance.eyes",
+
+type:"text"
+
+},
+
+
+
+{
+
+title:"体型",
+
+path:"appearance.bodyType",
+
+type:"select",
+
+options:[
+
+"纤细",
+
+"标准",
+
+"丰满",
+
+"肌肉线条",
+
+"肉感"
+
+]
+
+},
+
+
+
+{
+
+title:"体表特征",
+
+path:"appearance.features",
+
+type:"textarea"
+
+},
+
+
+
+{
+
+title:"性格描述",
+
+path:"personality.description",
+
+type:"textarea"
+
+}
+
+
+];
+
+
+
+
+
+let current=0;
+
+
+
+
+
+
+function getValue(path){
+
+
+let obj=player;
+
+
+let keys=
+path.split(".");
+
+
+keys.forEach(
+k=>{
+
+
+obj=obj[k];
+
+
+});
+
+
+return obj;
+
+
+}
+
+
+
+function setValue(
+path,
+value
+){
+
+
+let obj=player;
+
+
+let keys=
+path.split(".");
+
+
+for(
+let i=0;
+i<keys.length-1;
+i++
+){
+
+obj=obj[keys[i]];
+
+}
+
+
+obj[
+keys[keys.length-1]
+]
+=value;
+
+
+}
+
+
+
+
+function renderForm(){
+
+
+let item=
+FORM[current];
+
+
+let html=
+"";
+
+
+html+=`
+
+<div class="field">
+
+<label>
+${item.title}
+</label>
+
+`;
+
+
+
+if(
+item.type==="select"
+){
+
+
+html+=`
+
+<select id="input">
+
+${item.options.map(
+x=>`
+
+<option>${x}</option>
+
+`
+).join("")}
+
+
+</select>
+
+`;
+
+
+
+}
+else{
+
+
+html+=`
+
+<textarea
+id="input"
+></textarea>
+
+`;
+
+
+}
+
+
+
+
+html+=`
+
+</div>
+
+`;
+
+
+
+document.getElementById(
+"form"
+)
+.innerHTML=html;
+
+
+}
+
+
+
+
+
+
+
+async function nextStep(){
+
+
+
+let input=
+document.getElementById(
+"input"
+);
+
+
+
+let item=
+FORM[current];
+
+
+
+setValue(
+item.path,
+input.value
+);
+
+
+
+current++;
+
+
+
+if(
+current>=FORM.length
+){
+
+
+await finishCreate();
+
+
+return;
+
+
+}
+
+
+
+renderForm();
+
+
+
+}
+
+
+
+
+
+
+async function finishCreate(){
+
+
+await saveStore(
+"characters",
+"player",
+player
+);
+
+
+
+await saveStore(
+"profile",
 "main",
-game
+{
+
+created:true
+
+}
+
 );
 
 
 
 document.getElementById(
-"dbStatus"
-).innerHTML=
-"✓ 自动保存完成";
+"creator"
+)
+.classList.add(
+"hidden"
+);
+
+
+
+document.getElementById(
+"home"
+)
+.classList.remove(
+"hidden"
+);
+
+
+
+document.getElementById(
+"profile"
+)
+.innerHTML=
+
+JSON.stringify(
+player,
+null,
+2
+);
 
 
 }
+
 
 
 
@@ -887,1923 +989,37 @@ async function init(){
 await openDB();
 
 
-
-await getGame();
-
-
-
-document.getElementById(
-"dbStatus"
-).innerHTML=
-"✓ IndexedDB运行正常";
-
-
-render();
-
-
-}
-
-/*
-
-========================================
-
-第二部分
-
-Preset / Save / Backup System
-
-========================================
-
-*/
-
-
-/*
-初始化数据结构
-*/
-
-
-async function ensureSystemData(){
-
-
-/*
-默认预设
-
-*/
-
-
-let presets =
-await get(
-"presets",
-"all"
-);
-
-
-
-if(!presets){
-
-
-presets=[
-
-{
-
-id:"default",
-
-name:"Sweet Dream 默认",
-
-worldBook:"",
-
-owner:"",
-
-prompt:"保持沉浸式文游，不替玩家行动。"
-
-}
-
-];
-
-
-await put(
-"presets",
-"all",
-presets
-);
-
-
-}
-
-
-
-
-/*
-默认存档
-
-*/
-
-
-let saves =
-await get(
-"saves",
-"all"
-);
-
-
-
-if(!saves){
-
-
-saves=[
-
-{
-
-id:"save01",
-
-name:"初始存档",
-
-time:
-new Date()
-.toISOString(),
-
-data:
-structuredClone(
-DEFAULT_GAME
-)
-
-}
-
-];
-
-
-await put(
-"saves",
-"all",
-saves
-);
-
-
-}
-
-
-
-
-}
-
-
-
-
-
-/*
-
-加载全部系统
-
-*/
-
-
-async function loadSystem(){
-
-
-await ensureSystemData();
-
-
-renderPresetList();
-
-
-renderSaveList();
-
-
-
-}
-
-
-
-
-/*
-
-========================
-
-预设系统
-
-========================
-
-*/
-
-
-async function renderPresetList(){
-
-
-let presets =
-await get(
-"presets",
-"all"
-);
-
-
-
-let select =
-document.getElementById(
-"presetSelect"
-);
-
-
-
-select.innerHTML="";
-
-
-
-presets.forEach(
-p=>{
-
-
-let option =
-document.createElement(
-"option"
-);
-
-
-
-option.value=
-p.id;
-
-
-option.innerText=
-p.name;
-
-
-
-select.appendChild(
-option
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-/*
-
-保存当前为预设
-
-*/
-
-
-async function savePreset(){
-
-
-let game =
-await getGame();
-
-
-
-let presets =
-await get(
-"presets",
-"all"
-);
-
-
-
-let name =
-prompt(
-"请输入预设名称"
-);
-
-
-
-if(!name)
-return;
-
-
-
-let preset={
-
-
-id:
-"preset_"+
-Date.now(),
-
-
-name:name,
-
-
-worldBook:
-game.worldBook,
-
-
-owner:
-game.owner,
-
-
-prompt:
-""
-
-};
-
-
-
-presets.push(
-preset
-);
-
-
-
-await put(
-"presets",
-"all",
-presets
-);
-
-
-
-renderPresetList();
-
-
-alert(
-"预设保存成功"
-);
-
-
-}
-
-
-
-
-/*
-
-读取预设
-
-*/
-
-
-async function loadPreset(){
-
-
-let id =
-document.getElementById(
-"presetSelect"
-).value;
-
-
-
-let presets =
-await get(
-"presets",
-"all"
-);
-
-
-
-let preset =
-presets.find(
-p=>p.id===id
-);
-
-
-
-if(!preset)
-return;
-
-
-
-let game =
-await getGame();
-
-
-
-game.worldBook =
-preset.worldBook;
-
-
-game.owner =
-preset.owner;
-
-
-
-await saveGame(game);
-
-
-
-render();
-
-
-}
-
-
-
-
-/*
-
-========================
-
-存档系统
-
-========================
-
-*/
-
-
-async function renderSaveList(){
-
-
-let saves =
-await get(
-"saves",
-"all"
-);
-
-
-
-let select =
-document.getElementById(
-"saveSelect"
-);
-
-
-
-select.innerHTML="";
-
-
-
-saves.forEach(
-save=>{
-
-
-let option =
-document.createElement(
-"option"
-);
-
-
-
-option.value=
-save.id;
-
-
-option.innerText=
-save.name;
-
-
-
-select.appendChild(
-option
-);
-
-
-
-});
-
-
-
-}
-
-
-
-
-/*
-
-保存存档槽
-
-*/
-
-
-async function saveSlot(){
-
-
-let saves =
-await get(
-"saves",
-"all"
-);
-
-
-
-let name =
-prompt(
-"存档名称"
-);
-
-
-
-if(!name)
-return;
-
-
-
-let game =
-await getGame();
-
-
-
-let save={
-
-
-id:
-"save_"+
-Date.now(),
-
-
-name:name,
-
-
-time:
-new Date()
-.toISOString(),
-
-
-data:
-structuredClone(game)
-
-
-
-};
-
-
-
-saves.push(
-save
-);
-
-
-
-await put(
-"saves",
-"all",
-saves
-);
-
-
-
-await autoBackup();
-
-
-renderSaveList();
-
-
-alert(
-"存档完成"
-);
-
-
-
-}
-
-
-
-
-/*
-
-读取存档
-
-*/
-
-
-async function loadSlot(){
-
-
-let id =
-document.getElementById(
-"saveSelect"
-).value;
-
-
-
-let saves =
-await get(
-"saves",
-"all"
-);
-
-
-
-let save =
-saves.find(
-s=>s.id===id
-);
-
-
-
-if(!save)
-return;
-
-
-
-await put(
-"current",
-"main",
-structuredClone(
-save.data
-)
-);
-
-
-
-render();
-
-
-alert(
-"读取完成"
-);
-
-
-}
-
-
-
-
-/*
-
-========================
-
-自动备份
-
-========================
-
-*/
-
-
-async function autoBackup(){
-
-
-let game =
-await getGame();
-
-
-
-let backups =
-await get(
-"backups",
-"all"
-);
-
-
-
-if(!backups){
-
-backups=[];
-
-}
-
-
-
-
-backups.push({
-
-time:
-new Date()
-.toISOString(),
-
-
-data:
-structuredClone(game)
-
-
-});
-
-
-
-/*
-
-只保留最近20份
-
-*/
-
-
-if(
-backups.length>20
-){
-
-backups.shift();
-
-}
-
-
-
-await put(
-"backups",
-"all",
-backups
-);
-
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-导出全部数据
-
-========================
-
-*/
-
-
-async function exportAll(){
-
-
-let data={
-
-
-
-version:"SweetDreamV1.1",
-
-
-time:
-new Date()
-.toISOString(),
-
-
-current:
-await get(
-"current",
+let profile=
+await getStore(
+"profile",
 "main"
-),
-
-
-presets:
-await get(
-"presets",
-"all"
-),
-
-
-saves:
-await get(
-"saves",
-"all"
-),
-
-
-backups:
-await get(
-"backups",
-"all"
-)
-
-
-
-};
-
-
-
-let blob =
-new Blob(
-
-[
-
-JSON.stringify(
-data,
-null,
-2
-)
-
-],
-
-{
-
-type:
-"application/json"
-
-}
-
-);
-
-
-
-let url =
-URL.createObjectURL(
-blob
-);
-
-
-
-let a =
-document.createElement(
-"a"
-);
-
-
-
-a.href=url;
-
-
-a.download=
-"SweetDream_Backup.json";
-
-
-
-a.click();
-
-
-
-URL.revokeObjectURL(
-url
-);
-
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-导入全部数据
-
-========================
-
-*/
-
-
-async function importAll(event){
-
-
-let file =
-event.target.files[0];
-
-
-
-if(!file)
-return;
-
-
-
-let text =
-await file.text();
-
-
-
-let data =
-JSON.parse(
-text
 );
 
 
 
 if(
-data.current
-){
-
-await put(
-"current",
-"main",
-data.current
-);
-
-}
-
-
-
-if(
-data.presets
-){
-
-await put(
-"presets",
-"all",
-data.presets
-);
-
-}
-
-
-
-if(
-data.saves
-){
-
-await put(
-"saves",
-"all",
-data.saves
-);
-
-}
-
-
-
-if(
-data.backups
-){
-
-await put(
-"backups",
-"all",
-data.backups
-);
-
-}
-
-
-
-render();
-
-
-renderPresetList();
-
-
-renderSaveList();
-
-
-
-alert(
-"数据恢复成功"
-);
-
-
-
-}
-
-
-
-
-/*
-
-========================
-
-世界书 / 主人 / 记忆
-
-========================
-
-*/
-
-
-async function saveWorld(){
-
-
-let game =
-await getGame();
-
-
-
-game.worldBook =
-document.getElementById(
-"worldBook"
-).value;
-
-
-
-await saveGame(game);
-
-
-
-}
-
-
-
-
-async function saveOwner(){
-
-
-let game =
-await getGame();
-
-
-
-game.owner =
-document.getElementById(
-"owner"
-).value;
-
-
-
-await saveGame(game);
-
-
-
-}
-
-
-
-
-async function saveMemory(){
-
-
-let game =
-await getGame();
-
-
-
-game.memory =
-document.getElementById(
-"memory"
-).value
-
-.split("\n")
-
-.filter(
-x=>x.trim()
-);
-
-
-
-await saveGame(game);
-
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-渲染
-
-========================
-
-*/
-
-
-async function render(){
-
-
-let game =
-await getGame();
-
-
-
-document.getElementById(
-"worldBook"
-).value=
-game.worldBook;
-
-
-
-document.getElementById(
-"owner"
-).value=
-game.owner;
-
-
-
-document.getElementById(
-"memory"
-).value=
-game.memory.join("\n");
-
-
-
-document.getElementById(
-"stats"
-).innerHTML=
-
-`
-
-<div class="stat-box">
-
-等级：
-${game.state.level}
-
-</div>
-
-
-<div class="stat-box">
-
-❤️ 好感：
-${game.state.affection}
-
-</div>
-
-
-<div class="stat-box">
-
-◆ 信任：
-${game.state.trust}
-
-</div>
-
-
-<div class="stat-box">
-
-◇ 依赖：
-${game.state.dependency}
-
-</div>
-
-`;
-
-
-
-renderMessages(game);
-
-
-
-}
-
-
-
-/*
-
-聊天记录显示
-
-*/
-
-
-function renderMessages(game){
-
-
-let chat =
-document.getElementById(
-"chat"
-);
-
-
-
-if(
-!game.messages.length
-){
-
-chat.innerText=
-"Sweet Dream 已启动。";
-
-
-return;
-
-}
-
-
-
-chat.innerHTML=
-game.messages
-.map(
-
-m=>{
-
-
-return (
-
-m.role==="user"
-
-?
-
-"你："+
-m.text
-
-:
-
-"主人："+
-m.text
-
-);
-
-
-}
-
-)
-.join(
-"\n\n"
-);
-
-
-
-}
-
-
-
-/*
-
-启动第二部分
-
-*/
-
-
-loadSystem();
-
-/*
-
-==========================================
-
-第三部分
-
-AI Narrative Engine
-
-==========================================
-
-*/
-
-
-/*
-
-========================
-
-DeepSeek配置
-
-========================
-
-*/
-
-
-const AI_CONFIG={
-
-
-model:
-"deepseek-chat",
-
-
-temperature:
-0.85,
-
-
-max_tokens:
-2048
-
-
-};
-
-
-
-
-
-/*
-
-========================
-
-生成系统提示词
-
-========================
-
-*/
-
-
-async function buildPrompt(){
-
-
-let game =
-await getGame();
-
-
-
-let presets =
-await get(
-"presets",
-"all"
-);
-
-
-
-let currentPresetId =
-document.getElementById(
-"presetSelect"
-).value;
-
-
-
-let preset =
-presets.find(
-p=>
-p.id===currentPresetId
-);
-
-
-
-
-
-return `
-
-
-你是 Sweet Dream 文游引擎。
-
-
-================
-
-核心规则
-
-================
-
-
-玩家是主控角色。
-
-
-你只能描述：
-
-- NPC行动
-- 环境变化
-- NPC语言
-- NPC心理
-
-
-禁止：
-
-- 替玩家决定行动
-- 替玩家说话
-- 替玩家产生心理
-
-
-保持沉浸式叙事。
-
-
-================
-
-输出格式
-
-================
-
-
-回复剧情时：
-
-先输出正常剧情。
-
-
-最后增加：
-
-[GAME_DATA]
-
-{
-"affection":数字变化,
-"trust":数字变化,
-"dependency":数字变化,
-"new_flags":[],
-"memory":""
-}
-
-
-================
-
-当前世界书
-
-================
-
-${game.worldBook}
-
-
-
-================
-
-主人设定
-
-================
-
-${game.owner}
-
-
-
-================
-
-长期记忆
-
-================
-
-${game.memory.join("\n")}
-
-
-
-================
-
-事件开关
-
-================
-
-${JSON.stringify(
-game.flags
-)}
-
-
-
-================
-
-当前变量
-
-================
-
-${JSON.stringify(
-game.state
-)}
-
-
-
-================
-
-预设补充
-
-================
-
-${preset?
-preset.prompt:
-""}
-
-
-`;
-
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-发送消息
-
-========================
-
-*/
-
-
-async function sendMessage(){
-
-
-
-let input =
-document.getElementById(
-"message"
-);
-
-
-
-let text =
-input.value.trim();
-
-
-
-if(!text)
-return;
-
-
-
-let game =
-await getGame();
-
-
-
-await addMessage(
-"user",
-text
-);
-
-
-
-input.value="";
-
-
-
-let key =
-localStorage.getItem(
-"deepseek_key"
-);
-
-
-
-if(
-!key
-){
-
-key =
-prompt(
-"请输入 DeepSeek API Key"
-);
-
-
-if(key){
-
-localStorage.setItem(
-"deepseek_key",
-key
-);
-
-}
-
-}
-
-
-
-if(!key){
-
-alert(
-"没有API Key"
-);
-
-return;
-
-}
-
-
-
-
-
-let promptText =
-await buildPrompt();
-
-
-
-
-
-try{
-
-
-let response =
-await fetch(
-
-"https://api.deepseek.com/chat/completions",
-
-{
-
-method:
-"POST",
-
-
-headers:
-{
-
-"Content-Type":
-"application/json",
-
-
-"Authorization":
-"Bearer "+
-key
-
-
-},
-
-
-body:
-
-JSON.stringify({
-
-model:
-AI_CONFIG.model,
-
-
-temperature:
-AI_CONFIG.temperature,
-
-
-max_tokens:
-AI_CONFIG.max_tokens,
-
-
-messages:[
-
-
-{
-
-role:
-"system",
-
-
-content:
-promptText
-
-
-},
-
-
-{
-
-role:
-"user",
-
-
-content:
-text
-
-
-}
-
-
-]
-
-
-})
-
-}
-
-);
-
-
-
-
-let result =
-await response.json();
-
-
-
-
-let answer =
-result
-.choices[0]
-.message
-.content;
-
-
-
-
-
-/*
-
-保存AI回复
-
-*/
-
-
-await addMessage(
-"assistant",
-answer
-);
-
-
-
-
-
-/*
-
-解析变量
-
-*/
-
-
-await parseGameData(
-answer
-);
-
-
-
-
-
-render();
-
-
-
-}
-
-
-
-catch(e){
-
-
-console.error(e);
-
-
-alert(
-"AI请求失败"
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-/*
-
-========================
-
-消息保存
-
-========================
-
-*/
-
-
-async function addMessage(
-role,
-text
+profile &&
+profile.created
 ){
 
 
-let game =
-await getGame();
-
-
-
-game.messages.push({
-
-role:role,
-
-text:text,
-
-time:
-Date.now()
-
-});
-
-
-
-/*
-
-限制消息数量
-
-避免数据库无限膨胀
-
-*/
-
-
-if(
-game.messages.length>200
-){
-
-game.messages.shift();
-
-}
-
-
-
-await saveGame(game);
-
-
-
-}
-
-
-
-
-
-
-/*
-
-========================
-
-变量解析
-
-========================
-
-*/
-
-
-async function parseGameData(
-text
-){
-
-
-
-let game =
-await getGame();
-
-
-
-let match =
-text.match(
-/\[GAME_DATA\]([\s\S]*)/
+player=
+await getStore(
+"characters",
+"player"
 );
 
 
 
-if(
-!match
-)
-return;
-
-
-
-
-try{
-
-
-let json =
-match[1]
-
-.trim();
-
-
-
-/*
-
-去除可能的代码框
-
-*/
-
-
-json =
-json
-.replace(
-/```json/g,
-""
-)
-
-.replace(
-/```/g,
-""
-);
-
-
-
-let data =
-JSON.parse(
-json
-);
-
-
-
-
-
-/*
-
-数值变化
-
-*/
-
-
-if(
-data.affection
-){
-
-game.state.affection +=
-Number(
-data.affection
-);
-
-}
-
-
-
-if(
-data.trust
-){
-
-game.state.trust +=
-Number(
-data.trust
-);
-
-}
-
-
-
-if(
-data.dependency
-){
-
-game.state.dependency +=
-Number(
-data.dependency
-);
-
-}
-
-
-
-
-/*
-
-事件标签
-
-*/
-
-
-if(
-Array.isArray(
-data.new_flags
-)
-){
-
-
-data.new_flags.forEach(
-flag=>{
-
-
-if(
-!game.flags.includes(flag)
-){
-
-game.flags.push(flag);
-
-}
-
-
-});
+finishCreate();
 
 
 }
+else{
 
 
+renderForm();
 
-
-/*
-
-自动记忆
-
-*/
-
-
-if(
-data.memory
-){
-
-
-game.memory.push(
-data.memory
-);
-
-
-
-/*
-
-最多保留50条
-
-*/
-
-
-if(
-game.memory.length>50
-){
-
-game.memory.shift();
 
 }
 
@@ -2813,140 +1029,11 @@ game.memory.shift();
 
 
 
+init();
 
-await saveGame(game);
-
-
-
-}
-
-catch(e){
-
-console.log(
-"变量解析失败",
-e
-);
-
-}
-
-
-
-
-}
-
-
-
-
-
-
-/*
-
-========================
-
-手动变量调整
-
-========================
-
-*/
-
-
-async function changeState(
-key,
-value
-){
-
-
-let game =
-await getGame();
-
-
-
-if(
-game.state[key]
-!==undefined
-){
-
-game.state[key]
-=
-value;
-
-}
-
-
-
-await saveGame(game);
-
-
-render();
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-剧情重置
-
-========================
-
-*/
-
-
-async function resetGame(){
-
-
-if(
-!confirm(
-"确定清空当前剧情？"
-)
-)
-return;
-
-
-
-let game =
-structuredClone(
-DEFAULT_GAME
-);
-
-
-
-await saveGame(game);
-
-
-
-render();
-
-
-}
-
-
-
-
-
-/*
-
-========================
-
-初始化完成
-
-========================
-
-*/
-
-
-window.onload=async function(){
-
-await init();
-
-};
 
 </script>
+
 
 </body>
 
