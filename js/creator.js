@@ -647,15 +647,16 @@ function saveCharacter(){
 
 
 
-    localStorage.setItem(
+    saveCharacterDB(player)
+.then(()=>{
 
-        "testPlayer",
 
-        JSON.stringify(
-            player
-        )
-
+    alert(
+    "角色已保存"
     );
+
+
+});
 
 
 
