@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-CN">
+<html>
 
 <head>
 
@@ -21,39 +21,26 @@ Sweet Dream
 body{
 
 font-family:
--apple-system,
-BlinkMacSystemFont,
-"Helvetica Neue",
 Arial;
 
-background:#f5f5f7;
-
-margin:0;
+background:#f5f5f5;
 
 padding:20px;
 
 }
 
 
-.container{
-
-max-width:600px;
-
-margin:auto;
+.box{
 
 background:white;
 
 padding:20px;
 
-border-radius:16px;
+border-radius:15px;
 
-}
+max-width:600px;
 
-
-
-h1{
-
-text-align:center;
+margin:auto;
 
 }
 
@@ -61,9 +48,10 @@ text-align:center;
 
 .field{
 
-margin-bottom:18px;
+margin-bottom:20px;
 
 }
+
 
 
 label{
@@ -72,15 +60,14 @@ display:block;
 
 font-weight:bold;
 
-margin-bottom:6px;
+margin-bottom:8px;
 
 }
 
 
-
 input,
-select,
-textarea{
+textarea,
+select{
 
 width:100%;
 
@@ -90,51 +77,38 @@ border-radius:8px;
 
 border:1px solid #ddd;
 
-box-sizing:border-box;
-
 }
-
 
 
 button{
 
 width:100%;
 
-padding:14px;
-
-border:none;
-
-border-radius:10px;
+padding:15px;
 
 background:#333;
 
 color:white;
 
-font-size:16px;
+border:none;
+
+border-radius:10px;
 
 }
 
-
-.hidden{
-
-display:none;
-
-}
 
 
 </style>
 
+
 </head>
+
 
 
 <body>
 
 
-
-<div class="container">
-
-
-<div id="creator">
+<div class="box">
 
 
 <h1>
@@ -142,14 +116,16 @@ display:none;
 </h1>
 
 
-<div id="form">
+<div id="creator">
+
+正在加载角色模板...
 
 </div>
 
 
-<button onclick="nextStep()">
+<button onclick="saveCharacter()">
 
-下一步
+完成创建
 
 </button>
 
@@ -158,881 +134,7 @@ display:none;
 
 
 
-
-<div id="home"
-class="hidden">
-
-
-<h1>
-欢迎进入 Sweet Dream
-</h1>
-
-
-<p>
-角色创建完成。
-</p>
-
-
-<div id="profile">
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<script>
-
-
-/*
-
-====================
-
-数据库
-
-====================
-
-*/
-
-
-const DB_NAME=
-"SweetDreamV2";
-
-
-let db;
-
-
-
-
-function openDB(){
-
-
-return new Promise(
-(resolve,reject)=>{
-
-
-let request=
-indexedDB.open(
-DB_NAME,
-1
-);
-
-
-
-request.onupgradeneeded=e=>{
-
-
-let database=
-e.target.result;
-
-
-if(
-!database.objectStoreNames.contains(
-"characters"
-)
-){
-
-database.createObjectStore(
-"characters",
-{
-keyPath:"id"
-}
-);
-
-}
-
-
-
-if(
-!database.objectStoreNames.contains(
-"profile"
-)
-){
-
-database.createObjectStore(
-"profile",
-{
-keyPath:"id"
-}
-);
-
-}
-
-
-};
-
-
-
-request.onsuccess=e=>{
-
-
-db=e.target.result;
-
-resolve();
-
-};
-
-
-
-request.onerror=e=>reject(e);
-
-
-
-});
-
-
-}
-
-
-
-
-
-function saveStore(
-store,
-id,
-data
-){
-
-
-return new Promise(
-resolve=>{
-
-
-let tx=
-db.transaction(
-store,
-"readwrite"
-);
-
-
-
-tx.objectStore(store)
-.put({
-
-id:id,
-
-data:data
-
-});
-
-
-
-tx.oncomplete=
-resolve;
-
-
-
-});
-
-
-}
-
-
-
-
-
-function getStore(
-store,
-id
-){
-
-
-return new Promise(
-resolve=>{
-
-
-let tx=
-db.transaction(
-store,
-"readonly"
-);
-
-
-
-let req=
-tx.objectStore(store)
-.get(id);
-
-
-
-req.onsuccess=()=>{
-
-
-resolve(
-req.result?
-req.result.data:
-null
-);
-
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-/*
-
-====================
-
-角色模板
-
-====================
-
-*/
-
-
-let player={
-
-
-basic:{
-
-
-name:"",
-
-age:"",
-
-gender:"",
-
-orientation:"",
-
-rolePreference:"",
-
-height:"",
-
-weight:""
-
-
-},
-
-
-
-appearance:{
-
-
-skin:"",
-
-hair:"",
-
-eyes:"",
-
-bodyType:"",
-
-features:""
-
-
-},
-
-
-
-personality:{
-
-
-description:""
-
-
-},
-
-
-
-preferences:{
-
-
-sensitivity:"",
-
-sensitiveParts:[],
-
-
-triggers:[]
-
-},
-
-
-
-limits:{
-
-
-items:[]
-
-}
-
-
-
-};
-
-
-
-
-
-
-/*
-
-====================
-
-表单配置
-
-====================
-
-*/
-
-
-const FORM=[
-
-
-{
-
-title:"姓名",
-
-path:"basic.name",
-
-type:"text"
-
-},
-
-
-
-{
-
-title:"年龄",
-
-path:"basic.age",
-
-type:"number"
-
-},
-
-
-
-{
-
-title:"生理性别",
-
-path:"basic.gender",
-
-type:"select",
-
-options:[
-
-"女",
-
-"男",
-
-"双性"
-
-]
-
-},
-
-
-
-{
-
-title:"性取向",
-
-path:"basic.orientation",
-
-type:"select",
-
-options:[
-
-"只对男性",
-
-"只对女性",
-
-"扶她",
-
-"都有"
-
-]
-
-},
-
-
-
-{
-
-title:"角色倾向",
-
-path:"basic.rolePreference",
-
-type:"select",
-
-options:[
-
-"支配方(Dom/S)",
-
-"被支配方(Sub/M)",
-
-"平等方(Switch)"
-
-]
-
-},
-
-
-
-{
-
-title:"身高(cm)",
-
-path:"basic.height",
-
-type:"number"
-
-},
-
-
-
-{
-
-title:"体重(kg)",
-
-path:"basic.weight",
-
-type:"number"
-
-},
-
-
-
-{
-
-title:"肤色",
-
-path:"appearance.skin",
-
-type:"select",
-
-options:[
-
-"冷白皮",
-
-"粉白皮",
-
-"自然肤色",
-
-"健康小麦色",
-
-"深色巧克力"
-
-]
-
-},
-
-
-
-{
-
-title:"发型/发色",
-
-path:"appearance.hair",
-
-type:"text"
-
-},
-
-
-
-{
-
-title:"瞳色",
-
-path:"appearance.eyes",
-
-type:"text"
-
-},
-
-
-
-{
-
-title:"体型",
-
-path:"appearance.bodyType",
-
-type:"select",
-
-options:[
-
-"纤细",
-
-"标准",
-
-"丰满",
-
-"肌肉线条",
-
-"肉感"
-
-]
-
-},
-
-
-
-{
-
-title:"体表特征",
-
-path:"appearance.features",
-
-type:"textarea"
-
-},
-
-
-
-{
-
-title:"性格描述",
-
-path:"personality.description",
-
-type:"textarea"
-
-}
-
-
-];
-
-
-
-
-
-let current=0;
-
-
-
-
-
-
-function getValue(path){
-
-
-let obj=player;
-
-
-let keys=
-path.split(".");
-
-
-keys.forEach(
-k=>{
-
-
-obj=obj[k];
-
-
-});
-
-
-return obj;
-
-
-}
-
-
-
-function setValue(
-path,
-value
-){
-
-
-let obj=player;
-
-
-let keys=
-path.split(".");
-
-
-for(
-let i=0;
-i<keys.length-1;
-i++
-){
-
-obj=obj[keys[i]];
-
-}
-
-
-obj[
-keys[keys.length-1]
-]
-=value;
-
-
-}
-
-
-
-
-function renderForm(){
-
-
-let item=
-FORM[current];
-
-
-let html=
-"";
-
-
-html+=`
-
-<div class="field">
-
-<label>
-${item.title}
-</label>
-
-`;
-
-
-
-if(
-item.type==="select"
-){
-
-
-html+=`
-
-<select id="input">
-
-${item.options.map(
-x=>`
-
-<option>${x}</option>
-
-`
-).join("")}
-
-
-</select>
-
-`;
-
-
-
-}
-else{
-
-
-html+=`
-
-<textarea
-id="input"
-></textarea>
-
-`;
-
-
-}
-
-
-
-
-html+=`
-
-</div>
-
-`;
-
-
-
-document.getElementById(
-"form"
-)
-.innerHTML=html;
-
-
-}
-
-
-
-
-
-
-
-async function nextStep(){
-
-
-
-let input=
-document.getElementById(
-"input"
-);
-
-
-
-let item=
-FORM[current];
-
-
-
-setValue(
-item.path,
-input.value
-);
-
-
-
-current++;
-
-
-
-if(
-current>=FORM.length
-){
-
-
-await finishCreate();
-
-
-return;
-
-
-}
-
-
-
-renderForm();
-
-
-
-}
-
-
-
-
-
-
-async function finishCreate(){
-
-
-await saveStore(
-"characters",
-"player",
-player
-);
-
-
-
-await saveStore(
-"profile",
-"main",
-{
-
-created:true
-
-}
-
-);
-
-
-
-document.getElementById(
-"creator"
-)
-.classList.add(
-"hidden"
-);
-
-
-
-document.getElementById(
-"home"
-)
-.classList.remove(
-"hidden"
-);
-
-
-
-document.getElementById(
-"profile"
-)
-.innerHTML=
-
-JSON.stringify(
-player,
-null,
-2
-);
-
-
-}
-
-
-
-
-
-
-async function init(){
-
-
-await openDB();
-
-
-let profile=
-await getStore(
-"profile",
-"main"
-);
-
-
-
-if(
-profile &&
-profile.created
-){
-
-
-player=
-await getStore(
-"characters",
-"player"
-);
-
-
-
-finishCreate();
-
-
-}
-else{
-
-
-renderForm();
-
-
-}
-
-
-
-}
-
-
-
-init();
-
-
-</script>
+<script src="js/creator.js"></script>
 
 
 </body>
