@@ -232,12 +232,98 @@ return html;
 
 
 
+function setValueByPath(obj,path,value){
+
+
+let keys =
+path.split(".");
+
+
+let current=obj;
+
+
+for(
+let i=0;
+i<keys.length-1;
+i++
+){
+
+if(
+!current[keys[i]]
+){
+
+current[keys[i]]={};
+
+}
+
+
+current=current[keys[i]];
+
+
+}
+
+
+current[
+keys[keys.length-1]
+]
+=value;
+
+
+}
+
+
+
+
+
+function getRadioValue(path){
+
+
+let checked=
+document.querySelector(
+`input[name="${path}"]:checked`
+);
+
+
+return checked?
+checked.value:
+"";
+
+
+}
+
+
+
+
+
+function getCheckboxValue(path){
+
+
+let checked=
+document.querySelectorAll(
+`input[name="${path}"]:checked`
+);
+
+
+return Array.from(
+checked
+)
+.map(
+item=>item.value
+);
+
+
+}
+
+
+
+
+
+
+
 function saveCharacter(){
 
 
-console.log(
-"保存角色"
-);
+let player={};
 
 
 
@@ -247,40 +333,96 @@ schema.sections.forEach(section=>{
 section.fields.forEach(field=>{
 
 
+let value;
+
+
+
+if(
+field.type==="checkbox"
+){
+
+value=
+getCheckboxValue(
+field.path
+);
+
+
+}
+
+else if(
+field.type==="radio"
+){
+
+value=
+getRadioValue(
+field.path
+);
+
+
+}
+
+else{
+
+
 let element=
 document.getElementById(
 field.path
 );
 
 
-if(element){
+value=
+element?
+element.value:
+"";
+
+
+}
+
+
+
+setValueByPath(
+
+player,
+
+field.path,
+
+value
+
+);
+
+
+
+});
+
+
+});
+
 
 
 console.log(
-field.path,
-element.value
+"角色数据:",
+player
 );
 
 
-}
 
+localStorage.setItem(
 
+"testPlayer",
 
-});
+JSON.stringify(
+player
 
+)
 
-});
+);
+
 
 
 alert(
-"角色创建完成（测试版）"
+"角色创建完成"
 );
 
 
 
 }
-
-
-
-
-loadSchema();
