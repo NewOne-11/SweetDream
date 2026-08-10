@@ -593,6 +593,7 @@ memory:[],
 
 messages:[],
 
+flags:[]
 
 state:{
 
@@ -2939,7 +2940,11 @@ render();
 */
 
 
-init();
+window.onload=async function(){
+
+await init();
+
+};
 
 </script>
 
