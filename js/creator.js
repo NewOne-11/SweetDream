@@ -1,69 +1,111 @@
-let schema;
-
-let player={};
+let schema = null;
 
 
+/*
+角色数据对象
+*/
+let player = {};
+
+
+
+/*
+加载角色模板
+*/
 
 async function loadSchema(){
 
+    try{
 
-let response=
-await fetch(
-"data/player_schema.json"
-);
-
-
-schema=
-await response.json();
+        let response = await fetch(
+            "data/player_schema.json"
+        );
 
 
+        if(!response.ok){
 
-createForm();
+            throw new Error(
+                "无法读取 player_schema.json"
+            );
+
+        }
 
 
+        schema = await response.json();
+
+
+        console.log(
+            "模板加载成功",
+            schema
+        );
+
+
+        createForm();
+
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        document.getElementById(
+            "creator"
+        ).innerHTML =
+
+        "角色模板加载失败：<br>" 
+        + error.message;
+
+    }
 
 }
 
 
 
 
+
+/*
+生成表单
+*/
 
 function createForm(){
 
-
-let html="";
-
-
-schema.sections.forEach(section=>{
+    let html = "";
 
 
-html+=`
-
-<h2>
-${section.title}
-</h2>
-
-`;
+    schema.sections.forEach(section=>{
 
 
+        html += `
 
-section.fields.forEach(field=>{
+        <div class="section">
 
+        <h2>
+        ${section.title}
+        </h2>
 
-html+=createField(field);
-
-
-});
-
-
-});
+        `;
 
 
+        section.fields.forEach(field=>{
 
-document.getElementById(
-"creator"
-)
-.innerHTML=html;
+
+            html += createField(field);
+
+
+        });
+
+
+        html += "</div>";
+
+    });
+
+
+
+    document.getElementById(
+        "creator"
+    ).innerHTML = html;
 
 
 }
@@ -72,156 +114,291 @@ document.getElementById(
 
 
 
+
+
+/*
+生成单个字段
+*/
 
 function createField(field){
 
 
-let html=`
+    let html = `
 
-<div class="field">
+    <div class="field">
 
-<label>
+    <label>
+    ${field.title}
+    </label>
 
-${field.title}
-
-</label>
-
-`;
+    `;
 
 
 
-if(field.type==="text"){
+    switch(field.type){
 
 
-html+=`
+        case "text":
 
-<input
 
-id="${field.path}"
+            html += `
 
->
+            <input
 
-`;
+            type="text"
+
+            id="${field.path}"
+
+            >
+
+            `;
+
+            break;
+
+
+
+        case "number":
+
+
+            html += `
+
+            <input
+
+            type="number"
+
+            id="${field.path}"
+
+            >
+
+            `;
+
+            break;
+
+
+
+
+        case "textarea":
+
+
+            html += `
+
+            <textarea
+
+            id="${field.path}"
+
+            ></textarea>
+
+            `;
+
+            break;
+
+
+
+
+        case "select":
+
+
+            html += `
+
+            <select
+
+            id="${field.path}"
+
+            >
+
+            `;
+
+
+            field.options.forEach(option=>{
+
+
+                html += `
+
+                <option>
+                ${option}
+                </option>
+
+                `;
+
+
+            });
+
+
+            html += `
+
+            </select>
+
+            `;
+
+
+            break;
+
+
+
+
+
+
+        case "radio":
+
+
+
+            field.options.forEach(option=>{
+
+
+                html += `
+
+                <label>
+
+                <input
+
+                type="radio"
+
+                name="${field.path}"
+
+                value="${option}"
+
+                >
+
+                ${option}
+
+                </label>
+
+                <br>
+
+
+                `;
+
+
+            });
+
+
+            break;
+
+
+
+
+
+
+
+        case "checkbox":
+
+
+
+            field.options.forEach(option=>{
+
+
+                html += `
+
+                <label>
+
+
+                <input
+
+                type="checkbox"
+
+                name="${field.path}"
+
+                value="${option}"
+
+                >
+
+
+                ${option}
+
+
+                </label>
+
+                <br>
+
+
+                `;
+
+
+            });
+
+
+            break;
+
+
+
+    }
+
+
+
+    html += "</div>";
+
+
+    return html;
+
 
 }
 
 
-else if(
-field.type==="number"
+
+
+
+
+
+
+/*
+根据路径写入对象
+
+例如：
+
+body.basic.skin
+
+自动生成：
+
+player.body.basic.skin
+
+*/
+
+
+function setValueByPath(
+    obj,
+    path,
+    value
 ){
 
 
-html+=`
+    let keys =
+    path.split(".");
 
-<input
 
-type="number"
-
-id="${field.path}"
-
->
-
-`;
-
-}
+    let current =
+    obj;
 
 
 
-else if(
-field.type==="textarea"
-){
+    for(
+        let i=0;
+        i<keys.length-1;
+        i++
+    ){
 
 
-html+=`
+        if(
+            !current[keys[i]]
+        ){
 
-<textarea
+            current[keys[i]]={};
 
-id="${field.path}"
-
-></textarea>
-
-`;
-
-}
+        }
 
 
-
-else if(
-field.type==="radio"
-){
+        current =
+        current[keys[i]];
 
 
-field.options.forEach(option=>{
-
-
-html+=`
-
-<label>
-
-<input
-
-type="radio"
-
-name="${field.path}"
-
-value="${option}"
-
->
-
-${option}
-
-</label>
-
-
-`;
-
-});
-
-
-}
+    }
 
 
 
-else if(
-field.type==="checkbox"
-){
-
-
-field.options.forEach(option=>{
-
-
-html+=`
-
-<label>
-
-<input
-
-type="checkbox"
-
-name="${field.path}"
-
-value="${option}"
-
->
-
-${option}
-
-</label>
-
-
-`;
-
-});
-
-
-}
-
-
-
-html+="</div>";
-
-
-return html;
+    current[
+        keys[keys.length-1]
+    ]
+    =
+    value;
 
 
 }
@@ -232,84 +409,61 @@ return html;
 
 
 
-function setValueByPath(obj,path,value){
-
-
-let keys =
-path.split(".");
-
-
-let current=obj;
-
-
-for(
-let i=0;
-i<keys.length-1;
-i++
-){
-
-if(
-!current[keys[i]]
-){
-
-current[keys[i]]={};
-
-}
-
-
-current=current[keys[i]];
-
-
-}
-
-
-current[
-keys[keys.length-1]
-]
-=value;
-
-
-}
-
-
-
-
+/*
+读取radio
+*/
 
 function getRadioValue(path){
 
 
-let checked=
-document.querySelector(
-`input[name="${path}"]:checked`
-);
+    let checked =
+    document.querySelector(
+        `input[name="${path}"]:checked`
+    );
 
 
-return checked?
-checked.value:
-"";
+    if(checked){
 
+        return checked.value;
+
+    }
+
+
+    return "";
 
 }
 
 
 
 
+
+
+
+/*
+读取checkbox
+
+返回数组
+
+*/
 
 function getCheckboxValue(path){
 
 
-let checked=
-document.querySelectorAll(
-`input[name="${path}"]:checked`
-);
+    let checked =
+    document.querySelectorAll(
+
+        `input[name="${path}"]:checked`
+
+    );
 
 
-return Array.from(
-checked
-)
-.map(
-item=>item.value
-);
+
+    return Array.from(
+        checked
+    )
+    .map(
+        item=>item.value
+    );
 
 
 }
@@ -319,110 +473,133 @@ item=>item.value
 
 
 
+
+
+/*
+保存角色
+
+目前：
+
+生成JSON
+
+下一步接IndexedDB
+
+*/
 
 function saveCharacter(){
 
 
-let player={};
+
+    player = {};
 
 
 
-schema.sections.forEach(section=>{
+    schema.sections.forEach(section=>{
 
 
-section.fields.forEach(field=>{
+        section.fields.forEach(field=>{
 
 
-let value;
+            let value;
 
 
 
-if(
-field.type==="checkbox"
-){
+            if(
+                field.type==="radio"
+            ){
 
-value=
-getCheckboxValue(
-field.path
-);
+                value =
+                getRadioValue(
+                    field.path
+                );
+
+
+            }
+
+
+            else if(
+                field.type==="checkbox"
+            ){
+
+                value =
+                getCheckboxValue(
+                    field.path
+                );
+
+
+            }
+
+
+            else{
+
+
+                let element =
+                document.getElementById(
+                    field.path
+                );
+
+
+                value =
+                element ?
+                element.value :
+                "";
+
+
+            }
+
+
+
+            setValueByPath(
+
+                player,
+
+                field.path,
+
+                value
+
+            );
+
+
+        });
+
+
+    });
+
+
+
+    console.log(
+        "生成角色数据：",
+        player
+    );
+
+
+
+    localStorage.setItem(
+
+        "testPlayer",
+
+        JSON.stringify(
+            player
+        )
+
+    );
+
+
+
+    alert(
+        "角色创建完成"
+    );
 
 
 }
 
-else if(
-field.type==="radio"
-){
-
-value=
-getRadioValue(
-field.path
-);
-
-
-}
-
-else{
-
-
-let element=
-document.getElementById(
-field.path
-);
-
-
-value=
-element?
-element.value:
-"";
-
-
-}
 
 
 
-setValueByPath(
-
-player,
-
-field.path,
-
-value
-
-);
 
 
+/*
+启动
+*/
 
-});
-
-
-});
-
-
-
-console.log(
-"角色数据:",
-player
-);
-
-
-
-localStorage.setItem(
-
-"testPlayer",
-
-JSON.stringify(
-player
-
-)
-
-);
-
-
-
-alert(
-"角色创建完成"
-);
-
-
-
-}
+loadSchema();
