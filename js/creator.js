@@ -820,4 +820,9 @@ function updateConditions(){
 
 
 
-loadSchema();
+openDatabase()
+.then(()=>{
+
+    loadSchema();
+
+});
