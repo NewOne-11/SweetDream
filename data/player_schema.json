@@ -1,0 +1,527 @@
+{
+  "version": "1.0",
+
+  "title": "主控角色创建",
+
+  "sections": [
+
+    {
+
+
+      "id": "identity",
+
+      "title": "① 基础身份",
+
+      "fields": [
+
+
+        {
+          "id": "name",
+          "title": "姓名",
+          "type": "text",
+          "path": "profile.identity.name"
+        },
+
+
+        {
+          "id": "age",
+          "title": "年龄",
+          "type": "number",
+          "path": "profile.identity.age"
+        },
+
+
+        {
+          "id": "gender",
+          "title": "生理性别",
+          "type": "radio",
+          "path": "profile.identity.gender",
+
+          "options":[
+            "女",
+            "男",
+            "双性"
+          ]
+
+        },
+
+
+        {
+          "id":"orientation",
+
+          "title":"性取向",
+
+          "type":"radio",
+
+          "path":"profile.identity.orientation",
+
+          "options":[
+            "只对男性",
+            "只对女性",
+            "双性",
+            "不限"
+          ]
+
+        },
+
+
+        {
+          "id":"role",
+
+          "title":"角色倾向",
+
+          "type":"radio",
+
+          "path":"profile.identity.rolePreference",
+
+          "options":[
+            "支配方(Dom/S)",
+            "被支配方(Sub/M)",
+            "平等方(Switch)"
+          ]
+
+        }
+
+
+      ]
+
+    },
+
+
+
+
+
+    {
+
+
+      "id":"appearance",
+
+      "title":"② 外貌设定",
+
+      "fields":[
+
+
+        {
+
+          "id":"height",
+
+          "title":"身高(cm)",
+
+          "type":"number",
+
+          "path":"profile.appearance.height"
+
+        },
+
+
+        {
+
+          "id":"weight",
+
+          "title":"体重(kg)",
+
+          "type":"number",
+
+          "path":"profile.appearance.weight"
+
+        },
+
+
+        {
+
+          "id":"skin",
+
+          "title":"肤色",
+
+          "type":"select",
+
+          "path":"profile.appearance.skin",
+
+          "options":[
+
+            "冷白皮",
+
+            "粉白皮",
+
+            "自然肤色",
+
+            "健康小麦色",
+
+            "深色巧克力"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"hair",
+
+          "title":"发型/发色",
+
+          "type":"text",
+
+          "path":"profile.appearance.hair"
+
+        },
+
+
+        {
+
+          "id":"eyes",
+
+          "title":"瞳色",
+
+          "type":"text",
+
+          "path":"profile.appearance.eyes"
+
+        },
+
+
+        {
+
+          "id":"body",
+
+          "title":"体型",
+
+          "type":"select",
+
+          "path":"profile.appearance.bodyType",
+
+          "options":[
+
+            "纤细",
+
+            "标准",
+
+            "丰满",
+
+            "肌肉线条",
+
+            "肉感"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"features",
+
+          "title":"体表特征",
+
+          "type":"textarea",
+
+          "path":"profile.appearance.features"
+
+        }
+
+
+      ]
+
+    },
+
+
+
+
+
+    {
+
+
+      "id":"physical",
+
+      "title":"③ 身体细节",
+
+      "condition":{
+
+        "field":"profile.identity.gender",
+
+        "values":[
+          "女",
+          "双性"
+        ]
+
+      },
+
+
+      "fields":[
+
+
+        {
+
+          "id":"breast",
+
+          "title":"乳房尺寸",
+
+          "type":"select",
+
+          "path":"traits.body.female.breast",
+
+          "options":[
+
+            "A-B偏小",
+
+            "C-D适中",
+
+            "E-G丰满",
+
+            "H及以上"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"areola",
+
+          "title":"乳晕颜色",
+
+          "type":"select",
+
+          "path":"traits.body.female.areola",
+
+          "options":[
+
+            "粉嫩色",
+
+            "浅褐色",
+
+            "深褐色"
+
+          ]
+
+        }
+
+
+      ]
+
+    },
+
+
+
+
+
+    {
+
+
+      "id":"behavior",
+
+      "title":"④ 角色特征",
+
+      "fields":[
+
+
+        {
+
+          "id":"sensitivity",
+
+          "title":"整体敏感度",
+
+          "type":"radio",
+
+          "path":"traits.sensitivity.level",
+
+          "options":[
+
+            "极易敏感",
+
+            "较敏感",
+
+            "中等",
+
+            "偏低"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"sensitiveArea",
+
+          "title":"敏感部位",
+
+          "type":"checkbox",
+
+          "path":"traits.sensitivity.areas",
+
+          "options":[
+
+            "耳/颈",
+
+            "胸",
+
+            "腰腹",
+
+            "大腿内侧",
+
+            "其他"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"shame",
+
+          "title":"羞耻感",
+
+          "type":"radio",
+
+          "path":"traits.psychology.shame",
+
+          "options":[
+
+            "容易羞耻",
+
+            "中等",
+
+            "不易羞耻"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"endurance",
+
+          "title":"耐力",
+
+          "type":"radio",
+
+          "path":"traits.psychology.endurance",
+
+          "options":[
+
+            "持久型",
+
+            "中等",
+
+            "较差"
+
+          ]
+
+        }
+
+
+      ]
+
+    },
+
+
+
+
+
+    {
+
+
+      "id":"preference",
+
+      "title":"⑤ 偏好设置",
+
+      "fields":[
+
+
+        {
+
+          "id":"likes",
+
+          "title":"互动偏好",
+
+          "type":"checkbox",
+
+          "path":"preferences.likes",
+
+          "options":[
+
+            "温柔照顾",
+
+            "强势互动",
+
+            "言语互动",
+
+            "氛围营造",
+
+            "其他"
+
+          ]
+
+        }
+
+
+      ]
+
+    },
+
+
+
+
+
+    {
+
+
+      "id":"limits",
+
+      "title":"⑥ 限制设置",
+
+      "fields":[
+
+
+        {
+
+          "id":"limits",
+
+          "title":"明确排斥项",
+
+          "type":"checkbox",
+
+          "path":"limits.items",
+
+          "options":[
+
+            "无",
+
+            "暴力",
+
+            "永久伤害",
+
+            "极端行为",
+
+            "其他"
+
+          ]
+
+        },
+
+
+        {
+
+          "id":"custom",
+
+          "title":"其他限制",
+
+          "type":"textarea",
+
+          "path":"limits.custom"
+
+        }
+
+
+      ]
+
+    }
+
+
+  ]
+
+}
