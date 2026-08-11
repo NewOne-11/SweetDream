@@ -1,0 +1,298 @@
+{
+  "id": "progression",
+  "version": 1,
+  "title": "剧情进度与阶段规则库",
+  "description": "记录沦陷值、觉醒度及相关剧情阶段。该文件属于静态规则库，不保存当前存档中的实际数值。",
+  "aiVisible": true,
+  "playerVisible": true,
+
+  "values": {
+
+    "submission": {
+      "id": "submission",
+      "name": "沦陷值",
+      "min": 0,
+      "max": 100,
+
+      "properties": {
+        "direction": "normally_increasing",
+        "rewardReductionAllowed": true,
+        "minimumByStage": true
+      },
+
+      "initialValueRules": [
+        {
+          "condition": {
+            "field": "preferences.shame",
+            "equals": "容易羞耻"
+          },
+          "initialValue": 15
+        },
+        {
+          "condition": {
+            "field": "preferences.shame",
+            "equals": "中等"
+          },
+          "initialValue": 10
+        },
+        {
+          "condition": {
+            "field": "preferences.shame",
+            "equals": "不易羞耻"
+          },
+          "initialValue": 5
+        }
+      ],
+
+      "stages": [
+        {
+          "id": 1,
+          "min": 0,
+          "max": 20,
+          "name": "理智尚在",
+          "description": "完成任务时会产生明显情绪反应，但仍能够维持正常生活与理性判断。"
+        },
+        {
+          "id": 2,
+          "min": 21,
+          "max": 40,
+          "name": "开始动摇",
+          "description": "开始对互动产生期待，身体和情绪反应逐渐明显。"
+        },
+        {
+          "id": 3,
+          "min": 41,
+          "max": 60,
+          "name": "身体先于理智",
+          "description": "身体反应开始明显超过理性控制，行为边界逐渐发生变化。"
+        },
+        {
+          "id": 4,
+          "min": 61,
+          "max": 80,
+          "name": "确认与追踪",
+          "description": "开始明显意识到异常，并产生主动追踪、调查和确认的倾向。"
+        },
+        {
+          "id": 5,
+          "min": 81,
+          "max": 100,
+          "name": "高度沉浸",
+          "description": "对APP及操控关系产生高度依赖与沉浸。"
+        }
+      ],
+
+      "increaseSources": [
+        "任务完成",
+        "私信互动",
+        "共感触发",
+        "特定剧情事件",
+        "见面事件"
+      ],
+
+      "decreaseRules": {
+        "allowedOnlyBy": [
+          "任务奖励"
+        ],
+        "cannotGoBelowCurrentStageMinimum": true
+      }
+    },
+
+
+    "awareness": {
+      "id": "awareness",
+      "name": "觉醒度",
+      "min": 0,
+      "max": 100,
+
+      "visibility": {
+        "player": false,
+        "controller": true,
+        "system": true
+      },
+
+      "increaseSources": [
+        {
+          "trigger": "被操控中苏醒值满惊醒",
+          "value": 5
+        },
+        {
+          "trigger": "同日收到私信与任务",
+          "value": 3
+        },
+        {
+          "trigger": "共感触发时处于公共场合",
+          "value": 5
+        },
+        {
+          "trigger": "连续三天被操控",
+          "value": 2
+        },
+        {
+          "trigger": "听到手机发出不明提示音",
+          "value": 3
+        },
+        {
+          "trigger": "在私信中主动质问操控者身份",
+          "value": 5
+        },
+        {
+          "trigger": "试图搜索Sweet Dream相关信息",
+          "value": 3
+        },
+        {
+          "trigger": "完成一次五星见面任务",
+          "value": 10
+        },
+        {
+          "trigger": "见面任务中试图触碰操控者的脸或面具",
+          "value": 8
+        }
+      ],
+
+      "stages": [
+        {
+          "id": 1,
+          "min": 0,
+          "max": 20,
+          "name": "困惑",
+          "description": "尚未明确意识到APP与异常现象之间的联系。"
+        },
+        {
+          "id": 2,
+          "min": 21,
+          "max": 40,
+          "name": "不安",
+          "description": "开始怀疑手机与APP存在异常，并尝试寻找原因。"
+        },
+        {
+          "id": 3,
+          "min": 41,
+          "max": 60,
+          "name": "适应",
+          "description": "逐渐意识到有人可能正在通过APP影响自己，并开始主动试探。"
+        },
+        {
+          "id": 4,
+          "min": 61,
+          "max": 80,
+          "name": "追踪",
+          "description": "基本确认自己正在受到操控，并开始记录、调查和反向追踪。"
+        },
+        {
+          "id": 5,
+          "min": 81,
+          "max": 100,
+          "name": "对峙",
+          "description": "已经接近真相，并开始尝试反向干扰或寻找操控者。"
+        }
+      ]
+    }
+
+  },
+
+
+  "bondUnlock": {
+    "id": "bond_unlock",
+    "name": "羁绊解锁",
+
+    "conditions": [
+      {
+        "field": "submission",
+        "operator": ">=",
+        "value": 80
+      },
+      {
+        "field": "awareness",
+        "operator": ">=",
+        "value": 80
+      },
+      {
+        "field": "meetingTaskCompleted",
+        "operator": ">=",
+        "value": 3
+      },
+      {
+        "field": "controllerConsent",
+        "operator": "==",
+        "value": true
+      },
+      {
+        "field": "targetConsent",
+        "operator": "==",
+        "value": true
+      }
+    ],
+
+    "requireAll": true,
+
+    "result": {
+      "unlock": "bond",
+      "unlockFreeMode": true
+    }
+  },
+
+
+  "freeMode": {
+    "id": "free_mode",
+    "name": "自由模式",
+
+    "unlockRequirement": "bond_unlock",
+
+    "rules": [
+      "原有任务系统不再强制推送",
+      "可以在任务模式与自由模式之间切换",
+      "自由模式下不按照任务规则进行奖励与惩罚结算",
+      "见面安全规则仍然有效",
+      "任意一方可以退出自由模式",
+      "退出自由模式不触发惩罚",
+      "双方已经交换的信息不会因退出而撤回"
+    ]
+  },
+
+
+  "streakRewards": [
+    {
+      "type": "task_streak",
+      "days": 7,
+      "condition": "无超时且无拒绝记录",
+      "reward": "自由日×1"
+    },
+    {
+      "type": "task_streak",
+      "days": 30,
+      "condition": "无超时且无拒绝记录",
+      "reward": "APP界面主题变化及私信风格变化"
+    }
+  ],
+
+
+  "finalChoice": {
+    "trigger": {
+      "field": "awareness",
+      "operator": ">=",
+      "value": 100
+    },
+
+    "lockedAfterChoice": true,
+
+    "options": [
+      {
+        "id": "A",
+        "name": "臣服"
+      },
+      {
+        "id": "B",
+        "name": "摊牌"
+      },
+      {
+        "id": "C",
+        "name": "挣脱"
+      },
+      {
+        "id": "D",
+        "name": "反客为主"
+      }
+    ]
+  }
+}
