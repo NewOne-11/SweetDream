@@ -1,0 +1,636 @@
+{
+  "id": "rewards",
+  "version": "1.0.0",
+  "title": "奖励资料库",
+  "description": "任务完成后的随机奖励池。",
+  "databaseType": "static",
+
+  "visibility": {
+    "playerCanRead": true,
+    "aiCanRead": true,
+    "playerCanEdit": false,
+    "adminCanEdit": true
+  },
+
+  "system": {
+    "enabled": true,
+
+    "selection": {
+      "method": "weighted_random",
+      "allowDuplicate": false,
+      "respectUnlockConditions": true
+    },
+
+    "applyImmediately": true,
+
+    "history": {
+      "enabled": true,
+      "saveToIndexedDB": true
+    }
+  },
+
+  "rewardTypes": {
+    "taskModifier": {
+      "id": "taskModifier",
+      "name": "任务调整",
+      "description": "改变未来任务数量或任务安排。"
+    },
+
+    "skip": {
+      "id": "skip",
+      "name": "跳过权限",
+      "description": "允许玩家跳过指定任务。"
+    },
+
+    "clue": {
+      "id": "clue",
+      "name": "剧情线索",
+      "description": "解锁关于操控者或剧情的信息。"
+    },
+
+    "item": {
+      "id": "item",
+      "name": "物品奖励",
+      "description": "获得物品库中的物品。"
+    },
+
+    "corruption": {
+      "id": "corruption",
+      "name": "沦陷值调整",
+      "description": "改变当前沦陷值。"
+    },
+
+    "scene": {
+      "id": "scene",
+      "name": "场景解锁",
+      "description": "解锁新的场景背景。"
+    },
+
+    "permission": {
+      "id": "permission",
+      "name": "特殊权限",
+      "description": "获得一次性系统权限。"
+    },
+
+    "inventory": {
+      "id": "inventory",
+      "name": "背包扩容",
+      "description": "增加背包容量。"
+    },
+
+    "freeDay": {
+      "id": "freeDay",
+      "name": "自由日",
+      "description": "指定日期不生成任务。"
+    }
+  },
+
+  "pools": {
+    "initial": {
+      "star": 0,
+      "drawCount": {
+        "min": 1,
+        "max": 1
+      },
+      "rewards": [
+        {
+          "id": "reward_initial_task_minus_1",
+          "type": "taskModifier",
+          "name": "次日任务减1条",
+          "enabled": true,
+          "effect": {
+            "target": "next_day_task_count",
+            "operation": "subtract",
+            "value": 1
+          }
+        },
+        {
+          "id": "reward_initial_skip_ticket",
+          "type": "skip",
+          "name": "跳过任务券×1",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_skip_task",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_initial_praise_message",
+          "type": "clue",
+          "name": "私信夸奖",
+          "enabled": true,
+          "effect": {
+            "type": "private_message",
+            "subtype": "praise"
+          }
+        },
+        {
+          "id": "reward_initial_new_clothing",
+          "type": "item",
+          "name": "随机新服装",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "selection": "random"
+          }
+        }
+      ]
+    },
+
+    "star_1": {
+      "star": 1,
+      "drawCount": {
+        "min": 1,
+        "max": 1
+      },
+      "rewards": [
+        {
+          "id": "reward_star1_task_minus_1",
+          "type": "taskModifier",
+          "name": "次日任务减1条",
+          "enabled": true,
+          "effect": {
+            "target": "next_day_task_count",
+            "operation": "subtract",
+            "value": 1
+          }
+        },
+        {
+          "id": "reward_star1_skip_ticket",
+          "type": "skip",
+          "name": "跳过任务券×1",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_skip_task",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star1_praise_message",
+          "type": "clue",
+          "name": "私信夸奖",
+          "enabled": true,
+          "effect": {
+            "type": "private_message",
+            "subtype": "praise"
+          }
+        },
+        {
+          "id": "reward_star1_clothing",
+          "type": "item",
+          "name": "随机新服装",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "selection": "random"
+          }
+        },
+        {
+          "id": "reward_star1_delay",
+          "type": "permission",
+          "name": "延时权限×1",
+          "enabled": true,
+          "effect": {
+            "permissionId": "task_delay",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star1_corruption_minus_3",
+          "type": "corruption",
+          "name": "沦陷值-3",
+          "enabled": true,
+          "effect": {
+            "operation": "subtract",
+            "value": 3
+          }
+        }
+      ]
+    },
+
+    "star_2": {
+      "star": 2,
+      "drawCount": {
+        "min": 1,
+        "max": 2
+      },
+      "rewards": [
+        {
+          "id": "reward_star2_task_half",
+          "type": "taskModifier",
+          "name": "次日任务减半",
+          "enabled": true,
+          "effect": {
+            "target": "next_day_task_count",
+            "operation": "multiply",
+            "value": 0.5
+          }
+        },
+        {
+          "id": "reward_star2_type_ticket",
+          "type": "permission",
+          "name": "指定任务类型券×1",
+          "enabled": true,
+          "effect": {
+            "permissionId": "task_type_select",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star2_clothing",
+          "type": "item",
+          "name": "解锁一款新服装",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "selection": "random"
+          }
+        },
+        {
+          "id": "reward_star2_clue",
+          "type": "clue",
+          "name": "私信透露操控者模糊线索",
+          "enabled": true,
+          "effect": {
+            "type": "controller_clue",
+            "revealLevel": 1
+          }
+        },
+        {
+          "id": "reward_star2_skip_ticket",
+          "type": "skip",
+          "name": "拒绝免罚券×1",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_penalty_immunity",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star2_corruption_minus_5",
+          "type": "corruption",
+          "name": "沦陷值-5",
+          "enabled": true,
+          "effect": {
+            "operation": "subtract",
+            "value": 5
+          }
+        },
+        {
+          "id": "reward_star2_scene",
+          "type": "scene",
+          "name": "解锁新场景背景",
+          "enabled": true,
+          "effect": {
+            "selection": "random_locked_scene"
+          }
+        }
+      ]
+    },
+
+    "star_3": {
+      "star": 3,
+      "drawCount": {
+        "min": 1,
+        "max": 2
+      },
+      "rewards": [
+        {
+          "id": "reward_star3_no_task_next_day",
+          "type": "freeDay",
+          "name": "次日无任务",
+          "enabled": true,
+          "effect": {
+            "days": 1
+          }
+        },
+        {
+          "id": "reward_star3_immunity_ticket",
+          "type": "skip",
+          "name": "拒绝免罚券×1",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_penalty_immunity",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star3_scene",
+          "type": "scene",
+          "name": "解锁新场景背景",
+          "enabled": true,
+          "effect": {
+            "selection": "random_locked_scene"
+          }
+        },
+        {
+          "id": "reward_star3_clue",
+          "type": "clue",
+          "name": "私信透露操控者真实特征",
+          "enabled": true,
+          "effect": {
+            "type": "controller_clue",
+            "revealLevel": 2
+          }
+        },
+        {
+          "id": "reward_star3_question",
+          "type": "permission",
+          "name": "反向提问权×1",
+          "enabled": true,
+          "effect": {
+            "permissionId": "ask_controller",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star3_corruption_minus_8",
+          "type": "corruption",
+          "name": "沦陷值-8",
+          "enabled": true,
+          "effect": {
+            "operation": "subtract",
+            "value": 8
+          }
+        },
+        {
+          "id": "reward_star3_rare_clothing",
+          "type": "item",
+          "name": "解锁稀有服装",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "rarity": "rare",
+            "selection": "random"
+          }
+        },
+        {
+          "id": "reward_star3_double_item",
+          "type": "permission",
+          "name": "双道具券×1",
+          "enabled": true,
+          "effect": {
+            "permissionId": "double_item",
+            "quantity": 1
+          }
+        }
+      ]
+    },
+
+    "star_4": {
+      "star": 4,
+      "drawCount": {
+        "min": 2,
+        "max": 2
+      },
+      "rewards": [
+        {
+          "id": "reward_star4_two_day_free",
+          "type": "freeDay",
+          "name": "次日及后日无任务",
+          "enabled": true,
+          "effect": {
+            "days": 2
+          }
+        },
+        {
+          "id": "reward_star4_immunity_x2",
+          "type": "skip",
+          "name": "拒绝免罚券×2",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_penalty_immunity",
+            "quantity": 2
+          }
+        },
+        {
+          "id": "reward_star4_rare_clothing",
+          "type": "item",
+          "name": "解锁两套新服装（含稀有）",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "selection": "random_with_rare",
+            "quantity": 2
+          }
+        },
+        {
+          "id": "reward_star4_key_clue",
+          "type": "clue",
+          "name": "私信透露操控者关键线索",
+          "enabled": true,
+          "effect": {
+            "type": "controller_clue",
+            "revealLevel": 3
+          }
+        },
+        {
+          "id": "reward_star4_corruption_minus_15",
+          "type": "corruption",
+          "name": "沦陷值-15",
+          "enabled": true,
+          "effect": {
+            "operation": "subtract",
+            "value": 15
+          }
+        },
+        {
+          "id": "reward_star4_free_day",
+          "type": "freeDay",
+          "name": "自由日×1",
+          "enabled": true,
+          "effect": {
+            "days": 1
+          }
+        },
+        {
+          "id": "reward_star4_hidden_scene",
+          "type": "scene",
+          "name": "解锁隐藏场景背景",
+          "enabled": true,
+          "effect": {
+            "selection": "random_hidden_scene"
+          }
+        },
+        {
+          "id": "reward_star4_reverse_permission",
+          "type": "permission",
+          "name": "反向操控体验×1",
+          "enabled": true,
+          "effect": {
+            "permissionId": "reverse_control",
+            "quantity": 1
+          }
+        },
+        {
+          "id": "reward_star4_inventory_expand",
+          "type": "inventory",
+          "name": "背包扩容×2",
+          "enabled": true,
+          "effect": {
+            "operation": "increase",
+            "value": 2
+          }
+        }
+      ]
+    },
+
+    "star_5": {
+      "star": 5,
+      "drawCount": {
+        "min": 3,
+        "max": 3
+      },
+      "rewards": [
+        {
+          "id": "reward_star5_three_day_free",
+          "type": "freeDay",
+          "name": "连续三天无任务",
+          "enabled": true,
+          "effect": {
+            "days": 3
+          }
+        },
+        {
+          "id": "reward_star5_immunity_x3",
+          "type": "skip",
+          "name": "拒绝免罚券×3",
+          "enabled": true,
+          "effect": {
+            "itemId": "ticket_penalty_immunity",
+            "quantity": 3
+          }
+        },
+        {
+          "id": "reward_star5_rare_clothing",
+          "type": "item",
+          "name": "解锁三套新服装（含两款稀有）",
+          "enabled": true,
+          "effect": {
+            "category": "clothing",
+            "selection": "random_with_double_rare",
+            "quantity": 3
+          }
+        },
+        {
+          "id": "reward_star5_decisive_clue",
+          "type": "clue",
+          "name": "私信透露操控者身份的决定性线索",
+          "enabled": true,
+          "effect": {
+            "type": "controller_clue",
+            "revealLevel": 4
+          }
+        },
+        {
+          "id": "reward_star5_corruption_minus_25",
+          "type": "corruption",
+          "name": "沦陷值-25",
+          "enabled": true,
+          "effect": {
+            "operation": "subtract",
+            "value": 25
+          }
+        },
+        {
+          "id": "reward_star5_free_day_x3",
+          "type": "freeDay",
+          "name": "自由日×3",
+          "enabled": true,
+          "effect": {
+            "days": 3
+          }
+        },
+        {
+          "id": "reward_star5_all_hidden_scene",
+          "type": "scene",
+          "name": "解锁全部隐藏场景背景",
+          "enabled": true,
+          "effect": {
+            "selection": "all_hidden_scenes"
+          }
+        },
+        {
+          "id": "reward_star5_identity_reveal",
+          "type": "clue",
+          "name": "身份揭晓（操控者下次私信时必须暴露一条真实信息）",
+          "enabled": true,
+          "effect": {
+            "type": "force_reveal_one_clue",
+            "target": "controller"
+          }
+        },
+        {
+          "id": "reward_star5_reassurance_message",
+          "type": "clue",
+          "name": "获得主人的事后安抚私信",
+          "enabled": true,
+          "effect": {
+            "type": "private_message",
+            "subtype": "soothing"
+          }
+        },
+        {
+          "id": "reward_star5_location_permission",
+          "type": "permission",
+          "name": "指定下次见面地点权",
+          "enabled": true,
+          "effect": {
+            "permissionId": "meeting_location_select",
+            "quantity": 1
+          }
+        }
+      ]
+    }
+  },
+
+  "aiRules": {
+    "enabled": true,
+
+    "canSelectReward": true,
+
+    "mustRespect": [
+      "current_star",
+      "current_progression",
+      "unlock_conditions",
+      "inventory_capacity",
+      "existing_items",
+      "reward_history"
+    ],
+
+    "mustNot": [
+      "invent_reward_id",
+      "invent_item_id",
+      "grant_locked_reward",
+      "change_reward_effect",
+      "duplicate_unique_reward_without_permission"
+    ]
+  },
+
+  "history": {
+    "enabled": true,
+    "saveToIndexedDB": true,
+
+    "recordFields": [
+      "rewardId",
+      "rewardType",
+      "taskId",
+      "star",
+      "timestamp",
+      "effectApplied"
+    ]
+  },
+
+  "validation": {
+    "enabled": true,
+
+    "checks": [
+      "unique_reward_id",
+      "valid_reward_type",
+      "valid_star_pool",
+      "valid_effect",
+      "item_reference_exists",
+      "schema_valid"
+    ]
+  }
+}
