@@ -1,1109 +1,840 @@
 {
   "id": "controller",
-  "version": 2,
-  "title": "操控者系统规则库",
-  "description": "记录操控者等级、经验、双值博弈、权限、场景、道具系统、任务发布权限、羁绊、见面安全规则及隐藏系统信息。",
+  "version": "4.0.0",
+  "title": "操控者系统规则库与状态模式",
+  "description": "游戏核心运行规则库。包含静态机制设计与动态数据状态机，支持AI与系统状态转换判定。",
   "type": "system_rule",
   "aiVisible": true,
   "playerVisible": true,
+  "debugMode": false,
 
   "visibilityRules": {
-    "description": "这是操控者视角规则库。部分内容属于系统隐藏规则，仅供AI及操控者侧使用。",
+    "description": "这是操控者视角规则库。部分内容属于系统隐藏规则，仅供AI及系统后台调用。",
     "controller": true,
     "target": false,
     "system": true
   },
 
-  "levelSystem": {
-    "name": "操控者等级",
-    "minLevel": 1,
-    "visibleMaxLevel": 20,
-    "hiddenLevelSupport": true,
-    "hardMaxLevel": null,
-
-    "experience": {
-      "name": "高潮值",
-      "min": 0,
-      "max": 100,
-
-      "levelUpRule": {
-        "required": 100,
-        "description": "每累计获得100点高潮值，操控者提升一级。"
-      },
-
-      "overflow": true,
-
-      "overflowDescription": "升级时超过100的部分自动转入下一级。",
-
-      "example": {
-        "before": {
-          "level": 5,
-          "experience": 89
-        },
-        "gain": 25,
-        "after": {
-          "level": 6,
-          "experience": 14
-        }
-      },
-
-      "resetAfterSettlement": {
-        "enabled": true,
-        "value": 0
-      }
-    }
+  "rulePriorities": {
+    "description": "全局规则冲突判定优先级。高优先级规则自动拦截并覆盖低优先级规则。",
+    "order": [
+      { "priority": 1, "id": "system_hard_rules", "name": "系统硬限制", "canBeBypassed": false },
+      { "priority": 2, "id": "meeting_safety_rules", "name": "见面安全规则", "canBeBypassed": false },
+      { "priority": 3, "id": "target_rejected_content_protection", "name": "目标拒绝项保护", "canBeBypassed": false },
+      { "priority": 4, "id": "level_twenty_override_exception", "name": "Lv.20无视排斥项例外特权", "canBeBypassed": true },
+      { "priority": 5, "id": "scene_compatibility_rules", "name": "场景操作限制", "canBeBypassed": false },
+      { "priority": 6, "id": "item_compatibility_rules", "name": "道具操作限制", "canBeBypassed": false },
+      { "priority": 7, "id": "ordinary_modifiers", "name": "基础数值修正", "canBeBypassed": true }
+    ],
+    "overrideRule": "Lv.20无视排斥项例外特权（Priority 4）不可覆盖见面安全规则（Priority 2）或系统硬限制（Priority 1）。"
   },
 
-  "levels": [
-    {
-      "level": 1,
-      "unlock": {
-        "actions": [
-          "basic_control"
-        ],
-        "scenes": [
-          "bedroom",
-          "living_room"
-        ],
-        "features": [
-          "basic_pose_adjustment",
-          "camera_zoom"
-        ]
+  "staticRules": {
+    "levelSystem": {
+      "name": "操控者等级系统",
+      "minLevel": 1,
+      "publicMaxLevel": 20,
+      "hiddenMaxLevel": 25,
+      "hardMaxLevel": 25,
+      "hiddenLevelSupport": true,
+      "hiddenLevelRule": {
+        "startsAt": 21,
+        "progression": "xp_and_story_unlock",
+        "description": "Lv.21-25属于隐藏等级，需在Lv.20经验满额且完成特定主线追踪剧情后方可晋升。升级仍需100经验值，但着重体现后台数据波动及隐藏线索曝光。"
       }
     },
 
-    {
-      "level": 2,
-      "unlock": {
-        "features": [
-          "clothing_library",
-          "clothing_change"
-        ]
+    "experienceGain": {
+      "source": "orgasm_settlement",
+      "formula": "settled_orgasm_value",
+      "conversionRate": 1.0,
+      "onSettlement": {
+        "experienceGain": 100,
+        "description": "每次高潮值达到100%并触发结算时，操控者直接获得100经验值（XP）。"
       }
     },
 
-    {
-      "level": 3,
-      "unlock": {
-        "items": [
-          "basic_vibration_items"
-        ],
-        "features": [
-          "custom_sensitive_area"
-        ]
-      }
+    "multiplierPolicy": {
+      "orgasmMultipliers": "multiplicative",
+      "maxTotalMultiplier": 5.0,
+      "wakeMultipliers": "stage_multiplier_is_replacement",
+      "description": "高潮值采用叠乘计算，但最终综合乘数硬性封顶于5.0倍，防止数值崩坏。苏醒值乘数采用时段替换机制：若处于白天特定操控时段，其固有的wakeMultiplier直接覆盖并替换基础规则中的时段乘数，不进行重复叠乘。"
     },
 
-    {
-      "level": 4,
-      "unlock": {
-        "items": [
-          "advanced_spanking_items",
-          "massage_items",
-          "feather_items"
-        ]
-      }
-    },
-
-    {
-      "level": 5,
-      "unlock": {
-        "scenes": [
-          "train"
-        ],
-        "medicine": [
-          "sensitivity_medicine"
-        ],
-        "items": [
-          "basic_insertable_items"
-        ]
-      }
-    },
-
-    {
-      "level": 6,
-      "unlock": {
-        "features": [
-          "task_publishing"
-        ]
-      }
-    },
-
-    {
-      "level": 7,
-      "unlock": {
-        "scenes": [
-          "classroom"
-        ],
-        "items": [
-          "advanced_adult_items"
-        ]
-      }
-    },
-
-    {
-      "level": 8,
-      "unlock": {
-        "features": [
-          "private_message"
-        ],
-        "medicine": [
-          "sleep_medicine"
-        ]
-      }
-    },
-
-    {
-      "level": 9,
-      "unlock": {
-        "items": [
-          "advanced_insertable_items"
-        ],
-        "features": [
-          "nap_time_control"
-        ]
-      }
-    },
-
-    {
-      "level": 10,
-      "unlock": {
-        "scenes": [
-          "clinic"
-        ],
-        "items": [
-          "restraint_items"
-        ],
-        "medicine": [
-          "lactation_medicine"
-        ]
-      }
-    },
-
-    {
-      "level": 11,
-      "unlock": {
-        "features": [
-          "dual_item_control"
-        ],
-        "items": [
-          "advanced_simulation_items"
-        ]
-      }
-    },
-
-    {
-      "level": 12,
-      "unlock": {
-        "scenes": [
-          "office"
-        ],
-        "medicine": [
-          "energy_medicine",
-          "deep_sleep_medicine"
-        ],
-        "hidden": [
-          "glitch_clue"
-        ]
-      }
-    },
-
-    {
-      "level": 13,
-      "unlock": {
-        "features": [
-          "solitude_daytime_control",
-          "empathy_control"
-        ],
-        "items": [
-          "clamp_items",
-          "vibration_ring",
-          "electrical_stimulation_items"
-        ]
-      }
-    },
-
-    {
-      "level": 14,
-      "unlock": {
-        "scenes": [
-          "party"
-        ],
-        "medicine": [
-          "arousal_medicine"
-        ]
-      }
-    },
-
-    {
-      "level": 15,
-      "unlock": {
-        "features": [
-          "full_time_hidden_control"
-        ],
-        "medicine": [
-          "aphrodisiac"
-        ],
-        "hidden": [
-          "enhanced_empathy_clue"
-        ]
-      }
-    },
-
-    {
-      "level": 16,
-      "unlock": {
-        "scenes": [
-          "adult_hotel"
-        ],
-        "medicine": [
-          "desensitizing_medicine"
-        ]
-      }
-    },
-
-    {
-      "level": 17,
-      "unlock": {
-        "features": [
-          "custom_scene"
-        ]
-      }
-    },
-
-    {
-      "level": 18,
-      "unlock": {
-        "features": [
-          "free_control_mode",
-          "special_observation"
-        ],
-        "hidden": [
-          "uncontrolled_empathy"
-        ]
-      }
-    },
-
-    {
-      "level": 19,
-      "unlock": {
-        "features": [
-          "multi_target_control"
-        ]
-      }
-    },
-
-    {
-      "level": 20,
-      "unlock": {
-        "features": [
-          "replay"
-        ],
-        "hidden": [
-          "hidden_clues",
-          "unknown_controller_clue"
-        ]
-      }
-    }
-  ],
-
-  "daytimeControl": {
-    "enabled": true,
-
-    "stages": [
+    "levels": [
       {
-        "minLevel": 1,
-        "maxLevel": 8,
-        "name": "night_only",
-        "availablePeriods": [
-          "night_sleep"
-        ],
-        "rules": {
-          "basicControl": true
+        "level": 1,
+        "name": "入门操控者",
+        "description": "掌握基础手部动作与初始居家场景。",
+        "unlock": {
+          "actions": ["hand_interaction", "adjust_pose_presets"],
+          "sceneGroups": ["bedroom", "living_room"],
+          "features": ["view_zoom_rotation", "preset_poses"],
+          "items": ["eq_hand"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
         }
       },
-
       {
-        "minLevel": 9,
-        "maxLevel": 12,
-        "name": "nap_control",
-        "availablePeriods": [
-          "night_sleep",
-          "nap"
-        ],
-        "rules": {
-          "durationHours": {
-            "min": 1,
-            "max": 2
-          },
-          "wakeValueMultiplier": 1.2
+        "level": 2,
+        "name": "更衣权限",
+        "description": "解锁服装库，允许随时更换并半脱、局部脱除目标服装。",
+        "unlock": {
+          "actions": ["clothing_top_control", "clothing_bra_control", "clothing_bottom_control", "clothing_panties_control"],
+          "sceneGroups": [],
+          "features": ["clothing_replacement", "partial_clothing_strip"],
+          "items": [],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
         }
       },
-
       {
-        "minLevel": 13,
-        "maxLevel": 14,
-        "name": "solitude_daytime_control",
-        "availablePeriods": [
-          "night_sleep",
-          "nap",
-          "solitude"
-        ],
-        "rules": {
-          "targetAwake": true,
-          "wakeValueMultiplier": 3,
-          "operationIntensity": "limited",
-          "publicControl": false
+        "level": 3,
+        "name": "敏感自定义标记",
+        "description": "允许手动在目标身上打上额外敏感标记，攻击该部位高潮值增速增加50%。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["sensitive_part_custom_mark"],
+          "items": ["eq_toy_tiaodan"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
         }
       },
-
       {
-        "minLevel": 15,
-        "maxLevel": 17,
-        "name": "full_time_hidden_control",
-        "availablePeriods": [
-          "all"
-        ],
-        "rules": {
-          "hiddenControl": true,
-          "sceneRiskRequired": true
+        "level": 4,
+        "name": "轻度惩罚手段",
+        "description": "解锁SP皮拍、按摩棒以及低刺激前戏道具羽毛。",
+        "unlock": {
+          "actions": ["sp_paddle_strike", "feather_tickle", "sex_toy_activation"],
+          "sceneGroups": [],
+          "features": [],
+          "items": ["eq_sp_pipai", "eq_toy_anmobang", "eq_feather"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
         }
       },
-
       {
-        "minLevel": 18,
-        "maxLevel": null,
-        "name": "free_control",
-        "availablePeriods": [
-          "all"
-        ],
-        "rules": {
-          "wakeValueMultiplier": 1.5,
-          "targetSubmissionCondition": true
+        "level": 5,
+        "name": "电车潜行置入",
+        "description": "解锁高危电车通勤场景，解锁敏感药与基础S码置入级道具。",
+        "unlock": {
+          "actions": ["insertion_prop_operation"],
+          "sceneGroups": ["train"],
+          "features": ["s_size_props_access"],
+          "items": ["eq_ins_fangzhen", "eq_ins_chuanzhu", "eq_ins_wangou"],
+          "medicine": ["med_sensitive"],
+          "tasks": [],
+          "hidden": []
         }
-      }
-    ]
-  },
-
-  "dualValueSystem": {
-    "description": "操控者侧核心博弈系统。高潮值与苏醒值同时变化，先达到终点的一方决定当前操控结果。",
-
-    "orgasmValue": {
-      "name": "高潮值",
-      "min": 0,
-      "max": 100,
-
-      "onReachMax": {
-        "trigger": "forced_climax",
-        "settlement": true,
-        "resetTo": 0
-      },
-
-      "afterSettlement": {
-        "sensitivityMultiplier": 1.5,
-        "durationSeconds": 30
-      }
-    },
-
-    "wakeValue": {
-      "name": "苏醒值",
-      "min": 0,
-      "max": 100,
-
-      "onReachMax": {
-        "trigger": "target_wakes",
-        "currentControlEnds": true
-      }
-    },
-
-    "coreRule": {
-      "description": "操控者需要在推进高潮值的同时控制苏醒值。"
-    }
-  },
-
-  "orgasmValueRules": {
-    "baseGain": {
-      "ordinaryArea": {
-        "min": 3,
-        "max": 5
-      },
-
-      "sensitiveArea": {
-        "min": 5,
-        "max": 8
-      },
-
-      "triggerPreference": {
-        "min": 8,
-        "max": 12
-      },
-
-      "lowIntensityItem": {
-        "min": 5,
-        "max": 8
-      },
-
-      "highIntensityItem": {
-        "min": 10,
-        "max": 15
-      },
-
-      "forcedClimax": 20,
-
-      "secondClimaxWithin30Minutes": 30,
-
-      "thirdOrMoreClimaxWithin30Minutes": 45
-    },
-
-    "multipliers": [
-      {
-        "condition": "public_scene_success",
-        "multiplier": 1.5
       },
       {
-        "condition": "first_use_of_item",
-        "multiplier": 1.5
+        "level": 6,
+        "name": "指令发布准许",
+        "description": "解锁任务发布系统，允许向目标的APP强行推送每日任务指令。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["task_pushing_panel"],
+          "items": [],
+          "medicine": [],
+          "tasks": ["star_1_tasks"],
+          "hidden": []
+        }
       },
       {
-        "condition": "first_unlock_of_scene",
-        "multiplier": 1.5
+        "level": 7,
+        "name": "讲台下的悸动",
+        "description": "解锁校园教室场景，解锁精细性玩具飞机杯及分段式吮吸器。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": ["classroom"],
+          "features": [],
+          "items": ["eq_toy_feijibei", "eq_toy_shunxiqi"],
+          "medicine": [],
+          "tasks": ["star_2_tasks"],
+          "hidden": []
+        }
       },
       {
-        "condition": "first_daytime_control",
-        "multiplier": 2.0
+        "level": 8,
+        "name": "私密耳语建立",
+        "description": "解锁私信对话系统，并配发高效安眠药物以调节苏醒界限。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["private_messaging_system"],
+          "items": [],
+          "medicine": ["med_sleep"],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 9,
+        "name": "午间小憩突袭",
+        "description": "解锁午睡时段操控权限，解锁M码中等置入道具及膨胀系列穿戴玩具。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["nap_time_control_access"],
+          "items": ["eq_ins_shuangtou", "eq_ins_pengzhang", "eq_ins_gunzhu"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 10,
+        "name": "牢固医用束缚",
+        "description": "解锁医务室妇科检查床场景，获得全套棉质束缚绳与特效催乳药剂。",
+        "unlock": {
+          "actions": ["restraining_rope"],
+          "sceneGroups": ["infirmary"],
+          "features": ["infirmary_bed_straps_binding"],
+          "items": ["eq_rope"],
+          "medicine": ["med_lactation"],
+          "tasks": ["star_3_tasks"],
+          "hidden": []
+        }
+      },
+      {
+        "level": 11,
+        "name": "双端一心同体",
+        "description": "解锁高级生物模拟肉棒与异形触手设备。允许同时操纵控制两款道具。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["dual_item_simultaneous_control"],
+          "items": ["eq_ins_chushou", "eq_ins_moni"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 12,
+        "name": "格子间的放肆",
+        "description": "解锁高压格子间办公室场景、精力剂及强制深度昏睡的特制昏睡剂。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": ["office"],
+          "features": [],
+          "items": [],
+          "medicine": ["med_energy", "med_coma"],
+          "tasks": ["star_4_tasks"],
+          "hidden": ["glitch_popups_trigger"]
+        }
+      },
+      {
+        "level": 13,
+        "name": "白日孤岛共感",
+        "description": "解锁独处白日调教与常驻共感机制，配发微电流电击片、拉扯联动的乳夹设备。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["solitude_daytime_control_access", "empathy_modulation_access"],
+          "items": ["eq_toy_rujia", "eq_toy_zhendonghuan", "eq_toy_dianji"],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 14,
+        "name": "喧嚣灯影包厢",
+        "description": "解锁高危多人派对会所场景，以及驱使身体主动迎合的发情剂。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": ["party"],
+          "features": [],
+          "items": [],
+          "medicine": ["med_estrus"],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 15,
+        "name": "全天候无形之手",
+        "description": "解锁全时段隐蔽操控特权，配发梦幻沉浸态、无视苏醒清醒阈值的催淫剂。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["anytime_stealth_control_access"],
+          "items": [],
+          "medicine": ["med_aphrodisiac"],
+          "tasks": ["star_5_tasks"],
+          "hidden": ["target_sync_self_talk"]
+        }
+      },
+      {
+        "level": 16,
+        "name": "水床圆镜乐园",
+        "description": "解锁情趣酒店豪华拘束套房，配发钝化敏感度以换取极致耐力的迟钝剂。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": ["love_hotel"],
+          "features": [],
+          "items": [],
+          "medicine": ["med_dull"],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 17,
+        "name": "专属空间定制",
+        "description": "支持自主上传任何现实图片作为定制交互的背景舞台。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["custom_scene_background_upload"],
+          "items": [],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 18,
+        "name": "无微不至透视",
+        "description": "解锁实时骨骼X光体内道具透视。开启自由操控模式，苏醒惩罚永久缩减。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["free_control_mode_access", "x_ray_internal_vision"],
+          "items": [],
+          "medicine": [],
+          "tasks": [],
+          "hidden": ["uncontrolled_empathy_strength"]
+        }
+      },
+      {
+        "level": 19,
+        "name": "一心多用并行",
+        "description": "解除单一目标锁系，允许同时维持并调配多个不同性别的目标。",
+        "unlock": {
+          "actions": [],
+          "sceneGroups": [],
+          "features": ["multi_target_simultaneous_control"],
+          "items": [],
+          "medicine": [],
+          "tasks": [],
+          "hidden": []
+        }
+      },
+      {
+        "level": 20,
+        "name": "时间线之残响",
+        "description": "解锁历史过程重温回放。高阶隐藏线索与非自己留下的异常操作痕迹开始浮现。",
+        "unlock": {
+          "actions": ["override_rejections_special"],
+          "sceneGroups": [],
+          "features": ["replay_system_access"],
+          "items": [],
+          "medicine": [],
+          "tasks": [],
+          "hidden": ["anomaly_history_operation_records"]
+        }
+      },
+      {
+        "level": 21,
+        "name": "隐藏星环·Ⅰ",
+        "description": "【隐藏等级】APP后台运行数据溢出，目标出现轻度生理自发鸣颤。",
+        "unlock": { "actions": [], "sceneGroups": [], "features": [], "items": [], "medicine": [], "tasks": [], "hidden": ["database_leak_clue_1"] }
+      },
+      {
+        "level": 22,
+        "name": "隐藏星环·Ⅱ",
+        "description": "【隐藏等级】信号流紊乱，共感延迟脱钩，不依凭指令自发释放触觉。",
+        "unlock": { "actions": [], "sceneGroups": [], "features": [], "items": [], "medicine": [], "tasks": [], "hidden": ["database_leak_clue_2"] }
+      },
+      {
+        "level": 23,
+        "name": "隐藏星环·Ⅲ",
+        "description": "【隐藏等级】多点交互信道发生串联，后台捕捉到未知接入者的通信残余。",
+        "unlock": { "actions": [], "sceneGroups": [], "features": [], "items": [], "medicine": [], "tasks": [], "hidden": ["database_leak_clue_3"] }
+      },
+      {
+        "level": 24,
+        "name": "隐藏星环·Ⅳ",
+        "description": "【隐藏等级】乱码频率加剧，系统底层防线受蚀，安全断开锁机制濒临失效。",
+        "unlock": { "actions": [], "sceneGroups": [], "features": [], "items": [], "medicine": [], "tasks": [], "hidden": ["database_leak_clue_4"] }
+      },
+      {
+        "level": 25,
+        "name": "隐藏星环·终",
+        "description": "【隐藏等级】最高意志对峙。最终线索指令强制解锁，浮现第二操控者握持记录。",
+        "unlock": { "actions": [], "sceneGroups": [], "features": [], "items": [], "medicine": [], "tasks": [], "hidden": ["final_anonymous_private_message_reveal"] }
       }
     ],
 
-    "additionalGain": [
-      {
-        "trigger": "task_completed",
-        "value": 10
-      },
-      {
-        "trigger": "private_message_replied",
-        "value": 5
-      }
-    ],
-
-    "modifiers": [
-      {
-        "condition": "sensitive_area",
-        "multiplier": 1.5
-      },
-      {
-        "condition": "high_intensity_item",
-        "multiplierRange": [
-          1.3,
-          2.0
-        ]
-      },
-      {
-        "condition": "sensitivity_medicine_active",
-        "multiplier": 2.0
-      },
-      {
-        "condition": "triggered_preference",
-        "multiplier": 1.8
-      },
-      {
-        "condition": "public_scene_with_people",
-        "multiplier": 1.5
-      },
-      {
-        "condition": "target_low_endurance",
-        "additionalMultiplier": 1.3
-      },
-      {
-        "condition": "target_extremely_sensitive",
-        "additionalMultiplier": 1.4
-      }
-    ]
-  },
-
-  "wakeValueRules": {
-    "baseBehavior": {
-      "lowIntensity": "slow",
-      "highIntensity": "fast"
-    },
-
-    "multipliers": [
-      {
-        "condition": "sensitive_area",
-        "multiplier": 1.5
-      },
-      {
-        "condition": "target_high_shame",
-        "additionalMultiplier": 1.4
-      },
-      {
-        "condition": "public_scene",
-        "multiplier": 2.0
-      },
-      {
-        "condition": "nearbyPeopleAtLeast5",
-        "multiplier": 3.0
-      },
-      {
-        "condition": "sleep_medicine_active",
-        "multiplier": 0.2
-      },
-      {
-        "condition": "awake_daytime_control",
-        "multiplier": 3.0
-      }
-    ],
-
-    "specialRules": [
-      {
-        "condition": "touch_rejected_content",
-        "instantIncrease": 50
-      },
-      {
-        "condition": "noOperationFor10Minutes",
-        "decreasePerMinute": 3
-      }
-    ]
-  },
-
-  "controlPermissions": {
-    "basicActions": {
-      "enabledFromLevel": 1,
-      "categories": [
-        "clothing_adjustment",
-        "pose_adjustment",
-        "camera_control"
-      ]
-    },
-
-    "sensitiveAreaCustomization": {
-      "enabledFromLevel": 3,
-      "effect": {
-        "orgasmValueMultiplier": 1.5
-      }
-    },
-
-    "dualItemControl": {
-      "enabledFromLevel": 11,
-      "maxSimultaneousItems": 2
-    },
-
-    "freeControl": {
-      "enabledFromLevel": 18
-    },
-
-    "multiTarget": {
-      "enabledFromLevel": 19,
-      "riskMultiplier": 2
-    },
-
-    "replay": {
-      "enabledFromLevel": 20
-    }
-  },
-
-  "actionLibrary": {
-    "description": "具体动作不在controller规则中展开。由独立action/item数据表提供。",
-    "externalLibrary": "actions.json",
-
-    "categories": [
-      "basic_action",
-      "pose",
-      "observation",
-      "item_control",
-      "clothing_control",
-      "medicine_control"
-    ],
-
-    "selectionRules": {
-      "mustRespectControllerLevel": true,
-      "mustRespectTargetProfile": true,
-      "mustRespectRejectedContent": true,
-      "mustRespectCurrentScene": true,
-      "mustRespectCurrentWakeValue": true
-    }
-  },
-
-  "itemSystem": {
-    "externalLibrary": "items.json",
-
-    "rules": {
-      "unlockByControllerLevel": true,
-      "inventoryRequired": true,
-      "targetCompatibilityRequired": true,
-      "rejectedContentFilter": true
-    }
-  },
-
-  "medicineSystem": {
-    "externalLibrary": "medicine.json",
-
-    "maxSimultaneousActive": 2,
-
-    "rules": {
-      "sameMedicineStacking": false,
-      "conflictingMedicineResolution": "later_overwrites_previous",
-
-      "conflicts": [
+    "daytimeControl": {
+      "enabled": true,
+      "stages": [
         {
-          "a": "desensitizing_medicine",
-          "b": "sensitivity_medicine",
-          "resolution": "later_overwrites_previous"
+          "minLevel": 1,
+          "maxLevel": 8,
+          "name": "熟睡之夜",
+          "availablePeriods": ["night_sleep"],
+          "rules": {
+            "wakeMultiplier": 1.0,
+            "description": "最基础安全的夜间潜行玩法，在目标进入熟睡后由电波自动诱导进入控制。"
+          }
+        },
+        {
+          "minLevel": 9,
+          "maxLevel": 12,
+          "name": "小憩突袭",
+          "availablePeriods": ["night_sleep", "nap_time"],
+          "rules": {
+            "wakeMultiplier": 1.2,
+            "durationLimitHours": 2,
+            "description": "午休或小憩时段亦可短暂入侵，时长限于1-2小时内，苏醒值增长系数为1.2倍。"
+          }
+        },
+        {
+          "minLevel": 13,
+          "maxLevel": 14,
+          "name": "独处电波",
+          "availablePeriods": ["night_sleep", "nap_time", "solitude_daytime"],
+          "rules": {
+            "wakeMultiplier": 3.0,
+            "forceLowIntensity": true,
+            "description": "目标清醒但独处时可开启。苏醒度增幅至3倍。操作力度强制锁死低档，引起目标在清醒状态下产生极度羞红、自我怀疑。"
+          }
+        },
+        {
+          "minLevel": 15,
+          "maxLevel": 17,
+          "name": "全时段隐蔽",
+          "availablePeriods": ["night_sleep", "nap_time", "solitude_daytime", "public_spaces"],
+          "rules": {
+            "wakeMultiplier": 1.0,
+            "respectSceneRestrictions": true,
+            "description": "任何时间地点皆可开启。在公共人群密集场所强制受场景内置风险限制限制。"
+          }
+        },
+        {
+          "minLevel": 18,
+          "maxLevel": null,
+          "name": "自由傀儡",
+          "availablePeriods": ["anytime"],
+          "rules": {
+            "wakeMultiplier": 1.5,
+            "targetResistanceReduced": true,
+            "description": "目标由于身心顺从并形成强烈的生理条件反射，抗性大幅度下降，全天候可无压力高频调弄。"
+          }
         }
-      ],
-
-      "sleepMedicineRestriction": {
-        "allowedPeriods": [
-          "night_sleep",
-          "nap"
-        ],
-        "daytimeAwakeControl": false
-      },
-
-      "deepSleepMedicine": {
-        "wakeValueBackgroundAccumulation": true,
-        "settleOnEffectEnd": true
-      }
-    }
-  },
-
-  "sceneSystem": {
-    "externalLibrary": "scenes.json",
-
-    "rules": {
-      "unlockByLevel": true,
-      "riskValueRequired": true,
-      "riskLimitsMustBeRespected": true
-    },
-
-    "riskLevels": {
-      "bedroom": {
-        "risk": 0,
-        "restriction": "none"
-      },
-
-      "living_room": {
-        "risk": 5,
-        "restriction": "minimal"
-      },
-
-      "adult_hotel": {
-        "risk": 0,
-        "restriction": "none"
-      },
-
-      "empty_classroom": {
-        "risk": 20,
-        "restriction": "low_to_medium_intensity"
-      },
-
-      "clinic": {
-        "risk": 40,
-        "restriction": "medium_intensity"
-      },
-
-      "office_after_hours": {
-        "risk": 20,
-        "restriction": "limited"
-      },
-
-      "office_working_hours": {
-        "risk": 60,
-        "restriction": "concealed_low_intensity"
-      },
-
-      "classroom_with_people": {
-        "risk": 65,
-        "restriction": "concealed_low_intensity"
-      },
-
-      "train": {
-        "risk": 75,
-        "restriction": "low_intensity_only"
-      },
-
-      "party": {
-        "risk": 85,
-        "restriction": "very_low_intensity_only"
-      }
-    }
-  },
-
-  "npcAttentionSystem": {
-    "enabled": true,
-
-    "scenes": {
-      "classroom_with_people": {
-        "peopleRange": [
-          5,
-          15
-        ],
-        "attentionGrowth": "medium",
-        "maxEffect": "target_panics_and_control_ends"
-      },
-
-      "office_working_hours": {
-        "peopleRange": [
-          3,
-          8
-        ],
-        "attentionGrowth": "medium_slow",
-        "maxEffect": "coworker_interaction_and_control_ends"
-      },
-
-      "train": {
-        "peopleRange": [
-          5,
-          20
-        ],
-        "attentionGrowth": "fast",
-        "maxEffect": "target_leaves_scene_and_control_ends"
-      },
-
-      "party": {
-        "peopleRange": [
-          15,
-          30
-        ],
-        "attentionGrowth": "very_fast",
-        "maxEffect": "social_exposure_and_control_ends"
-      }
-    }
-  },
-
-  "clothingSystem": {
-    "enabledFromLevel": 2,
-    "externalLibrary": "clothing.json",
-
-    "rules": {
-      "changeClothing": true,
-      "partialAdjustment": true,
-      "fullChange": true,
-      "exposureLevelTracked": true
-    }
-  },
-
-  "taskPublishing": {
-    "enabledFromLevel": 6,
-
-    "dailyLimit": 2,
-
-    "templateSources": [
-      "missions.json"
-    ],
-
-    "types": [
-      "item",
-      "semi_public",
-      "exposure",
-      "meeting"
-    ],
-
-    "rules": {
-      "customTaskAllowed": true,
-      "mustRespectTargetProfile": true,
-      "mustRespectRejectedContent": true,
-      "maxStarBasedOnControllerLevel": true,
-
-      "completionReward": {
-        "experience": 10
-      },
-
-      "refusal": {
-        "drawPunishmentFromStarPool": true
-      }
-    }
-  },
-
-  "privateMessage": {
-    "enabledFromLevel": 8,
-
-    "rules": {
-      "targetKnowsControllerExists": true,
-      "targetDoesNotKnowIdentity": true
-    }
-  },
-
-  "bondSystem": {
-    "unlockConditions": {
-      "targetSubmission": {
-        "operator": ">=",
-        "value": 80
-      },
-
-      "targetAwareness": {
-        "operator": ">=",
-        "value": 80
-      },
-
-      "meetingTasksPublished": {
-        "operator": ">=",
-        "value": 3
-      },
-
-      "bothConsent": true
-    },
-
-    "unlockResult": {
-      "exchangeInformation": true,
-      "freeMode": true
-    },
-
-    "informationExchange": {
-      "controllerReceives": [
-        "target_full_profile",
-        "target_rejected_content"
-      ],
-
-      "targetReceives": [
-        "controller_real_name",
-        "controller_face",
-        "relationship",
-        "controller_reason"
       ]
-    }
-  },
-
-  "freeMode": {
-    "enabledBy": "bond_unlock",
-
-    "rules": {
-      "forcedTasks": false,
-      "negotiatedMeeting": true,
-      "taskFrameworkRestriction": false,
-      "sexualActivityExperienceGain": false,
-      "taskRewards": false,
-      "taskPunishments": false,
-      "eitherPartyCanExit": true,
-      "exitPenalty": false,
-      "previouslyExchangedInformationRetractable": false
-    }
-  },
-
-  "meetingSafety": {
-    "enabled": true,
-
-    "hardRules": [
-      {
-        "id": "no_permanent_injury",
-        "rule": "不得造成永久性身体伤害",
-        "consequence": {
-          "controllerFreezeHours": 72,
-          "targetAutomaticallyExits": true
-        }
-      },
-
-      {
-        "id": "no_identity_exposure",
-        "rule": "不得拍摄、录音或偷窥目标证件及个人身份信息",
-        "consequence": {
-          "controllerFreezeHours": 72
-        }
-      },
-
-      {
-        "id": "safe_exit",
-        "rule": "目标使用安全退出词后必须立即停止",
-        "consequence": {
-          "meetingEnds": true,
-          "controllerFreezeHours": 48
-        }
-      },
-
-      {
-        "id": "location_filter",
-        "rule": "见面地点不得为完全隔绝且无法离开的场所",
-        "enforcedBy": "system"
-      },
-
-      {
-        "id": "rejected_content",
-        "rule": "不得触碰目标个人信息中标记的排斥项",
-        "enforcedBy": "system"
-      }
-    ]
-  },
-
-  "rejectedContentProtection": {
-    "enabled": true,
-
-    "rules": {
-      "operationFilter": true,
-      "sceneFilter": true,
-      "itemFilter": true,
-      "taskFilter": true,
-      "meetingFilter": true
     },
 
-    "exception": {
-      "unlockLevel": 20,
-      "permission": "ignore_rejected_content",
-      "maxUses": 1,
-
-      "warningRequired": true,
-
-      "sideEffects": {
-        "targetAwarenessIncrease": 15,
-        "wakeValueBaseGrowthPermanentMultiplier": 1.2
+    "dualValueSystem": {
+      "description": "通过精密的操作调节快感，你想推满高潮值，但每一步都在推高苏醒值。数值首先触顶100%的一方判定胜出。",
+      "orgasmValue": {
+        "name": "高潮值",
+        "min": 0,
+        "max": 100,
+        "onReachMax": {
+          "trigger": "target_forced_orgasm",
+          "settlement": true,
+          "resetTo": 0
+        },
+        "afterSettlement": {
+          "sensitivityMultiplier": 1.5,
+          "durationSeconds": 30,
+          "description": "高潮结算完成归零后，苏醒值不回落。目标进入30秒的高度敏感期，期间高潮积攒速度额外提升50%。"
+        }
+      },
+      "wakeValue": {
+        "name": "苏醒值",
+        "min": 0,
+        "max": 100,
+        "onReachMax": {
+          "trigger": "target_wakes_up",
+          "currentControlEnds": true,
+          "description": "苏醒值一经满值，目标会在当夜瞬间惊醒，本轮控制调教当即强行中断结束。"
+        }
       }
-    }
-  },
+    },
 
-  "hiddenClues": {
-    "enabled": true,
-
-    "events": [
-      {
-        "unlockLevel": 12,
-        "id": "glitch_message",
-        "description": "APP偶尔出现短暂且无法关闭的乱码弹窗。"
+    "orgasmValueRules": {
+      "baseGain": {
+        "ordinaryArea": { "min": 3, "max": 5 },
+        "sensitiveArea": { "min": 5, "max": 8 },
+        "triggerPreference": { "min": 8, "max": 12 },
+        "lowIntensityItem": { "min": 5, "max": 8 },
+        "highIntensityItem": { "min": 10, "max": 15 },
+        "forcedClimax": 20,
+        "secondClimaxWithin30Minutes": 30,
+        "thirdOrMoreClimaxWithin30Minutes": 45
       },
+      "multipliers": [
+        { "factor": "attack_sensitive_part", "multiplier": 1.5 },
+        { "factor": "item_high_gear", "multiplier": 2.0 },
+        { "factor": "sensitive_medicine_active", "multiplier": 2.0 },
+        { "factor": "trigger_excitable_spots", "multiplier": 1.8 },
+        { "factor": "public_scene_with_npc", "multiplier": 1.5 },
+        { "factor": "target_endurance_poor", "multiplier": 1.3 },
+        { "factor": "target_extremely_sensitive", "multiplier": 1.4 }
+      ],
+      "additionalGain": [
+        { "action": "public_silent_orgasm", "multiplier": 1.5, "desc": "公共场景高潮成功并且忍住声音不暴露" },
+        { "action": "first_time_use_item", "multiplier": 1.5, "desc": "首次在控制中使用该新型道具设备" },
+        { "action": "first_time_unlock_scene", "multiplier": 1.5, "desc": "初次解锁并选用新场景地图进行互动" },
+        { "action": "first_time_daytime_control", "multiplier": 2.0, "desc": "初次进入白日清醒控制模式" }
+      ]
+    },
 
-      {
-        "unlockLevel": 15,
-        "id": "target_empathy",
-        "description": "目标清醒时偶尔出现与操控行为同步的异常反应。"
+    "wakeValueRules": {
+      "baseBehavior": {
+        "lowIntensity": "low_gear_stimulus_slow_increase",
+        "highIntensity": "high_gear_stimulus_rapid_increase"
       },
+      "multipliers": [
+        { "factor": "attack_sensitive_part", "multiplier": 1.5 },
+        { "factor": "target_high_shame_level", "multiplier": 1.4, "desc": "目标羞耻感高基础增速增加40%" },
+        { "factor": "public_scene", "multiplier": 2.0 },
+        { "factor": "npc_count_greater_equal_5", "multiplier": 3.0 },
+        { "factor": "medicine_sleep_active", "multiplier": 0.2 },
+        { "factor": "daytime_awake_state", "multiplier": 3.0 }
+      ],
+      "specialRules": [
+        { "trigger": "touch_rejected_content", "instantIncrease": 50, "desc": "强行触碰或指令要求执行排斥项，苏醒值瞬间跳涨50%" },
+        {
+          "trigger": "no_operation_for_10_minutes",
+          "effect": {
+            "type": "continuous_decay",
+            "valuePerMinute": -3
+          },
+          "desc": "连续10分钟无任何指令操作后，激活持续性衰减，苏醒值以每分钟3%平缓回落。"
+        }
+      ]
+    },
 
-      {
-        "unlockLevel": 18,
-        "id": "uncontrolled_empathy",
-        "description": "共感强度偶尔出现与操控者设置不一致的情况。"
+    "controlPermissions": {
+      "basicActions": {
+        "enabledFromLevel": 1,
+        "categories": ["basic_action", "pose", "observation"]
       },
+      "sensitiveAreaCustomization": {
+        "enabledFromLevel": 3,
+        "effect": { "target_part_orgasm_multiplier": 1.5 }
+      },
+      "dualItemControl": {
+        "enabledFromLevel": 11,
+        "maxSimultaneousItems": 2
+      },
+      "freeControl": {
+        "enabledFromLevel": 18
+      },
+      "multiTarget": {
+        "enabledFromLevel": 19,
+        "riskMultiplier": 2.0
+      },
+      "replay": {
+        "enabledFromLevel": 20
+      }
+    },
 
-      {
+    "sceneUnlockGroups": {
+      "bedroom": ["scene_bedroom"],
+      "living_room": ["scene_living_room"],
+      "train": ["scene_train"],
+      "classroom": ["scene_classroom_empty", "scene_classroom_populated"],
+      "infirmary": ["scene_infirmary"],
+      "office": ["scene_office_overtime", "scene_office_working"],
+      "party": ["scene_party"],
+      "love_hotel": ["scene_love_hotel"]
+    },
+
+    "sceneSystem": {
+      "externalLibrary": "scenes.json",
+      "rules": {
+        "unlockByLevel": true,
+        "riskValueRequired": true,
+        "riskLimitsMustBeRespected": true,
+        "itemCompatibilityRequired": true,
+        "actionCompatibilityRequired": true
+      },
+      "riskDefinition": "riskValue代表目标暴露或操作被打断的概率，不代表角色的真实人身物理危险度。",
+      "riskLevels": {
+        "scene_bedroom": { "baseRisk": 0, "rules": "无任何限制" },
+        "scene_living_room": { "baseRisk": 5, "rules": "几乎无限制" },
+        "scene_love_hotel": { "baseRisk": 0, "rules": "无任何限制" },
+        "scene_classroom_empty": { "baseRisk": 20, "rules": "中低档位，无有声道具限制" },
+        "scene_infirmary": { "baseRisk": 40, "rules": "中档位，可使用医务室床体绑带约束限制辅助" },
+        "scene_office_overtime": { "baseRisk": 20, "rules": "空办公室自由操作" },
+        "scene_office_working": { "baseRisk": 60, "rules": "仅限桌下隐蔽潜伏操作，锁低档" },
+        "scene_classroom_populated": { "baseRisk": 65, "rules": "仅低档隐蔽操作，限制目标不许发声" },
+        "scene_train": { "baseRisk": 75, "rules": "仅限低档振动，置入道具仅可极缓进出，发声器具禁用" },
+        "scene_party": { "baseRisk": 85, "rules": "极低档脉冲振动，禁用发声道具，高潮强力憋住声音" }
+      }
+    },
+
+    "npcAttentionSystem": {
+      "enabled": true,
+      "scenes": {
+        "scene_classroom_populated": {
+          "npcCountRange": [5, 15],
+          "growthRate": "medium",
+          "consequence": "NPC转头注视→目标惊慌失措→当晚操控强制切断结束"
+        },
+        "scene_office_working": {
+          "npcCountRange": [3, 8],
+          "growthRate": "medium_slow",
+          "consequence": "同事发出工作询问→目标强装镇定找借口逃离工位→当晚操控强制切断结束"
+        },
+        "scene_train": {
+          "npcCountRange": [5, 20],
+          "growthRate": "fast",
+          "consequence": "周围乘客频繁狐疑侧目→目标极度物理崩溃并在最近站台下车逃离→当晚操控强制切断结束"
+        },
+        "scene_party": {
+          "npcCountRange": [15, 30],
+          "growthRate": "extremely_fast",
+          "consequence": "被人注意到异常姿态行为→引来围观造成彻底社会性死亡→当晚操控强行切断，且惩罚目标羞耻感数值永久+10%"
+        }
+      }
+    },
+
+    "taskPublishing": {
+      "enabledFromLevel": 6,
+      "dailyLimit": 2,
+      "templateSources": ["tasks.json"],
+      "types": ["item", "semiPublic", "exposure", "meeting"],
+      "rules": {
+        "customTaskAllowed": true,
+        "mustRespectTargetProfile": true,
+        "mustRespectTargetPreferences": true,
+        "mustRespectRejectedContent": true,
+        "maxStarBasedOnControllerLevel": true,
+        "completionReward": { "experience": 10 },
+        "refusal": { "drawPunishmentFromStarPool": true }
+      }
+    },
+
+    "privateMessage": {
+      "enabledFromLevel": 8,
+      "rules": {
+        "targetKnowsControllerExists": true,
+        "targetDoesNotKnowIdentity": true
+      }
+    },
+
+    "bondSystem": {
+      "unlockConditions": {
+        "targetSubmission": { "operator": ">=", "value": 80 },
+        "targetAwareness": { "operator": ">=", "value": 80 },
+        "meetingTasksPublished": { "operator": ">=", "value": 3 },
+        "bothConsent": true
+      },
+      "unlockResult": { "exchangeInformation": true, "freeMode": true },
+      "informationExchange": {
+        "controllerReceives": ["target_profile_all_data", "target_all_rejection_items"],
+        "targetReceives": ["controller_real_name", "controller_face_photo", "controller_target_relationship", "reason_for_controlling_target"]
+      }
+    },
+
+    "freeMode": {
+      "enabledBy": "bond_unlock",
+      "rules": {
+        "forcedTasks": false,
+        "negotiatedMeeting": true,
+        "taskFrameworkRestriction": false,
+        "experienceGain": false,
+        "taskRewards": false,
+        "taskPunishments": false,
+        "eitherPartyCanExit": true,
+        "exitPenalty": false,
+        "previouslyExchangedInformationRetractable": false
+      }
+    },
+
+    "meetingSafety": {
+      "enabled": true,
+      "hardRules": [
+        {
+          "id": "no_permanent_damage",
+          "name": "严禁肉体永久损伤",
+          "violationConsequence": "操控权限立即冻结72小时并清除，目标强行脱离系统羁绊"
+        },
+        {
+          "id": "no_privacy_recording",
+          "name": "严禁拍照、录音、窃录目标身份证件",
+          "violationConsequence": "操控权限强制冻结72小时"
+        },
+        {
+          "id": "stop_on_command",
+          "name": "目标口述结束时必须立即停手并迅速撤离现场",
+          "violationConsequence": "强制切断控制流程，操控权限冻结48小时"
+        },
+        {
+          "id": "no_fully_isolated_location",
+          "name": "见面地点不准设于深层与世隔绝、无逃生可能的密闭空间",
+          "violationConsequence": "APP智能路径地图强制红线过滤锁死，不可选择"
+        }
+      ]
+    },
+
+    "rejectedContentProtection": {
+      "enabled": true,
+      "rules": {
+        "operationFilter": true,
+        "sceneFilter": true,
+        "itemFilter": true,
+        "taskFilter": true,
+        "meetingFilter": true
+      },
+      "exception": {
+        "enabled": true,
         "unlockLevel": 20,
-        "id": "unknown_controller",
-        "description": "回放中出现操控者从未进行过的操作记录。"
-      },
-
-      {
-        "unlockLevel": 25,
-        "id": "unknown_sender",
-        "description": "APP可能收到来自未知发送者的信息。"
+        "permission": "ignore_target_rejections_24h",
+        "maxUses": 1,
+        "warningRequired": true,
+        "warningText": "目标将被迫接受其排斥项内容。是否继续？",
+        "sideEffects": {
+          "targetAwarenessIncrease": 15,
+          "permanentBaseWakeRateModifier": 1.20
+        }
       }
+    },
+
+    "hiddenClues": {
+      "enabled": true,
+      "events": [
+        { "level": 12, "type": "temporary_glitch_popups", "desc": "APP界面偶发性弹出闪烁极短、无法手动关闭的乱码字符弹窗" },
+        { "level": 15, "type": "target_synced_self_talk", "desc": "目标在白日或日常清醒时开始自言自语，说话内容与你的设备操作同步，仿佛感知到了你的触碰" },
+        { "level": 18, "type": "uncontrolled_empathy_strength", "desc": "共感强度有时会出现逻辑外逸，目标反馈的触觉烈度大于你的后台设定值" },
+        { "level": 20, "type": "playback_anomaly_operation", "desc": "检索云端重温回放记录时，中途闪过一段非你操作的完美调弄记录" },
+        { "level": 25, "type": "unknown_sender_message", "desc": "APP端强制弹出一封未署名的匿名信件：「玩得开心吗？我也是。」" }
+      ]
+    },
+
+    "targetAwarenessStages": [
+      { "range": [0, 20], "name": "困惑/完全未知", "messageBehavior": "完全不知情。以为那些春梦只是身体太累，那些隐约异样只是神经过敏。" },
+      { "range": [21, 40], "name": "不安/怀疑存在", "messageBehavior": "开始怀疑手机异常。尝试删除APP（失败），睡前盯着屏幕警惕亮起。" },
+      { "range": [41, 60], "name": "适应/确认外部控制", "messageBehavior": "隐约感觉有人在操控。开始主动试探并产生心理矛盾依赖。" },
+      { "range": [61, 80], "name": "追踪/主动排查", "messageBehavior": "确认自己被操控。在私信中质问对方身份，开始记录规律和反向追踪。" },
+      { "range": [81, 100], "name": "对峙/反向干扰", "messageBehavior": "开始进行反向干扰与物理自控。直接向操控者宣战，面临最终决择。" }
     ]
   },
 
-  "targetAwareness": {
-    "visibility": {
-      "controller": true,
-      "target": false,
-      "system": true
-    },
-
-    "triggers": [
-      {
-        "event": "wake_value_reaches_max",
-        "increase": 5
+  "stateSchema": {
+    "description": "网页IndexedDB中保存的运行时动态属性结构。此数据由系统状态机与交互行为实时推进并更新。",
+    "requiredFields": [
+      "controllerLevel",
+      "controllerExperience",
+      "orgasmValue",
+      "wakeValue",
+      "targetAwareness",
+      "currentScene",
+      "currentTaskId",
+      "inventory",
+      "activeEffects",
+      "unlockedFeatures",
+      "completedTasks",
+      "activePermissions",
+      "currentProgress",
+      "recentClimaxCount",
+      "recentClimaxWindowStart",
+      "lastClimaxTime",
+      "dayIndex",
+      "currentSessionId",
+      "lastControlDate",
+      "consecutiveControlledDays"
+    ],
+    "variables": {
+      "controllerLevel": { "type": "number", "default": 1, "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "controllerExperience": { "type": "number", "default": 0, "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "orgasmValue": { "type": "number", "default": 0, "persistent": false, "playerEditable": false, "editableInDebug": true },
+      "wakeValue": { "type": "number", "default": 0, "persistent": false, "playerEditable": false, "editableInDebug": true },
+      "targetAwareness": { "type": "number", "default": 0, "min": 0, "max": 100, "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "currentScene": { "type": "string", "default": null, "persistent": false, "description": "日常清晨系统重置为默认家庭场景，不作跨日留存。" },
+      "currentTaskId": { "type": "string", "default": null, "persistent": false, "description": "系统临时当前任务ID占位，次日凌晨统一结算清空。" },
+      "inventory": { "type": "object", "default": {}, "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "activeEffects": {
+        "type": "array",
+        "default": [],
+        "persistent": true,
+        "itemSchema": {
+          "id": "string",
+          "source": "string",
+          "startedAt": "string (timestamp)",
+          "expiresAt": "string (timestamp)",
+          "durationRemainingSeconds": "number",
+          "stack": "number"
+        }
       },
-      {
-        "event": "same_day_message_and_task",
-        "increase": 3
-      },
-      {
-        "event": "empathy_in_public_scene",
-        "increase": 5
-      },
-      {
-        "event": "controlled_for_three_consecutive_days",
-        "increase": 2
-      },
-      {
-        "event": "glitch_notification_heard",
-        "increase": 3
-      },
-      {
-        "event": "target_questions_identity",
-        "increase": 5
-      },
-      {
-        "event": "target_searches_app_information",
-        "increase": 3
-      },
-      {
-        "event": "meeting_task_completed",
-        "increase": 10
-      },
-      {
-        "event": "target_attempts_to_touch_controller_face_or_mask",
-        "increase": 8
-      }
-    ]
+      "unlockedFeatures": { "type": "array", "default": [], "persistent": true, "playerEditable": false, "editableInDebug": false },
+      "completedTasks": { "type": "array", "default": [], "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "activePermissions": { "type": "array", "default": [], "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "currentProgress": { "type": "object", "default": {}, "persistent": true, "playerEditable": false, "editableInDebug": true },
+      "recentClimaxCount": { "type": "number", "default": 0, "persistent": true, "description": "30分钟时间窗内触发的高潮累加次数。" },
+      "recentClimaxWindowStart": { "type": "string", "default": null, "persistent": true, "description": "30分钟高潮跟踪窗口开始的服务器/本地时间戳。" },
+      "lastClimaxTime": { "type": "string", "default": null, "persistent": true, "description": "最近一次高潮发生的准确时间戳。" },
+      "dayIndex": { "type": "number", "default": 1, "persistent": true, "description": "系统连续运转至今的总自然日计数。" },
+      "currentSessionId": { "type": "string", "default": null, "persistent": false, "description": "单场控制运行会话ID，断开即行作废。" },
+      "lastControlDate": { "type": "string", "default": null, "persistent": true, "description": "上一次对目标执行潜入控制的完整日期戳。" },
+      "consecutiveControlledDays": { "type": "number", "default": 0, "persistent": true, "description": "未曾发生超时、拒绝惩罚的每日任务连续完成达标天数。" }
+    }
   },
 
   "gameLoop": [
-    "open_app",
-    "check_target_state",
-    "select_scene",
-    "adjust_pose_or_clothing",
-    "select_action_or_item",
-    "monitor_orgasm_and_wake_values",
-    "settle_climax",
-    "gain_experience",
-    "level_up_if_required",
-    "unlock_new_content",
-    "optionally_publish_task",
-    "optionally_send_private_message",
-    "observe_target_reaction",
-    "continue"
+    { "step": "LOAD", "action": "读取IndexedDB物理存档并加载规则字典" },
+    { "step": "STATE_VALIDATION", "action": "验证当前会话与变量范围一致性" },
+    { "step": "LEVEL_PERMISSION_CHECK", "action": "验证当前操控等级及相应特权开闭状态" },
+    { "step": "SCENE_CHECK", "action": "校对当前物理场景、背景自定义状态及风险参数" },
+    { "step": "CONTENT_FILTER", "action": "强制过滤与目标敏感排斥项重合的红线指令" },
+    { "step": "ACTION_VALIDATION", "action": "验证当前执行动作对当前姿态、状态的相容性" },
+    { "step": "CALCULATE_MODIFIERS", "action": "检索当前生效的药物或临时敏感度叠加系数" },
+    { "step": "CALCULATE_STATE_CHANGES", "action": "依据公式产出生理与苏醒状态的变化差值" },
+    { "step": "CLAMP_VARIABLES", "action": "将高潮值、苏醒值及觉醒度严格钳制于 [0, 100] 范围内" },
+    { "step": "CHECK_THRESHOLDS", "action": "若苏醒值达100则执行唤醒切断；若高潮值达100则转入CLIMAX_SETTLEMENT" },
+    { "step": "TRIGGER_EVENTS", "action": "推进并广播即时动作所引起的生理反馈、喘息或环境危机" },
+    { "step": "UPDATE_QUEST_XP", "action": "如有任务或私信联动，结算并赋予相应的经验（XP）点数" },
+    { "step": "CHECK_LEVEL_UP", "action": "经验若累计至100则提升一级，并清除本级计数保留溢出部分" },
+    { "step": "CHECK_AWARENESS", "action": "依据即时操作与特殊事件，重新结算目标后台隐藏觉醒度" },
+    { "step": "CHECK_ENDING", "action": "若隐藏觉醒度触顶100%，锁死主线逻辑并强推不可关闭的终局弹窗" },
+    { "step": "GENERATE_STORY", "action": "交由AI引擎基于最新态势变动、特征和沉溺反馈生成描写文本" },
+    { "step": "SAVE", "action": "更新IndexedDB底层动态运行时状态存档" }
   ],
 
-  "controllerFinalChoice": {
-    "trigger": {
-      "targetAwareness": 100
-    },
+  "climaxSettlementTemplate": {
+    "title": "╔══════════════════════════════════╗\n║     ⋆ 目标已强制高潮 ⋆          ║\n╠══════════════════════════════════╣\n║  目标编号：#XXXX                 ║\n║  姓名：███                       ║\n║                                  ║\n║  本次高潮用时：XX分XX秒           ║\n║  使用道具：XXX                   ║\n║  触发部位：XXX                   ║\n║  高潮次数（本次操作）：第X次      ║\n║                                  ║\n║  获得高潮值：+XX                 ║\n║  累计高潮次数：XX                ║\n║  当前等级：Lv.X（XX/100）        ║\n║                                  ║\n║  苏醒值当前：XX%                 ║\n║                                  ║\n║      [ 继续 ]                    ║\n╚══════════════════════════════════╝",
+    "description": "高潮结算完成归零后，苏醒值不回落。目标敏感度短暂+50%，30秒内再次刺激增速更快。"
+  },
 
+  "controllerFinalChoice": {
+    "trigger": { "targetAwareness": 100 },
     "required": true,
     "changeableAfterSelection": false,
-
     "options": [
       {
         "id": "A",
         "name": "放手",
-        "result": "卸载APP并清除操控权限，目标恢复自由。"
+        "description": "主动卸载APP，所有数据清零。目标恢复自由。双方记忆保留，但APP功能彻底消失。你们的关系回归现实。"
       },
       {
         "id": "B",
         "name": "摊牌",
-        "result": "向目标公开操控者身份。"
+        "description": "主动向目标暴露身份。APP将你的真实姓名、照片、关系推送给目标。此后由目标决定下一步。"
       },
       {
         "id": "C",
         "name": "继续沉溺",
-        "result": "继续操控，目标反向干扰持续增强。"
+        "description": "无视目标干扰，继续操控。目标反向干扰将持续加强，APP将出现更多不可控因素。"
       },
       {
         "id": "D",
         "name": "反向被控",
-        "result": "将操控权限转让给目标。"
+        "description": "将操控权限转让给目标。你们身份互换。"
       }
-    ]
-  },
-
-  "aiGenerationConstraints": {
-    "mustRespect": [
-      "controller_level",
-      "unlocked_features",
-      "target_profile",
-      "target_preferences",
-      "target_rejected_content",
-      "current_scene",
-      "scene_risk",
-      "orgasm_value",
-      "wake_value",
-      "target_awareness",
-      "current_task",
-      "current_story_progress"
-    ],
-
-    "mustNot": [
-      "unlock_features_without_requirement",
-      "ignore_rejected_content_without_permission",
-      "decrease_controller_level_without_system_rule",
-      "modify_static_library",
-      "modify_target_profile_without_event",
-      "invent_unlocked_items",
-      "invent_unlocked_scenes"
     ]
   }
 }
