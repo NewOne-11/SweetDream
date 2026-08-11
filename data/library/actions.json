@@ -1,0 +1,1241 @@
+{
+  "id": "actions",
+  "version": 1,
+  "title": "动作资料库",
+  "description": "记录游戏中的可执行动作、动作分类、等级要求、场景限制、目标状态要求及变量影响。",
+  "type": "action_library",
+  "aiVisible": true,
+  "playerVisible": true,
+
+  "categories": [
+    {
+      "id": "clothing_control",
+      "name": "服装控制",
+      "description": "对目标所穿服饰进行脱除、卷起或侧拨的操作。",
+      "enabled": true
+    },
+    {
+      "id": "pose",
+      "name": "姿势控制",
+      "description": "对目标进行整体姿态的调整或肢体拖拽定位。",
+      "enabled": true
+    },
+    {
+      "id": "basic_action",
+      "name": "基础动作",
+      "description": "使用双手对目标进行的最基础、最直接的身体抚触与调弄。",
+      "enabled": true
+    },
+    {
+      "id": "item_control",
+      "name": "道具操作",
+      "description": "使用SP拍子、羽毛、玩具、插入道具及束缚绳对目标施加刺激。",
+      "enabled": true
+    },
+    {
+      "id": "medicine_control",
+      "name": "药物操作",
+      "description": "给目标使用特殊药物以改变其敏感度、昏睡状态或生理状态。",
+      "enabled": true
+    },
+    {
+      "id": "special",
+      "name": "特殊操作",
+      "description": "包括高潮/射精定位、跨越排斥项等高级权限操作。",
+      "enabled": true
+    }
+  ],
+
+  "actionSchema": {
+    "id": "",
+    "name": "",
+    "category": "",
+    "description": "",
+    "enabled": true,
+    "requirements": {
+      "minControllerLevel": 1,
+      "requiredFeatures": [],
+      "requiredItems": [],
+      "requiredScenes": [],
+      "requiredStates": [],
+      "forbiddenStates": []
+    },
+    "targetCompatibility": {
+      "requiredGender": [],
+      "allowedOrientations": [],
+      "requiredPreferences": [],
+      "forbiddenPreferences": [],
+      "requiredSensitivity": [],
+      "requiredEndurance": [],
+      "requiredShameLevel": []
+    },
+    "sceneCompatibility": {
+      "allowedScenes": [],
+      "forbiddenScenes": [],
+      "minimumRisk": null,
+      "maximumRisk": null,
+      "requiresPrivacy": false,
+      "requiresSolitude": false,
+      "requiresNPC": false,
+      "allowedNPCCount": {
+        "min": null,
+        "max": null
+      }
+    },
+    "execution": {
+      "durationSeconds": null,
+      "repeatable": true,
+      "cooldownSeconds": 0,
+      "interruptible": true,
+      "requiresTargetAwake": false,
+      "requiresTargetAsleep": false
+    },
+    "effects": {
+      "orgasmValue": {
+        "type": "fixed",
+        "value": 0,
+        "range": null
+      },
+      "wakeValue": {
+        "type": "fixed",
+        "value": 0,
+        "range": null
+      },
+      "targetAwareness": {
+        "type": "fixed",
+        "value": 0,
+        "range": null
+      },
+      "controllerExperience": {
+        "type": "fixed",
+        "value": 0,
+        "range": null
+      },
+      "otherVariables": {}
+    },
+    "modifiers": [],
+    "safety": {
+      "blockedByRejectedContent": true,
+      "blockedByTargetState": true,
+      "blockedBySceneRisk": true,
+      "requiresConsent": false,
+      "hardBlocked": false
+    },
+    "aiGeneration": {
+      "canAISelect": true,
+      "canAICombine": false,
+      "canAIRepeat": true,
+      "canAICreateVariant": false,
+      "variantRules": {}
+    }
+  },
+
+  "actions": [
+    {
+      "id": "clothing_top_control",
+      "name": "控制上衣",
+      "category": "clothing_control",
+      "description": "对目标的上衣进行状态调节。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 5,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 1, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 1, "range": null },
+        "otherVariables": {
+          "subActions": [
+            { "id": "roll_up_chest", "name": "掀起上衣（至胸下沿）", "exposureIncrease": 20 },
+            { "id": "roll_up_clavicle", "name": "掀起上衣（至锁骨）", "exposureIncrease": 30 },
+            { "id": "strip_top", "name": "脱掉上衣（上半身完全赤裸）", "exposureIncrease": 50 }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "clothing_bra_control",
+      "name": "解开内衣",
+      "category": "clothing_control",
+      "description": "解开女性或双性目标的文胸，使乳房完全弹出。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": ["female", "intersex"],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 4,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 2, "range": null },
+        "wakeValue": { "type": "fixed", "value": 2, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 1, "range": null },
+        "otherVariables": { "exposureValue": 60, "clothingState": "bra_removed" }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "clothing_bottom_control",
+      "name": "控制下衣",
+      "category": "clothing_control",
+      "description": "对目标的外裤、外裙进行褪下或卷起操作。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 5,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 1, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 1, "range": null },
+        "otherVariables": {
+          "subActions": [
+            { "id": "pants_to_knees", "name": "褪至膝盖", "exposureIncrease": 30 },
+            { "id": "pants_to_ankles", "name": "褪至脚踝", "exposureIncrease": 40 },
+            { "id": "pants_completely_off", "name": "完全脱掉裤/裙", "exposureIncrease": 50 },
+            { "id": "skirt_up_to_waist", "name": "掀起裙子至腰间（露出内裤）", "exposureIncrease": 45 }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "clothing_panties_control",
+      "name": "控制内裤",
+      "category": "clothing_control",
+      "description": "对目标的贴身内裤进行状态调整，可褪除或拨开露出。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 5,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 5, "range": null },
+        "wakeValue": { "type": "fixed", "value": 3, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 2, "range": null },
+        "otherVariables": {
+          "subActions": [
+            { "id": "panties_to_knees", "name": "内裤褪至膝盖", "exposureIncrease": 70 },
+            { "id": "panties_to_ankles", "name": "内裤褪至脚踝", "exposureIncrease": 80 },
+            { "id": "panties_completely_off", "name": "完全脱掉内裤", "exposureIncrease": 100 },
+            { "id": "panties_pushed_aside", "name": "内裤拨到一边（私处半遮半掩露出）", "exposureIncrease": 90 }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "adjust_pose_presets",
+      "name": "姿势调整",
+      "category": "pose",
+      "description": "支持手指自由拖动肢体进行微调，也可一键切换为预设的标准交互姿势。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 5,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 1, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 1, "range": null },
+        "otherVariables": {
+          "allowedPresets": [
+            "仰躺自然",
+            "M字开腿",
+            "抱腿",
+            "双腿上举",
+            "一字马",
+            "趴跪",
+            "背后位",
+            "侧躺",
+            "侧躺抬腿",
+            "骑乘位",
+            "反向骑乘",
+            "站立弯腰",
+            "站立抬腿",
+            "跪坐",
+            "四肢着地",
+            "犬式"
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "hand_interaction",
+      "name": "手部抚摸与戏弄",
+      "category": "basic_action",
+      "description": "最基础、直接的肢体触碰，包括轻抚、揉捏、拍打、指入和指尖弹拨。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 10,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 5, "range": null },
+        "wakeValue": { "type": "fixed", "value": 4, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 2, "range": null },
+        "otherVariables": {
+          "modes": [
+            { "id": "stroke", "name": "轻抚", "desc": "指腹缓缓划过皮肤，若即若离", "targetPart": "全身" },
+            { "id": "knead", "name": "揉捏", "desc": "手指收拢，轻重交替按压", "targetPart": "乳房/臀部/大腿内侧" },
+            { "id": "slap", "name": "拍打", "desc": "掌心落下，皮肤泛粉", "targetPart": "臀部/大腿内侧/胸部/阴部" },
+            { "id": "finger_1", "name": "指入1根", "desc": "单指缓慢探入，旋转扩张", "targetPart": "前穴/后穴" },
+            { "id": "finger_2", "name": "指入2根", "desc": "双指撑开，进出抽送", "targetPart": "前穴/后穴" },
+            { "id": "finger_3", "name": "指入3根", "desc": "三指撑满，扩张感强烈", "targetPart": "前穴/后穴" },
+            { "id": "flick", "name": "指尖弹拨", "desc": "快速弹动敏感点", "targetPart": "阴蒂/龟头/乳头" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": true,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "sp_paddle_strike",
+      "name": "SP拍子击打",
+      "category": "item_control",
+      "description": "使用不同材质的特制SP拍子对目标进行惩罚或快感施加。带有4种运行档位和精密的留痕物理系统。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 2,
+        "requiredFeatures": [],
+        "requiredItems": ["eq_sp_pipai"],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 8,
+        "repeatable": true,
+        "cooldownSeconds": 2,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 8, "range": null },
+        "wakeValue": { "type": "fixed", "value": 15, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 4, "range": null },
+        "otherVariables": {
+          "tools": [
+            { "id": "leather_paddle", "name": "皮拍", "pain": 2, "desc": "皮革制，宽扁柔软。声音沉闷，痛感柔和，适合轻中度" },
+            { "id": "wooden_ruler", "name": "戒尺", "pain": 3, "desc": "硬木制，板状窄长。声音清脆，痛感集中，留整齐红印" },
+            { "id": "whip_scatter", "name": "散鞭", "pain": 2.5, "desc": "皮革多股细穗。分散受力，刺麻多于痛，声音轻" },
+            { "id": "leather_belt", "name": "皮带", "pain": 3.5, "desc": "皮革对折。厚重扎实，范围大，瘀红明显" },
+            { "id": "cane", "name": "藤条", "pain": 4.0, "desc": "天然藤制，细长柔韧。着点精准，瞬间剧痛，留细长红痕" },
+            { "id": "riding_crop", "name": "马鞭", "pain": 4.5, "desc": "皮革制，鞭身细长。挥动带风，落点如灼，剧痛持久" },
+            { "id": "data_cable", "name": "数据线", "pain": 4.0, "desc": "塑料线材折叠双股。细窄锐利，刺痛强烈，留细痕" }
+          ],
+          "gears": [
+            { "level": 1, "name": "1档", "force": "轻", "effect": "皮肤微粉，轻微刺痛", "markDuration": "数分钟消退" },
+            { "level": 2, "name": "2档", "force": "中", "effect": "清脆响声，皮肤泛红", "markDuration": "30分钟消退" },
+            { "level": 3, "name": "3档", "force": "重", "effect": "明显刺痛，身体轻颤", "markDuration": "1小时以上消退" },
+            { "level": 4, "name": "4档", "force": "极重", "effect": "剧烈疼痛，苏醒值飙升", "markDuration": "次日仍可见" }
+          ],
+          "parts": ["臀部", "大腿内侧后侧", "胸部", "阴部"]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "feather_tickle",
+      "name": "羽毛挑逗",
+      "category": "item_control",
+      "description": "极低苏醒值增幅的调弄手段。适合长时间的前戏，几乎不会因单次抚弄惊醒熟睡或昏睡目标。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": ["eq_feather"],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 15,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 3, "range": null },
+        "wakeValue": { "type": "fixed", "value": 0.2, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 1, "range": null },
+        "otherVariables": {
+          "modes": [
+            { "id": "feather_stroke", "name": "缓慢划过", "desc": "极轻搔痒，皮肤起鸡皮疙瘩，呼吸变浅" },
+            { "id": "feather_circle", "name": "绕圈", "desc": "围绕乳头/阴蒂/龟头画圈，酥麻累积" },
+            { "id": "feather_sweep", "name": "轻扫敏感点", "desc": "反复扫过同一位置，身体不自主扭动" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": true,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "insertion_prop_operation",
+      "name": "置入式道具控制",
+      "category": "item_control",
+      "description": "操作体内插入道具的运动状态，可调解力度与深入节奏。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 2,
+        "requiredFeatures": [],
+        "requiredItems": ["eq_ins_fangzhen"],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 20,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 15, "range": null },
+        "wakeValue": { "type": "fixed", "value": 10, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 5, "range": null },
+        "otherVariables": {
+          "availableProps": [
+            "仿真阳具",
+            "模拟肉棒",
+            "串珠",
+            "弯钩棒",
+            "双头棒",
+            "膨胀棒",
+            "滚珠棒",
+            "触手棒"
+          ],
+          "modes": [
+            { "id": "rub_opening", "name": "磨蹭穴口", "desc": "顶端在穴口/阴蒂来回滑动，不进入。高潮值慢但苏醒值极低" },
+            { "id": "slow_insert", "name": "缓慢进入", "desc": "逐厘米推进，屏幕实时显示进入深度" },
+            { "id": "thrust_slow", "name": "抽插·慢", "desc": "每次来回约3-4秒，深处停留1秒" },
+            { "id": "thrust_medium", "name": "抽插·中", "desc": "每次来来回约1.5-2秒，节奏稳定" },
+            { "id": "thrust_fast", "name": "抽插·快", "desc": "每秒1-2次，高潮值飙升" },
+            { "id": "ejaculation_inside", "name": "射在里面", "desc": "模拟液体释放，填满温热感，高潮值+15%" },
+            { "id": "ejaculation_outside", "name": "射在外面", "desc": "液体落在胸/腹/脸/背/臀指定部位" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "sex_toy_activation",
+      "name": "启用性玩具",
+      "category": "item_control",
+      "description": "操作或固定穿戴式跳蛋、吮吸器、乳夹、震动环及电击贴片等多档交互玩具。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": ["eq_toy_tiaodan"],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 15,
+        "repeatable": true,
+        "cooldownSeconds": 0,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 10, "range": null },
+        "wakeValue": { "type": "fixed", "value": 8, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 3, "range": null },
+        "otherVariables": {
+          "toys": [
+            { "id": "egg", "name": "跳蛋", "range": "1-10档振动", "desc": "小巧可固定任意敏感点，持续/脉冲模式" },
+            { "id": "wand", "name": "按摩棒", "modes": "低速/高速/脉冲/随机", "desc": "手持操作，可作用于前部或后部" },
+            { "id": "masturbator", "name": "飞机杯", "modes": "套弄(慢/中/快)/旋转/吮吸/龟头集中", "desc": "男/双性用，包裹摩擦阴茎" },
+            { "id": "sucking", "name": "吮吸器", "range": "1-5档", "desc": "对准阴蒂/龟头，脉冲气流吮吸，非接触式刺激" },
+            { "id": "breast_clamps", "name": "乳夹", "modes": "可调松紧", "desc": "夹住乳头，带轻微震动或铃铛，拉扯时联动" },
+            { "id": "vibe_ring", "name": "震动环", "range": "1-5档", "desc": "套在阴茎根部或插入道具根部，同时震动双方" },
+            { "id": "electro_patch", "name": "电击贴片", "range": "1-5档", "desc": "贴在任意部位，微电流刺激，酥麻至刺痛可调" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": true,
+        "canAIRepeat": true,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "restraining_rope",
+      "name": "施加束缚绳",
+      "category": "item_control",
+      "description": "使用高柔韧性棉绳对目标的各个部位进行稳固系缚，深度限制动作自由。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 2,
+        "requiredFeatures": [],
+        "requiredItems": ["eq_rope"],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 30,
+        "repeatable": true,
+        "cooldownSeconds": 10,
+        "interruptible": false,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 10, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 5, "range": null },
+        "otherVariables": {
+          "restraintTypes": [
+            { "id": "wrist", "name": "手腕束缚", "desc": "绑在头顶/背后/身前" },
+            { "id": "ankle", "name": "脚踝束缚", "desc": "双腿分开绑在固定点" },
+            { "id": "full_body", "name": "全身束缚", "desc": "手腕+脚踝+腰部固定，完全无法动弹" },
+            { "id": "tortoise_shell", "name": "龟甲缚", "desc": "绳索绕过躯干，绳结摩擦敏感点" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": false,
+        "canAIRepeat": false,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "administer_potion",
+      "name": "药剂服下",
+      "category": "medicine_control",
+      "description": "给目标灌服指定类型的特殊药剂。具有规则限制与组合互补策略。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 10,
+        "repeatable": true,
+        "cooldownSeconds": 5,
+        "interruptible": true,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 5, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 3, "range": null },
+        "otherVariables": {
+          "drugs": [
+            { "id": "med_sensitive", "name": "敏感药", "durationMinutes": 30, "effect": "高潮值增速×2，皮肤泛粉，全身敏感度翻倍，乳头/阴蒂/龟头充血更明显，轻微触碰即有反应" },
+            { "id": "med_sleep", "name": "安眠药", "durationMinutes": 60, "effect": "苏醒值增速降至×0.2，目标呼吸更深更沉，外界刺激反应阈值大幅提高，强刺激也只会让目标皱眉或翻个身", "restriction": "仅夜间熟睡和午睡时段可用，白日清醒操控时该选项灰色锁定" },
+            { "id": "med_lactation", "name": "催乳剂", "durationMinutes": 45, "effect": "乳房肉眼可见胀大，乳头挺立变硬更敏感，轻捏可能渗出乳汁" },
+            { "id": "med_energy", "name": "精力剂", "durationMinutes": 30, "effect": "强制勃起/阴蒂充血，射精/高潮后不应期大幅缩短，可连续射精/高潮" },
+            { "id": "med_estrus", "name": "发情剂", "durationMinutes": 40, "effect": "体温升高，皮肤泛红，私处不自觉分泌液体/阴茎持续勃起，身体主动迎合刺激，无刺激时也会轻微扭动摩擦双腿" },
+            { "id": "med_dull", "name": "迟钝剂", "durationMinutes": 45, "effect": "敏感度降至30%，高潮值增速大幅降低，不易高潮，每次刺激感受更深入持久" },
+            { "id": "med_coma", "name": "昏睡剂", "durationMinutes": 90, "effect": "目标进入深度睡眠，苏醒值增速降至×0.05，几乎不可能惊醒。药效结束后苏醒值一次性结算——若累计已超100，目标会瞬间惊醒" },
+            { "id": "med_aphrodisiac", "name": "催淫剂", "durationMinutes": 60, "effect": "目标进入半梦半醒的发情状态，苏醒值满也不会真正清醒，以为自己只是在做一场格外真实的春梦，醒来记忆模糊" }
+          ],
+          "potionRules": {
+            "maxActiveCount": 2,
+            "noStackSameType": true,
+            "conflictPairs": [["med_sensitive", "med_dull"]],
+            "comaSettlementRisk": "昏睡剂结束时后台累计苏醒值超100会导致瞬间惊醒"
+          },
+          "strategies": [
+            { "name": "敏感药+精力剂", "effect": "高潮值飙升+连续高潮，最快刷经验", "scene": "卧室/情趣酒店等零风险场景" },
+            { "name": "安眠药+迟钝剂", "effect": "苏醒值极低+高潮值难涨，超长慢玩", "scene": "长时间前戏，逐件脱衣慢慢来" },
+            { "name": "发情剂+催淫剂", "effect": "目标主动迎合+永不惊醒，全程沉浸", "scene": "公共场景高风险操作" },
+            { "name": "昏睡剂+敏感药", "effect": "绝对安全+极速刷高潮，但药效结束瞬间危险", "scene": "刷经验冲刺，需要精确计时" },
+            { "name": "催乳剂+精力剂", "effect": "乳房敏感+连续高潮，乳头刺激联动全身", "scene": "胸部重点玩弄" }
+          ]
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": true,
+        "canAIRepeat": false,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "orgasm_ejaculation_release",
+      "name": "高潮/射精定位释放",
+      "category": "special",
+      "description": "在目标即将面临高潮临界点时，自主选择其高潮宣泄形态与射精覆布区域。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 10,
+        "repeatable": true,
+        "cooldownSeconds": 5,
+        "interruptible": false,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 30, "range": null },
+        "wakeValue": { "type": "fixed", "value": 20, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 0, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 5, "range": null },
+        "otherVariables": {
+          "femaleOptions": [
+            { "id": "female_rub_opening", "name": "磨蹭穴口", "desc": "道具顶端在阴唇间来回滑动，不进入，挑逗为主" },
+            { "id": "female_slap_clitoris", "name": "拍打阴蒂", "desc": "手指或道具轻拍阴蒂，每次拍打目标身体弹跳" },
+            { "id": "female_insert_front", "name": "插入小穴", "desc": "进入阴道，可自由控制深度与节奏" },
+            { "id": "female_insert_back", "name": "插入后穴", "desc": "进入后庭，紧致度更高，进入更慢" },
+            { "id": "female_ejaculate_inside", "name": "射在里面", "desc": "阴道/后庭内释放，温热液体填满感，腹部微隆" },
+            { "id": "female_ejaculate_outside", "name": "射在外面", "desc": "液体洒在腹部/大腿/会阴" },
+            { "id": "female_ejaculate_breast", "name": "射在胸上", "desc": "液体集中在乳房，顺着乳沟流下" },
+            { "id": "female_ejaculate_face", "name": "射在脸上", "desc": "面部被覆盖，羞耻触发最大" },
+            { "id": "female_ejaculate_back", "name": "射在背上", "desc": "液体落在后背，沿脊柱流下" },
+            { "id": "female_ejaculate_hip", "name": "射在臀部", "desc": "液体落在臀肉上，顺臀缝流至私处" }
+          ],
+          "maleOptions": [
+            { "id": "male_rub_glans", "name": "磨蹭龟头", "desc": "手指/道具在龟头表面滑动，冠状沟被反复摩擦" },
+            { "id": "male_handjob", "name": "套弄茎身", "desc": "握住阴茎上下套弄，节奏可快可慢" },
+            { "id": "male_insert_back", "name": "插入后穴", "desc": "道具进入后庭，刺激前列腺" },
+            { "id": "male_ejaculate_breast", "name": "射在胸口", "desc": "目标自己的精液落在胸口" },
+            { "id": "male_ejaculate_face", "name": "射在脸上", "desc": "精液落在自己脸上，羞耻触发最大" },
+            { "id": "male_ejaculate_belly", "name": "射在腹部", "desc": "精液落在小腹，顺腹肌沟流下" },
+            { "id": "male_ejaculate_outside", "name": "射在外面", "desc": "射在床上/地板/道具上" }
+          ],
+          "intersexOptions": {
+            "desc": "可同时对前穴和阴茎操作，以上全部前/后选项可自由搭配组合。"
+          }
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": true,
+        "blockedByTargetState": true,
+        "blockedBySceneRisk": true,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAICombine": true,
+        "canAIRepeat": false,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    },
+    {
+      "id": "override_rejections_special",
+      "name": "无视排斥项特权",
+      "category": "special",
+      "description": "Lv.20级解锁的强制例外权限（仅可激活使用一次）。开启后所有排斥项拦截全面解除24小时，但具有强烈的觉醒及苏醒惩罚副作用。",
+      "enabled": true,
+      "requirements": {
+        "minControllerLevel": 20,
+        "requiredFeatures": [],
+        "requiredItems": [],
+        "requiredScenes": [],
+        "requiredStates": [],
+        "forbiddenStates": []
+      },
+      "targetCompatibility": {
+        "requiredGender": [],
+        "allowedOrientations": [],
+        "requiredPreferences": [],
+        "forbiddenPreferences": [],
+        "requiredSensitivity": [],
+        "requiredEndurance": [],
+        "requiredShameLevel": []
+      },
+      "sceneCompatibility": {
+        "allowedScenes": [],
+        "forbiddenScenes": [],
+        "minimumRisk": 0,
+        "maximumRisk": 100,
+        "requiresPrivacy": false,
+        "requiresSolitude": false,
+        "requiresNPC": false,
+        "allowedNPCCount": { "min": null, "max": null }
+      },
+      "execution": {
+        "durationSeconds": 0,
+        "repeatable": false,
+        "cooldownSeconds": 0,
+        "interruptible": false,
+        "requiresTargetAwake": false,
+        "requiresTargetAsleep": false
+      },
+      "effects": {
+        "orgasmValue": { "type": "fixed", "value": 0, "range": null },
+        "wakeValue": { "type": "fixed", "value": 0, "range": null },
+        "targetAwareness": { "type": "fixed", "value": 15, "range": null },
+        "controllerExperience": { "type": "fixed", "value": 10, "range": null },
+        "otherVariables": {
+          "wakeRateModifier": "permanent_increase_20_percent",
+          "restrictionOverrideDurationHours": 24,
+          "warningText": "目标将被迫接受其排斥项内容。是否继续？"
+        }
+      },
+      "modifiers": [],
+      "safety": {
+        "blockedByRejectedContent": false,
+        "blockedByTargetState": false,
+        "blockedBySceneRisk": false,
+        "requiresConsent": false,
+        "hardBlocked": false
+      },
+      "aiGeneration": {
+        "canAISelect": false,
+        "canAICombine": false,
+        "canAIRepeat": false,
+        "canAICreateVariant": false,
+        "variantRules": {}
+      }
+    }
+  ],
+
+  "globalRules": {
+    "mustRespectControllerLevel": true,
+    "mustRespectUnlockedFeatures": true,
+    "mustRespectTargetProfile": true,
+    "mustRespectTargetPreferences": true,
+    "mustRespectRejectedContent": true,
+    "mustRespectCurrentScene": true,
+    "mustRespectSceneRisk": true,
+    "mustRespectCurrentState": true,
+    "mustRespectInventory": true,
+
+    "rejectionProtection": {
+      "rules": [
+        { "id": "action_interception", "desc": "涉及排斥项的操作按钮自动灰色锁定，无法点击" },
+        { "id": "scene_filtering", "desc": "若目标排斥「公共场所露出」，所有公共场景的风险值显示为「不可用」并灰色锁定" },
+        { "id": "prop_filtering", "desc": "若目标排斥「穿刺/针」，相关穿刺道具不在道具库中显示" }
+      ]
+    },
+
+    "aiCannot": [
+      "invent_action_id",
+      "invent_unlocked_action",
+      "ignore_level_requirement",
+      "ignore_scene_requirement",
+      "ignore_target_restriction",
+      "ignore_rejected_content",
+      "modify_action_definition",
+      "modify_static_library"
+    ]
+  },
+
+  "variableEffects": {
+    "supportedVariables": [
+      "controllerLevel",
+      "controllerExperience",
+      "orgasmValue",
+      "wakeValue",
+      "targetAwareness",
+      "currentScene",
+      "currentTaskId",
+      "inventory",
+      "activeEffects",
+      "currentProgress"
+    ],
+
+    "updateRule": "Only variables explicitly defined by the selected action may be modified."
+  }
+}
