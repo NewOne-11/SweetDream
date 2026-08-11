@@ -1,0 +1,924 @@
+{
+  "id": "scenes",
+  "version": 1,
+  "title": "场景资料库",
+  "description": "记录游戏中的地点、时间、风险等级、NPC数量、可用动作、可用物品及场景状态。",
+  "type": "scene_library",
+  "aiVisible": true,
+  "playerVisible": true,
+
+  "riskLevels": {
+    "0": {
+      "name": "无风险",
+      "description": "私密安全环境，无任何暴露或打扰风险，可自由执行任意操作。"
+    },
+    "1": {
+      "name": "极低风险",
+      "description": "相对安全的半私密空间，外界打扰概率极低。"
+    },
+    "2": {
+      "name": "低风险",
+      "description": "低风险环境，通常指无人的公共或教学办公场所。"
+    },
+    "3": {
+      "name": "中低风险",
+      "description": "有极少数NPC活动的非直接视线区域。"
+    },
+    "4": {
+      "name": "中等风险",
+      "description": "中等强度的受控公共场所，随时可能面临目光掠过或打扰。"
+    },
+    "5": {
+      "name": "中高风险",
+      "description": "NPC较多但社交距离尚可的半公开场景。"
+    },
+    "6": {
+      "name": "高风险",
+      "description": "人员密集且存在流动性的公共社交环境。"
+    },
+    "7": {
+      "name": "极高风险",
+      "description": "极高暴露隐患，视线无死角的通勤或室外开放环境。"
+    },
+    "8": {
+      "name": "危险",
+      "description": "高密度暴露风险，随时有社会性死亡可能性的高危场所。"
+    },
+    "9": {
+      "name": "极危险",
+      "description": "极限挑战环境，任何微小失控都会立即导致暴露失败。"
+    },
+    "10": {
+      "name": "最高风险",
+      "description": "毫无防护的绝对公开场合，NPC注意度增长极快。"
+    }
+  },
+
+  "sceneSchema": {
+    "id": { "type": "string", "unique": true },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "enabled": { "type": "boolean" },
+    "unlock": {
+      "minControllerLevel": { "type": "number" },
+      "requiredFeatures": { "type": "array" },
+      "requiredTasks": { "type": "array" },
+      "requiredProgress": { "type": "object" }
+    },
+    "location": {
+      "type": { "type": "string" },
+      "area": { "type": "string" },
+      "description": { "type": "string" }
+    },
+    "time": {
+      "allowedPeriods": { "type": "array" },
+      "preferredPeriods": { "type": "array" },
+      "restrictedPeriods": { "type": "array" }
+    },
+    "privacy": {
+      "level": { "type": "string" },
+      "private": { "type": "boolean" },
+      "semiPrivate": { "type": "boolean" },
+      "public": { "type": "boolean" },
+      "requiresSolitude": { "type": "boolean" }
+    },
+    "risk": {
+      "level": { "type": "number" },
+      "score": { "type": "number" },
+      "description": { "type": "string" }
+    },
+    "npc": {
+      "enabled": { "type": "boolean" },
+      "count": {
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      },
+      "attention": {
+        "enabled": { "type": "boolean" },
+        "growthRate": { "type": "string" },
+        "startingValue": { "type": "number" },
+        "maximumValue": { "type": "number" }
+      },
+      "types": { "type": "array" },
+      "behavior": {
+        "description": { "type": "string" },
+        "canNoticeTarget": { "type": "boolean" },
+        "canInteractWithTarget": { "type": "boolean" },
+        "canInterruptScene": { "type": "boolean" }
+      }
+    },
+    "targetState": {
+      "allowedStates": { "type": "array" },
+      "requiredStates": { "type": "array" },
+      "forbiddenStates": { "type": "array" }
+    },
+    "controllerState": {
+      "requiredFeatures": { "type": "array" },
+      "requiredPermissions": { "type": "array" }
+    },
+    "availableActions": {
+      "allowAll": { "type": "boolean" },
+      "include": { "type": "array" },
+      "exclude": { "type": "array" }
+    },
+    "availableItems": {
+      "allowAll": { "type": "boolean" },
+      "include": { "type": "array" },
+      "exclude": { "type": "array" }
+    },
+    "availableTasks": {
+      "allowAll": { "type": "boolean" },
+      "include": { "type": "array" },
+      "exclude": { "type": "array" }
+    },
+    "sceneEffects": {
+      "orgasmValue": {
+        "multiplier": { "type": "number" },
+        "additional": { "type": "number" }
+      },
+      "wakeValue": {
+        "multiplier": { "type": "number" },
+        "additional": { "type": "number" }
+      },
+      "targetAwareness": {
+        "multiplier": { "type": "number" },
+        "additional": { "type": "number" }
+      },
+      "controllerExperience": {
+        "multiplier": { "type": "number" },
+        "additional": { "type": "number" }
+      },
+      "otherVariables": { "type": "object" }
+    },
+    "specialRules": { "type": "array" },
+    "transitions": {
+      "allowed": { "type": "boolean" },
+      "availableScenes": { "type": "array" },
+      "conditions": { "type": "array" }
+    },
+    "aiGeneration": {
+      "canAISelect": { "type": "boolean" },
+      "canAIGenerateNPC": { "type": "boolean" },
+      "canAIGenerateEnvironment": { "type": "boolean" },
+      "canAIGenerateMinorDetails": { "type": "boolean" },
+      "canAICreateNewScene": { "type": "boolean" }
+    }
+  },
+
+  "scenes": [
+    {
+      "id": "scene_bedroom",
+      "name": "卧室床上",
+      "description": "私密的寝室空间。双人床居中，两侧摆有床头柜，床尾设有长凳，大大的落地窗前挂着朦胧的纱帘。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "bedroom",
+        "area": "home",
+        "description": "双人床居中，床头柜×2，床尾长凳，落地窗带纱帘"
+      },
+      "time": {
+        "allowedPeriods": ["night", "noon"],
+        "preferredPeriods": ["night"],
+        "restrictedPeriods": []
+      },
+      "privacy": {
+        "level": "private",
+        "private": true,
+        "semiPrivate": false,
+        "public": false,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 0,
+        "score": 0,
+        "description": "绝对隐私场所。无任何操作限制，可尽情玩弄。"
+      },
+      "npc": {
+        "enabled": false,
+        "count": { "min": 0, "max": 0 },
+        "attention": {
+          "enabled": false,
+          "growthRate": "none",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": [],
+        "behavior": {
+          "description": "",
+          "canNoticeTarget": false,
+          "canInteractWithTarget": false,
+          "canInterruptScene": false
+        }
+      },
+      "targetState": { "allowedStates": [], "requiredStates": [], "forbiddenStates": [] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.0, "additional": 0 },
+        "wakeValue": { "multiplier": 1.0, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.0, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.0, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["床上", "床边长凳", "落地窗前", "床头靠板"]
+        }
+      },
+      "specialRules": ["无任何限制"],
+      "transitions": { "allowed": true, "availableScenes": ["scene_living_room"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": false,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_living_room",
+      "name": "客厅沙发",
+      "description": "舒适的居家客厅。宽大的L型布艺沙发靠墙摆放，前方是茶几和柔软的地毯，落地灯散发着暖洋洋的光晕。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 1,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "living_room",
+        "area": "home",
+        "description": "L型布艺沙发，茶几，地毯，落地灯暖光"
+      },
+      "time": {
+        "allowedPeriods": ["day", "night"],
+        "preferredPeriods": ["night"],
+        "restrictedPeriods": []
+      },
+      "privacy": {
+        "level": "private",
+        "private": true,
+        "semiPrivate": false,
+        "public": false,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 1,
+        "score": 5,
+        "description": "极低风险场所。环境相对安全自由，几乎无任何操作限制。"
+      },
+      "npc": {
+        "enabled": false,
+        "count": { "min": 0, "max": 0 },
+        "attention": {
+          "enabled": false,
+          "growthRate": "none",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": [],
+        "behavior": {
+          "description": "",
+          "canNoticeTarget": false,
+          "canInteractWithTarget": false,
+          "canInterruptScene": false
+        }
+      },
+      "targetState": { "allowedStates": [], "requiredStates": [], "forbiddenStates": [] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.0, "additional": 0 },
+        "wakeValue": { "multiplier": 1.05, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.0, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.0, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["沙发座", "沙发扶手", "茶几上", "地毯"]
+        }
+      },
+      "specialRules": ["几乎无限制"],
+      "transitions": { "allowed": true, "availableScenes": ["scene_bedroom"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": false,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_train",
+      "name": "电车",
+      "description": "行进中的城市电车车厢。车厢两侧是一排排蓝色硬质长座，上方悬挂着晃动的吊环扶手，朦胧的车窗外掠过城市流光，周围坐落着不少NPC剪影。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 5,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "subway",
+        "area": "public_transport",
+        "description": "车厢两侧长座，吊环扶手，车窗，若干NPC剪影"
+      },
+      "time": {
+        "allowedPeriods": ["day", "evening"],
+        "preferredPeriods": ["evening"],
+        "restrictedPeriods": ["midnight"]
+      },
+      "privacy": {
+        "level": "public",
+        "private": false,
+        "semiPrivate": false,
+        "public": true,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 7,
+        "score": 75,
+        "description": "极限高暴露挑战环境。仅可执行低档振动，插入道具限缓慢抽插，禁用一切有声发声道具。"
+      },
+      "npc": {
+        "enabled": true,
+        "count": { "min": 5, "max": 20 },
+        "attention": {
+          "enabled": true,
+          "growthRate": "fast",
+          "startingValue": 5,
+          "maximumValue": 100
+        },
+        "types": ["passengers", "commuters"],
+        "behavior": {
+          "description": "乘客会在车厢内不定期变换视线，一旦被注意到异常将引发致命后果。",
+          "canNoticeTarget": true,
+          "canInteractWithTarget": false,
+          "canInterruptScene": true
+        }
+      },
+      "targetState": { "allowedStates": ["standing", "sitting"], "requiredStates": [], "forbiddenStates": ["screaming"] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": false,
+        "include": ["hand_interaction", "adjust_pose_presets"],
+        "exclude": ["sp_paddle_strike"]
+      },
+      "availableItems": {
+        "allowAll": false,
+        "include": ["eq_toy_tiaodan", "eq_ins_fangzhen", "eq_ins_moni", "eq_ins_chuanzhu"],
+        "exclude": ["eq_toy_anmobang", "eq_toy_shunxiqi", "eq_sp_pipai", "eq_sp_mabian"]
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.2, "additional": 0 },
+        "wakeValue": { "multiplier": 1.5, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.3, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.5, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["座位", "站立扶吊环", "车门旁角落"],
+          "onAttentionMax": "乘客侧目→目标惊慌并下车逃离→当晚操控强制中断结束"
+        }
+      },
+      "specialRules": [
+        "仅支持低档振动操作",
+        "置入类道具只允许进行缓慢推进和抽插",
+        "禁用一切会产生异响的有声道具"
+      ],
+      "transitions": { "allowed": false, "availableScenes": [], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": true,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_classroom",
+      "name": "教室",
+      "description": "学校教室场景。讲台、大黑板和多排整齐排布的木质课桌椅。支持「空无一人」和「有自习学生」双模式切换。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 7,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "classroom",
+        "area": "school",
+        "description": "讲台+黑板+课桌椅若干，空教室/有自习学生两种模式"
+      },
+      "time": {
+        "allowedPeriods": ["day", "evening"],
+        "preferredPeriods": ["evening"],
+        "restrictedPeriods": ["midnight"]
+      },
+      "privacy": {
+        "level": "semi-private",
+        "private": false,
+        "semiPrivate": true,
+        "public": false,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 4,
+        "score": 20,
+        "description": "双态风险机制。空无一人时风险值为20，有学生自习时骤升至65。"
+      },
+      "npc": {
+        "enabled": true,
+        "count": { "min": 5, "max": 15 },
+        "attention": {
+          "enabled": true,
+          "growthRate": "medium",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": ["students", "classmates"],
+        "behavior": {
+          "description": "学生在中慢速看书和书写，若发出异响或动作幅度过大，会触发NPC视线聚焦。",
+          "canNoticeTarget": true,
+          "canInteractWithTarget": false,
+          "canInterruptScene": true
+        }
+      },
+      "targetState": { "allowedStates": ["sitting"], "requiredStates": [], "forbiddenStates": ["screaming"] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.1, "additional": 0 },
+        "wakeValue": { "multiplier": 1.2, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.15, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.2, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["课桌", "讲台", "黑板前", "窗台"],
+          "modes": {
+            "empty": { "riskScore": 20, "rules": "限中低档位操作，无任何有声道具使用限制" },
+            "populated": { "riskScore": 65, "rules": "仅允许进行低档隐蔽操作，目标绝对不准发出任何声音，若NPC注意度满则触发NPC转头注视→目标惊慌失措→当晚操控结束" }
+          }
+        }
+      },
+      "specialRules": [
+        "有人自习状态下：仅能进行底部的低档隐蔽逗弄，绝不允许产生任何娇喘或异响"
+      ],
+      "transitions": { "allowed": true, "availableScenes": ["scene_bedroom"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": true,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_infirmary",
+      "name": "医务室",
+      "description": "安静干净的校园医务室。蓝白格屏风后立有一张金属腿架的妇科检查床，墙角放置着医疗玻璃器械柜和洗手瓷盆。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 10,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "infirmary",
+        "area": "school",
+        "description": "检查床带腿架，屏风，医疗器械柜，洗手池"
+      },
+      "time": {
+        "allowedPeriods": ["day"],
+        "preferredPeriods": ["day"],
+        "restrictedPeriods": ["night"]
+      },
+      "privacy": {
+        "level": "semi-private",
+        "private": false,
+        "semiPrivate": true,
+        "public": false,
+        "requiresSolitude": true
+      },
+      "risk": {
+        "level": 4,
+        "score": 40,
+        "description": "中度暴露风险。可以借助医务室检查床的固定绑带或拘束带限制进行大尺度操作。"
+      },
+      "npc": {
+        "enabled": false,
+        "count": { "min": 0, "max": 0 },
+        "attention": {
+          "enabled": false,
+          "growthRate": "none",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": [],
+        "behavior": {
+          "description": "",
+          "canNoticeTarget": false,
+          "canInteractWithTarget": false,
+          "canInterruptScene": false
+        }
+      },
+      "targetState": { "allowedStates": [], "requiredStates": [], "forbiddenStates": [] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.15, "additional": 0 },
+        "wakeValue": { "multiplier": 1.1, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.2, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.2, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["检查床", "屏风后", "办公桌"]
+        }
+      },
+      "specialRules": [
+        "限使用中档及以下强度刺激",
+        "支持使用检查床自带的约束腿架和医疗固定绑带进行物理束缚辅助"
+      ],
+      "transitions": { "allowed": true, "availableScenes": ["scene_classroom"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": false,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_office",
+      "name": "办公室",
+      "description": "现代企业格子间办公室。规整的工位桌椅、常开的办公电脑、钢制文件柜，提供「深夜加班空无一人」与「日常工作格子间」双模选择。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 12,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "office",
+        "area": "workplace",
+        "description": "办公桌+转椅+电脑+文件柜，格子间/独立办公室"
+      },
+      "time": {
+        "allowedPeriods": ["day", "night"],
+        "preferredPeriods": ["day"],
+        "restrictedPeriods": ["midnight"]
+      },
+      "privacy": {
+        "level": "semi-private",
+        "private": false,
+        "semiPrivate": true,
+        "public": false,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 5,
+        "score": 20,
+        "description": "双向风险控制。加班无闲杂人等时风险值为20，正常工作日期间则飙升至60。"
+      },
+      "npc": {
+        "enabled": true,
+        "count": { "min": 3, "max": 8 },
+        "attention": {
+          "enabled": true,
+          "growthRate": "medium_slow",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": ["colleagues", "coworkers"],
+        "behavior": {
+          "description": "同事在敲击键盘或整理文件，间歇性可能发出工作问询或抬头走动。",
+          "canNoticeTarget": true,
+          "canInteractWithTarget": true,
+          "canInterruptScene": true
+        }
+      },
+      "targetState": { "allowedStates": ["sitting"], "requiredStates": [], "forbiddenStates": ["screaming"] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.2, "additional": 0 },
+        "wakeValue": { "multiplier": 1.3, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.2, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.3, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["工位桌下", "会议室长桌", "独立办公室"],
+          "modes": {
+            "overtime": { "riskScore": 20, "rules": "深夜或加班空旷状态下，可在办公室、茶水间、前台进行相对自由的尺度操作" },
+            "working": { "riskScore": 60, "rules": "工作时间内仅限桌下或桌底隐蔽进行低档互动，若同事注意度满则触发同事发出工作询问→目标惊慌寻找接口脱身离开→当晚操控结束" }
+          }
+        }
+      },
+      "specialRules": [
+        "工作日工作模式下：仅限办公桌下隐蔽低档操作，禁出声"
+      ],
+      "transitions": { "allowed": true, "availableScenes": ["scene_bedroom"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": true,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_party",
+      "name": "派对",
+      "description": "灯红酒绿、音浪轰鸣的高级私人聚会派对。灯光昏暗、大厅内挤满了密集喧嚣的人群，角落散落着舒适皮质半环形包厢沙发和调酒吧台。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 14,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "nightclub",
+        "area": "entertainment",
+        "description": "大厅灯光昏暗，音乐声大，人群密集，角落有沙发/吧台/阳台"
+      },
+      "time": {
+        "allowedPeriods": ["night", "midnight"],
+        "preferredPeriods": ["night"],
+        "restrictedPeriods": ["morning", "noon"]
+      },
+      "privacy": {
+        "level": "public",
+        "private": false,
+        "semiPrivate": false,
+        "public": true,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 8,
+        "score": 85,
+        "description": "极高暴露隐患高能社交场所。有声器具全网拉黑，震颤只能固定在极低档脉冲运行，目标绝不能泄出任何喘息。"
+      },
+      "npc": {
+        "enabled": true,
+        "count": { "min": 15, "max": 30 },
+        "attention": {
+          "enabled": true,
+          "growthRate": "extremely_fast",
+          "startingValue": 5,
+          "maximumValue": 100
+        },
+        "types": ["partygoers", "guests"],
+        "behavior": {
+          "description": "NPC在交谈饮酒、随重低音节奏晃动，对异常举动、重心不稳有极敏锐的视觉捕捉力。",
+          "canNoticeTarget": true,
+          "canInteractWithTarget": true,
+          "canInterruptScene": true
+        }
+      },
+      "targetState": { "allowedStates": ["standing", "sitting"], "requiredStates": [], "forbiddenStates": ["screaming"] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": false,
+        "include": ["hand_interaction"],
+        "exclude": ["sp_paddle_strike"]
+      },
+      "availableItems": {
+        "allowAll": false,
+        "include": ["eq_toy_tiaodan", "eq_ins_chuanzhu"],
+        "exclude": ["eq_toy_anmobang", "eq_toy_shunxiqi", "eq_sp_pipai", "eq_sp_mabian"]
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.3, "additional": 0 },
+        "wakeValue": { "multiplier": 1.4, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.4, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.5, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["人群中", "角落沙发", "阳台", "卫生间隔间"],
+          "onAttentionMax": "NPC注意到举动异常→引来众人围观并社交性死亡→当夜控制流程强行终结，且惩罚目标羞耻值永久性+10%"
+        }
+      },
+      "specialRules": [
+        "强制禁用一切发声性有声道具",
+        "跳蛋或玩具设备必须恒定在极低档运行",
+        "高潮决堤时要求目标必须死死捂住红唇憋住声音"
+      ],
+      "transitions": { "allowed": false, "availableScenes": [], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": true,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    },
+    {
+      "id": "scene_love_hotel",
+      "name": "情趣酒店",
+      "description": "专为高级情调设计的豪华情趣主题套房。整面粉色落地镜子贴墙，中间安放有松软的水床和圆形天鹅绒大床，上方悬有吊环和X型皮质拘束架，附带超大圆形按摩温水浴缸及专用情趣交互椅。",
+      "enabled": true,
+      "unlock": {
+        "minControllerLevel": 16,
+        "requiredFeatures": [],
+        "requiredTasks": [],
+        "requiredProgress": {}
+      },
+      "location": {
+        "type": "hotel_room",
+        "area": "commercial",
+        "description": "落地镜墙、水床/圆床、吊环、X型拘束架、按摩浴缸、情趣椅"
+      },
+      "time": {
+        "allowedPeriods": ["night", "midnight"],
+        "preferredPeriods": ["night"],
+        "restrictedPeriods": []
+      },
+      "privacy": {
+        "level": "private",
+        "private": true,
+        "semiPrivate": false,
+        "public": false,
+        "requiresSolitude": false
+      },
+      "risk": {
+        "level": 0,
+        "score": 0,
+        "description": "完美的深度开发私密圣地。全网全道具大尺度解禁，没有任何档位和惩罚负面机制。"
+      },
+      "npc": {
+        "enabled": false,
+        "count": { "min": 0, "max": 0 },
+        "attention": {
+          "enabled": false,
+          "growthRate": "none",
+          "startingValue": 0,
+          "maximumValue": 100
+        },
+        "types": [],
+        "behavior": {
+          "description": "",
+          "canNoticeTarget": false,
+          "canInteractWithTarget": false,
+          "canInterruptScene": false
+        }
+      },
+      "targetState": { "allowedStates": [], "requiredStates": [], "forbiddenStates": [] },
+      "controllerState": { "requiredFeatures": [], "requiredPermissions": [] },
+      "availableActions": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableItems": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "availableTasks": {
+        "allowAll": true,
+        "include": [],
+        "exclude": []
+      },
+      "sceneEffects": {
+        "orgasmValue": { "multiplier": 1.25, "additional": 0 },
+        "wakeValue": { "multiplier": 0.9, "additional": 0 },
+        "targetAwareness": { "multiplier": 1.1, "additional": 0 },
+        "controllerExperience": { "multiplier": 1.3, "additional": 0 },
+        "otherVariables": {
+          "interactablePositions": ["落地镜前", "水床", "吊环", "拘束架", "浴缸"]
+        }
+      },
+      "specialRules": ["无任何限制"],
+      "transitions": { "allowed": true, "availableScenes": ["scene_bedroom"], "conditions": [] },
+      "aiGeneration": {
+        "canAISelect": true,
+        "canAIGenerateNPC": false,
+        "canAIGenerateEnvironment": true,
+        "canAIGenerateMinorDetails": true,
+        "canAICreateNewScene": false
+      }
+    }
+  ],
+
+  "globalRules": {
+    "mustRespectControllerLevel": true,
+    "mustRespectSceneUnlock": true,
+    "mustRespectRiskLevel": true,
+    "mustRespectTimeRestriction": true,
+    "mustRespectPrivacyRestriction": true,
+    "mustRespectTargetState": true,
+    "mustRespectActionCompatibility": true,
+    "mustRespectItemCompatibility": true,
+    "mustRespectTaskCompatibility": true,
+
+    "aiCannot": [
+      "invent_scene_id",
+      "invent_unlocked_scene",
+      "ignore_scene_risk",
+      "ignore_time_restriction",
+      "ignore_privacy_restriction",
+      "ignore_npc_restriction",
+      "modify_static_scene_definition"
+    ]
+  },
+
+  "sceneVariables": {
+    "supportedVariables": [
+      "currentScene",
+      "orgasmValue",
+      "wakeValue",
+      "targetAwareness",
+      "controllerExperience",
+      "currentProgress"
+    ],
+
+    "runtimeVariables": [
+      "npcCount",
+      "npcAttention",
+      "sceneRisk",
+      "sceneTime",
+      "privacyLevel"
+    ]
+  }
+}
