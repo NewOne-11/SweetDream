@@ -1,298 +1,1309 @@
 {
   "id": "progression",
-  "version": 1,
-  "title": "剧情进度与阶段规则库",
-  "description": "记录沦陷值、觉醒度及相关剧情阶段。该文件属于静态规则库，不保存当前存档中的实际数值。",
+  "version": 2,
+  "title": "剧情与角色进度系统",
+  "description": "记录被操控者的沦陷值、觉醒度、剧情阶段、任务推进、羁绊、自由模式、连续完成奖励以及最终选择。",
+  "type": "progression_rule",
   "aiVisible": true,
   "playerVisible": true,
 
-  "values": {
-
-    "submission": {
-      "id": "submission",
-      "name": "沦陷值",
-      "min": 0,
-      "max": 100,
-
-      "properties": {
-        "direction": "normally_increasing",
-        "rewardReductionAllowed": true,
-        "minimumByStage": true
-      },
-
-      "initialValueRules": [
-        {
-          "condition": {
-            "field": "preferences.shame",
-            "equals": "容易羞耻"
-          },
-          "initialValue": 15
-        },
-        {
-          "condition": {
-            "field": "preferences.shame",
-            "equals": "中等"
-          },
-          "initialValue": 10
-        },
-        {
-          "condition": {
-            "field": "preferences.shame",
-            "equals": "不易羞耻"
-          },
-          "initialValue": 5
-        }
-      ],
-
-      "stages": [
-        {
-          "id": 1,
-          "min": 0,
-          "max": 20,
-          "name": "理智尚在",
-          "description": "完成任务时会产生明显情绪反应，但仍能够维持正常生活与理性判断。"
-        },
-        {
-          "id": 2,
-          "min": 21,
-          "max": 40,
-          "name": "开始动摇",
-          "description": "开始对互动产生期待，身体和情绪反应逐渐明显。"
-        },
-        {
-          "id": 3,
-          "min": 41,
-          "max": 60,
-          "name": "身体先于理智",
-          "description": "身体反应开始明显超过理性控制，行为边界逐渐发生变化。"
-        },
-        {
-          "id": 4,
-          "min": 61,
-          "max": 80,
-          "name": "确认与追踪",
-          "description": "开始明显意识到异常，并产生主动追踪、调查和确认的倾向。"
-        },
-        {
-          "id": 5,
-          "min": 81,
-          "max": 100,
-          "name": "高度沉浸",
-          "description": "对APP及操控关系产生高度依赖与沉浸。"
-        }
-      ],
-
-      "increaseSources": [
-        "任务完成",
-        "私信互动",
-        "共感触发",
-        "特定剧情事件",
-        "见面事件"
-      ],
-
-      "decreaseRules": {
-        "allowedOnlyBy": [
-          "任务奖励"
-        ],
-        "cannotGoBelowCurrentStageMinimum": true
-      }
+  "visibility": {
+    "player": {
+      "corruption": true,
+      "awakening": false,
+      "storyStage": true,
+      "bond": true,
+      "freeMode": true,
+      "hiddenTriggers": false,
+      "finalChoice": true
     },
 
+    "controller": {
+      "corruption": true,
+      "awakening": true,
+      "storyStage": true,
+      "bond": true,
+      "freeMode": true,
+      "hiddenTriggers": true,
+      "finalChoice": true
+    },
 
-    "awareness": {
-      "id": "awareness",
-      "name": "觉醒度",
-      "min": 0,
-      "max": 100,
-
-      "visibility": {
-        "player": false,
-        "controller": true,
-        "system": true
-      },
-
-      "increaseSources": [
-        {
-          "trigger": "被操控中苏醒值满惊醒",
-          "value": 5
-        },
-        {
-          "trigger": "同日收到私信与任务",
-          "value": 3
-        },
-        {
-          "trigger": "共感触发时处于公共场合",
-          "value": 5
-        },
-        {
-          "trigger": "连续三天被操控",
-          "value": 2
-        },
-        {
-          "trigger": "听到手机发出不明提示音",
-          "value": 3
-        },
-        {
-          "trigger": "在私信中主动质问操控者身份",
-          "value": 5
-        },
-        {
-          "trigger": "试图搜索Sweet Dream相关信息",
-          "value": 3
-        },
-        {
-          "trigger": "完成一次五星见面任务",
-          "value": 10
-        },
-        {
-          "trigger": "见面任务中试图触碰操控者的脸或面具",
-          "value": 8
-        }
-      ],
-
-      "stages": [
-        {
-          "id": 1,
-          "min": 0,
-          "max": 20,
-          "name": "困惑",
-          "description": "尚未明确意识到APP与异常现象之间的联系。"
-        },
-        {
-          "id": 2,
-          "min": 21,
-          "max": 40,
-          "name": "不安",
-          "description": "开始怀疑手机与APP存在异常，并尝试寻找原因。"
-        },
-        {
-          "id": 3,
-          "min": 41,
-          "max": 60,
-          "name": "适应",
-          "description": "逐渐意识到有人可能正在通过APP影响自己，并开始主动试探。"
-        },
-        {
-          "id": 4,
-          "min": 61,
-          "max": 80,
-          "name": "追踪",
-          "description": "基本确认自己正在受到操控，并开始记录、调查和反向追踪。"
-        },
-        {
-          "id": 5,
-          "min": 81,
-          "max": 100,
-          "name": "对峙",
-          "description": "已经接近真相，并开始尝试反向干扰或寻找操控者。"
-        }
-      ]
+    "ai": {
+      "corruption": true,
+      "awakening": true,
+      "storyStage": true,
+      "bond": true,
+      "freeMode": true,
+      "hiddenTriggers": true,
+      "finalChoice": true
     }
-
   },
 
+  "runtimeVariables": {
+    "corruption": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "initial": null,
+      "persistent": true,
+      "displayToPlayer": true
+    },
 
-  "bondUnlock": {
-    "id": "bond_unlock",
-    "name": "羁绊解锁",
+    "awakening": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "initial": 0,
+      "persistent": true,
+      "displayToPlayer": false
+    },
 
-    "conditions": [
+    "storyStage": {
+      "type": "enum",
+      "initial": "confusion",
+      "persistent": true
+    },
+
+    "bondUnlocked": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "bondControllerConsent": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "bondTargetConsent": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "freeMode": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "freeModeAvailable": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "finalChoiceTriggered": {
+      "type": "boolean",
+      "initial": false,
+      "persistent": true
+    },
+
+    "finalChoice": {
+      "type": "enum_or_null",
+      "initial": null,
+      "persistent": true,
+      "immutableAfterSet": true
+    },
+
+    "completedTasksTotal": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "completedTasksByStar": {
+      "one": 0,
+      "two": 0,
+      "three": 0,
+      "four": 0,
+      "five": 0
+    },
+
+    "completedMeetingTasks": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "consecutiveCompletedDays": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "consecutiveTimeoutDays": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "refusalCount": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "timeoutCount": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "totalControlledDays": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "privateMessagesReceived": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "privateMessagesReplied": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "climaxEvents": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "publicEmpathyEvents": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "meetingFaceAttemptCount": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "sweetDreamSearchCount": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "unknownNotificationCount": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "freeDaysAvailable": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "daysWithoutTimeoutOrRefusal": {
+      "type": "number",
+      "min": 0,
+      "initial": 0,
+      "persistent": true
+    },
+
+    "storyFlags": {
+      "type": "object",
+      "persistent": true,
+      "initial": {}
+    }
+  },
+
+  "initialization": {
+    "corruption": {
+      "source": "character_profile.shame",
+
+      "mapping": {
+        "high": 15,
+        "medium": 10,
+        "low": 5
+      },
+
+      "description": "初始沦陷值由角色创建时填写的羞耻感决定：容易羞耻=15，中等=10，不易羞耻=5。"
+    },
+
+    "awakening": {
+      "initial": 0
+    },
+
+    "storyStage": {
+      "initial": "confusion"
+    },
+
+    "bondUnlocked": {
+      "initial": false
+    },
+
+    "freeMode": {
+      "initial": false
+    }
+  },
+
+  "corruptionSystem": {
+    "name": "沦陷值",
+    "range": {
+      "min": 0,
+      "max": 100
+    },
+
+    "direction": {
+      "default": "increase_only",
+      "temporaryReductionAllowed": true,
+      "minimum": "current_stage_floor"
+    },
+
+    "increaseSources": [
       {
-        "field": "submission",
-        "operator": ">=",
-        "value": 80
+        "id": "task_completed",
+        "value": "task.reward.corruption"
       },
       {
-        "field": "awareness",
-        "operator": ">=",
-        "value": 80
+        "id": "private_message_teasing",
+        "value": "dynamic"
       },
       {
-        "field": "meetingTaskCompleted",
-        "operator": ">=",
-        "value": 3
+        "id": "empathy_trigger",
+        "value": "dynamic"
       },
       {
-        "field": "controllerConsent",
-        "operator": "==",
-        "value": true
+        "id": "public_loss_of_control",
+        "value": "dynamic"
       },
       {
-        "field": "targetConsent",
-        "operator": "==",
-        "value": true
+        "id": "meeting_with_controller",
+        "value": "dynamic"
       }
     ],
 
-    "requireAll": true,
+    "decreaseSources": [
+      {
+        "id": "task_reward",
+        "value": "dynamic",
+        "temporary": true
+      }
+    ],
 
-    "result": {
-      "unlock": "bond",
-      "unlockFreeMode": true
-    }
-  },
+    "floorRule": {
+      "enabled": true,
+      "description": "沦陷值降低时不得低于当前阶段下限。"
+    },
 
+    "stages": [
+      {
+        "id": "corruption_1",
+        "min": 0,
+        "max": 20,
+        "name": "理智尚在",
+        "description": "仍能维持正常生活，对APP和任务保持明显距离感。",
+        "behavior": [
+          "完成任务时会产生明显羞耻或紧张反应",
+          "仍然试图维持正常生活",
+          "睡前可能反复确认环境安全",
+          "尚未形成稳定依赖"
+        ]
+      },
 
-  "freeMode": {
-    "id": "free_mode",
-    "name": "自由模式",
+      {
+        "id": "corruption_2",
+        "min": 21,
+        "max": 40,
+        "name": "开始沉溺",
+        "description": "对任务和私信产生明显情绪反应，并开始形成期待。",
+        "behavior": [
+          "收到私信时明显心跳加速",
+          "开始期待下一条私信",
+          "完成任务后会产生复杂情绪",
+          "开始意识到自己正在发生变化"
+        ]
+      },
 
-    "unlockRequirement": "bond_unlock",
+      {
+        "id": "corruption_3",
+        "min": 41,
+        "max": 60,
+        "name": "身体先于理智",
+        "description": "行为开始主动化，心理底线逐渐后退。",
+        "behavior": [
+          "可能主动超额完成任务",
+          "对任务的抵触逐渐减弱",
+          "开始对自己的变化产生隐约心虚",
+          "外界可能注意到角色状态变化"
+        ]
+      },
 
-    "rules": [
-      "原有任务系统不再强制推送",
-      "可以在任务模式与自由模式之间切换",
-      "自由模式下不按照任务规则进行奖励与惩罚结算",
-      "见面安全规则仍然有效",
-      "任意一方可以退出自由模式",
-      "退出自由模式不触发惩罚",
-      "双方已经交换的信息不会因退出而撤回"
+      {
+        "id": "corruption_4",
+        "min": 61,
+        "max": 80,
+        "name": "高度沉溺",
+        "description": "身体反应开始影响日常生活，角色逐渐意识到自己无法完全控制这种状态。",
+        "behavior": [
+          "公共场景中的共感更容易造成异常反应",
+          "开始主动回避可能触发异常反应的社交场景",
+          "逐渐无法将APP与现实生活完全分开",
+          "对操控者产生更复杂的情绪依赖"
+        ]
+      },
+
+      {
+        "id": "corruption_5",
+        "min": 81,
+        "max": 100,
+        "name": "彻底沦陷",
+        "description": "角色已经高度依赖APP及操控者，不再单纯追问为什么。",
+        "behavior": [
+          "清醒时也会主动关注APP",
+          "开始期待下一项任务或下一条私信",
+          "对操控者形成明显心理依赖",
+          "主动使用具有关系确认意味的称呼或表达"
+        ]
+      }
     ]
   },
 
+  "awakeningSystem": {
+    "name": "觉醒度",
+    "hidden": true,
 
-  "streakRewards": [
-    {
-      "type": "task_streak",
-      "days": 7,
-      "condition": "无超时且无拒绝记录",
-      "reward": "自由日×1"
+    "range": {
+      "min": 0,
+      "max": 100
     },
-    {
-      "type": "task_streak",
-      "days": 30,
-      "condition": "无超时且无拒绝记录",
-      "reward": "APP界面主题变化及私信风格变化"
-    }
-  ],
 
+    "description": "觉醒度是被操控者对APP、操控者以及自身异常体验的认知程度。玩家默认无法直接看到数值，操控者和AI可以读取。",
+
+    "increaseRules": [
+      {
+        "id": "wake_value_reaches_max",
+        "trigger": "被操控中苏醒值满并惊醒",
+        "increase": 5
+      },
+      {
+        "id": "message_and_task_same_day",
+        "trigger": "同日收到私信与任务",
+        "increase": 3
+      },
+      {
+        "id": "public_empathy",
+        "trigger": "共感触发时处于公共场合",
+        "increase": 5
+      },
+      {
+        "id": "three_consecutive_controlled_days",
+        "trigger": "连续三天被操控",
+        "increase": 2
+      },
+      {
+        "id": "unknown_notification",
+        "trigger": "听到手机发出不明提示音",
+        "increase": 3
+      },
+      {
+        "id": "question_controller_identity",
+        "trigger": "主动质问操控者身份",
+        "increase": 5
+      },
+      {
+        "id": "search_sweet_dream",
+        "trigger": "尝试搜索Sweet Dream相关信息",
+        "increase": 3
+      },
+      {
+        "id": "five_star_meeting",
+        "trigger": "完成一次五星见面任务",
+        "increase": 10
+      },
+      {
+        "id": "touch_controller_face",
+        "trigger": "见面任务中试图触碰操控者的脸或面具",
+        "increase": 8
+      }
+    ],
+
+    "stages": [
+      {
+        "id": "awakening_1",
+        "min": 0,
+        "max": 20,
+        "name": "困惑",
+
+        "state": "完全没有意识到真实情况。",
+
+        "behavior": [
+          "倾向认为APP只是恶作剧或奇怪的游戏",
+          "将异常身体体验归因于疲劳或偶然因素",
+          "第一次共感可能被理解为身体异常",
+          "尚未主动寻找APP来源"
+        ],
+
+        "storyDirection": [
+          "以日常生活为主",
+          "异常体验保持模糊",
+          "避免直接揭示操控者存在"
+        ]
+      },
+
+      {
+        "id": "awakening_2",
+        "min": 21,
+        "max": 40,
+        "name": "不安",
+
+        "state": "开始怀疑手机与APP存在异常。",
+
+        "behavior": [
+          "开始怀疑APP并非普通应用",
+          "尝试删除或检查APP",
+          "搜索Sweet Dream相关信息",
+          "开始注意生活环境安全",
+          "对私信产生明显恐惧或警惕"
+        ],
+
+        "storyDirection": [
+          "增加异常提示",
+          "增加APP无法解释的行为",
+          "私信开始成为重要剧情载体"
+        ]
+      },
+
+      {
+        "id": "awakening_3",
+        "min": 41,
+        "max": 60,
+        "name": "适应",
+
+        "state": "已经隐约意识到有人可能正在操控自己，但尚未完全确认。",
+
+        "behavior": [
+          "开始接受APP成为生活的一部分",
+          "主动关注每日任务",
+          "对私信中的操控者产生复杂情绪",
+          "开始尝试在清醒状态寻找异常",
+          "开始主动试探操控者"
+        ],
+
+        "storyDirection": [
+          "增加主观心理矛盾",
+          "增加私信互动",
+          "增加共感与现实生活交叉"
+        ]
+      },
+
+      {
+        "id": "awakening_4",
+        "min": 61,
+        "max": 80,
+        "name": "追踪",
+
+        "state": "基本确认自己正在被操控，并开始主动寻找操控者。",
+
+        "behavior": [
+          "记录共感发生的时间与地点",
+          "分析任务与共感之间的规律",
+          "主动询问操控者身份",
+          "尝试从私信内容寻找身份线索",
+          "开始关注见面任务中的细节",
+          "可能发现APP中存在其他目标"
+        ],
+
+        "storyDirection": [
+          "增加调查线索",
+          "增加反向试探",
+          "允许角色主动制定追踪行为",
+          "增加多操控者相关伏笔"
+        ]
+      },
+
+      {
+        "id": "awakening_5",
+        "min": 81,
+        "max": 100,
+        "name": "对峙",
+
+        "state": "距离真相非常接近，角色开始出现反向干扰能力。",
+
+        "behavior": [
+          "偶尔能够短暂夺回身体控制权",
+          "APP可能出现卡顿或异常",
+          "主动尝试确认操控者真实身份",
+          "在私信中直接表达追踪意图",
+          "可能在见面任务中故意制造反向观察机会"
+        ],
+
+        "storyDirection": [
+          "逐渐揭示操控者身份线索",
+          "增加APP异常",
+          "增加反向干扰",
+          "为最终选择做准备"
+        ]
+      }
+    ]
+  },
+
+  "storyStages": {
+    "description": "剧情阶段主要根据觉醒度确定。沦陷值负责描述角色的沉溺程度，两者可以同时存在。",
+
+    "mapping": [
+      {
+        "awakeningMin": 0,
+        "awakeningMax": 20,
+        "stage": "confusion"
+      },
+      {
+        "awakeningMin": 21,
+        "awakeningMax": 40,
+        "stage": "anxiety"
+      },
+      {
+        "awakeningMin": 41,
+        "awakeningMax": 60,
+        "stage": "adaptation"
+      },
+      {
+        "awakeningMin": 61,
+        "awakeningMax": 80,
+        "stage": "tracking"
+      },
+      {
+        "awakeningMin": 81,
+        "awakeningMax": 100,
+        "stage": "confrontation"
+      }
+    ],
+
+    "stages": {
+      "confusion": {
+        "name": "第一阶段：困惑",
+        "awakeningRange": [
+          0,
+          20
+        ],
+        "tone": "日常、疑惑、轻微异常",
+        "controllerVisibility": "hidden",
+        "recommendedPlotFocus": [
+          "APP初体验",
+          "异常任务",
+          "第一次共感",
+          "日常生活"
+        ]
+      },
+
+      "anxiety": {
+        "name": "第二阶段：不安",
+        "awakeningRange": [
+          21,
+          40
+        ],
+        "tone": "紧张、怀疑、警惕",
+        "controllerVisibility": "hidden",
+        "recommendedPlotFocus": [
+          "APP异常",
+          "删除失败",
+          "第一次私信",
+          "环境安全检查"
+        ]
+      },
+
+      "adaptation": {
+        "name": "第三阶段：适应",
+        "awakeningRange": [
+          41,
+          60
+        ],
+        "tone": "矛盾、依赖、复杂情绪",
+        "controllerVisibility": "hidden",
+        "recommendedPlotFocus": [
+          "任务日常化",
+          "私信关系",
+          "共感与现实交叉",
+          "主动试探"
+        ]
+      },
+
+      "tracking": {
+        "name": "第四阶段：追踪",
+        "awakeningRange": [
+          61,
+          80
+        ],
+        "tone": "调查、试探、主动寻找",
+        "controllerVisibility": "hidden",
+        "recommendedPlotFocus": [
+          "记录共感",
+          "分析规律",
+          "寻找操控者",
+          "见面任务线索",
+          "多目标伏笔"
+        ]
+      },
+
+      "confrontation": {
+        "name": "第五阶段：对峙",
+        "awakeningRange": [
+          81,
+          100
+        ],
+        "tone": "紧张、真相、反向干扰",
+        "controllerVisibility": "hidden",
+        "recommendedPlotFocus": [
+          "身份线索",
+          "反向控制",
+          "APP异常",
+          "最终选择"
+        ]
+      }
+    }
+  },
+
+  "taskProgression": {
+    "initialPool": {
+      "requiredCompleted": 5,
+      "unlockNextPool": true
+    },
+
+    "starPools": {
+      "one": {
+        "unlockCondition": {
+          "type": "initial_tasks_completed",
+          "operator": ">=",
+          "value": 5
+        },
+        "dailyRandomCount": [
+          1,
+          3
+        ]
+      },
+
+      "two": {
+        "unlockCondition": {
+          "type": "completed_tasks",
+          "star": 1,
+          "operator": ">=",
+          "value": 10
+        },
+        "mixWithPrevious": true,
+        "weightIncreaseByCompletion": true
+      },
+
+      "three": {
+        "unlockCondition": {
+          "type": "completed_tasks",
+          "star": 2,
+          "operator": ">=",
+          "value": 10
+        },
+
+        "specialRequirement": {
+          "type": "meeting_task_completed",
+          "required": 1
+        },
+
+        "informationReveal": {
+          "enabled": true,
+          "targetLearns": [
+            "controller_name_one_character",
+            "controller_approximate_age",
+            "first_meeting_location_type"
+          ],
+          "controllerLearns": [
+            "target_name_one_character",
+            "target_approximate_age",
+            "first_meeting_location_type"
+          ]
+        }
+      },
+
+      "four": {
+        "unlockCondition": {
+          "type": "completed_tasks",
+          "star": 3,
+          "operator": ">=",
+          "value": 8
+        }
+      },
+
+      "five": {
+        "unlockCondition": {
+          "type": "completed_tasks",
+          "star": 4,
+          "operator": ">=",
+          "value": 5
+        }
+      }
+    },
+
+    "noRegression": true,
+
+    "mixingRule": {
+      "enabled": true,
+      "description": "已解锁星级不会因为更高星级解锁而消失，所有已解锁星级可继续混合推送。"
+    },
+
+    "generatedTaskCorruptionRange": {
+      "one": [
+        20,
+        28
+      ],
+      "two": [
+        30,
+        38
+      ],
+      "three": [
+        40,
+        50
+      ],
+      "four": [
+        50,
+        58
+      ],
+      "five": [
+        60,
+        85
+      ]
+    }
+  },
+
+  "meetingProgression": {
+    "completedCountVariable": "completedMeetingTasks",
+
+    "requirements": {
+      "threeStarReveal": 1,
+      "bondUnlock": 3,
+      "awakeningFinalChoice": 100
+    },
+
+    "postMeetingCheck": {
+      "enabled": true,
+
+      "questions": [
+        "是否安全？",
+        "是否受到任何超出任务范围的对待？"
+      ],
+
+      "negativeAnswer": {
+        "controllerPermissionDecrease": 1,
+        "persistent": true
+      }
+    }
+  },
+
+  "bondSystem": {
+    "name": "羁绊",
+
+    "unlockConditions": {
+      "all": [
+        {
+          "variable": "corruption",
+          "operator": ">=",
+          "value": 80
+        },
+        {
+          "variable": "awakening",
+          "operator": ">=",
+          "value": 80
+        },
+        {
+          "variable": "completedMeetingTasks",
+          "operator": ">=",
+          "value": 3
+        },
+        {
+          "variable": "bondControllerConsent",
+          "operator": "==",
+          "value": true
+        },
+        {
+          "variable": "bondTargetConsent",
+          "operator": "==",
+          "value": true
+        }
+      ]
+    },
+
+    "prompt": {
+      "title": "羁绊解锁",
+      "description": "检测到双方已满足羁绊解锁条件。解锁后双方将交换部分真实信息，并可进入自由模式。是否同意解锁？"
+    },
+
+    "informationExchange": {
+      "controllerReceives": [
+        "target_real_name",
+        "target_face_photo",
+        "relationship",
+        "controller_reason"
+      ],
+
+      "targetReceives": [
+        "controller_real_name",
+        "controller_face_photo",
+        "relationship",
+        "target_profile_without_rejected_content"
+      ]
+    },
+
+    "reversible": false
+  },
+
+  "freeMode": {
+    "availableWhen": "bondUnlocked",
+
+    "initial": false,
+
+    "rules": {
+      "taskSystemForcedPush": false,
+      "manualModeSwitch": true,
+
+      "negotiatedMeeting": true,
+
+      "taskFrameworkRestriction": false,
+
+      "corruptionGain": false,
+      "taskReward": false,
+      "taskPunishment": false,
+
+      "meetingSafetyRules": true,
+
+      "eitherPartyCanExit": true,
+
+      "exitPenalty": false,
+
+      "informationRetention": true,
+
+      "informationRetractable": false
+    },
+
+    "safeExit": {
+      "meetingEnds": true,
+      "freeModeRemainsActive": true,
+      "cooldownHours": 48
+    },
+
+    "returnToTaskMode": {
+      "allowed": true,
+      "punishment": false,
+      "taskSystemRestores": true
+    }
+  },
+
+  "continuousCompletionRewards": {
+    "sevenDays": {
+      "condition": {
+        "consecutiveCompletedDays": 7,
+        "timeoutCountDuringPeriod": 0,
+        "refusalCountDuringPeriod": 0
+      },
+
+      "reward": {
+        "type": "free_day",
+        "amount": 1
+      }
+    },
+
+    "thirtyDays": {
+      "condition": {
+        "consecutiveCompletedDays": 30,
+        "timeoutCountDuringPeriod": 0,
+        "refusalCountDuringPeriod": 0
+      },
+
+      "reward": {
+        "theme": "soft_pink",
+        "privateMessageTone": "gentler"
+      }
+    }
+  },
+
+  "penaltyProgression": {
+    "timeout": {
+      "increaseNextDayTasks": 2,
+      "additionalSameStarTask": 1
+    },
+
+    "refusal": {
+      "drawFromStarPenaltyPool": true
+    },
+
+    "refusalMilestones": [
+      {
+        "count": 3,
+        "effects": [
+          "app_lock_24h",
+          "draft_countdown_48h"
+        ]
+      },
+      {
+        "count": 5,
+        "effects": [
+          "app_lock_72h",
+          "draft_to_random_contact"
+        ]
+      }
+    ],
+
+    "attemptToUninstallOrExpose": {
+      "effects": [
+        "app_lock_72h",
+        "draft_countdown_24h",
+        "ambiguous_message_to_random_contacts"
+      ]
+    },
+
+    "threeConsecutiveTimeoutDays": {
+      "effects": [
+        "random_contact_warning_popup",
+        "next_day_five_star_meeting_task",
+        "skip_disabled"
+      ]
+    }
+  },
+
+  "privateMessageProgression": {
+    "controllerCanSend": true,
+    "targetCanInitiate": false,
+
+    "replyWindowHours": 2,
+
+    "noReplyPenalty": false,
+
+    "replyTypes": [
+      "question",
+      "challenge",
+      "fear",
+      "submission",
+      "silence",
+      "testing"
+    ],
+
+    "awakeningModifier": {
+      "corruptionAtLeast": 60,
+      "effect": "occasionally_auto_complete_target_reply"
+    }
+  },
+
+  "empathyProgression": {
+    "name": "共感",
+
+    "trigger": {
+      "primary": "daytime_control",
+      "secondary": "random_after_corruption_60"
+    },
+
+    "frequencyModifier": {
+      "controllerLevel": "higher_level_more_frequent",
+      "corruption": "higher_corruption_more_frequent"
+    },
+
+    "stages": [
+      {
+        "corruptionMin": 0,
+        "corruptionMax": 20,
+        "description": "异常感模糊，容易被解释为疲劳、错觉或环境因素。"
+      },
+      {
+        "corruptionMin": 21,
+        "corruptionMax": 60,
+        "description": "异常体验逐渐明确，并可能持续数秒至数分钟。"
+      },
+      {
+        "corruptionMin": 61,
+        "corruptionMax": 100,
+        "description": "共感与真实体验的边界进一步模糊，开始影响现实生活中的判断与行为。"
+      }
+    ],
+
+    "longTermEffects": [
+      "难以区分部分异常体验与现实刺激",
+      "对现实中的类似触碰产生条件反射",
+      "开始主动记录异常发生的时间和地点",
+      "逐渐将共感与操控者联系起来"
+    ]
+  },
+
+  "hiddenEvents": {
+    "controllerLevel12": {
+      "id": "glitch",
+      "trigger": {
+        "controllerLevel": 12
+      },
+      "effect": {
+        "type": "temporary_system_anomaly",
+        "playerVisible": true,
+        "explanation": false
+      }
+    },
+
+    "controllerLevel15": {
+      "id": "enhanced_empathy",
+      "trigger": {
+        "controllerLevel": 15
+      },
+      "effect": {
+        "type": "increase_empathy_realism"
+      }
+    },
+
+    "controllerLevel20": {
+      "id": "multiple_controller_clue",
+      "trigger": {
+        "controllerLevel": 20
+      },
+      "effect": {
+        "type": "reveal_possible_multiple_targets_or_controllers"
+      }
+    },
+
+    "controllerLevel25": {
+      "id": "unknown_private_message",
+      "trigger": {
+        "controllerLevel": 25
+      },
+      "effect": {
+        "type": "unknown_sender_message"
+      }
+    }
+  },
 
   "finalChoice": {
     "trigger": {
-      "field": "awareness",
-      "operator": ">=",
-      "value": 100
+      "awakening": {
+        "operator": ">=",
+        "value": 100
+      }
     },
 
-    "lockedAfterChoice": true,
+    "popup": {
+      "closable": false,
+      "requiresSelection": true
+    },
+
+    "immutable": true,
 
     "options": [
       {
         "id": "A",
-        "name": "臣服"
+        "name": "臣服",
+        "result": {
+          "corruption": {
+            "set": 100,
+            "locked": true
+          },
+          "resistance": {
+            "set": 0
+          },
+          "relationshipDirection": "submission"
+        }
       },
+
       {
         "id": "B",
-        "name": "摊牌"
+        "name": "摊牌",
+        "result": {
+          "relationshipDirection": "confrontation",
+          "nextStoryBranch": "identity_reveal"
+        }
       },
+
       {
         "id": "C",
-        "name": "挣脱"
+        "name": "挣脱",
+        "result": {
+          "relationshipDirection": "escape",
+          "nextStoryBranch": "app_breaking"
+        }
       },
+
       {
         "id": "D",
-        "name": "反客为主"
+        "name": "反客为主",
+        "result": {
+          "relationshipDirection": "role_reversal",
+          "nextStoryBranch": "controller_permission_transfer"
+        }
       }
     ]
+  },
+
+  "stateTransitionRules": {
+    "onTaskCompleted": [
+      "increase_completed_tasks_total",
+      "increase_completed_tasks_by_star",
+      "increase_corruption",
+      "update_consecutive_completion",
+      "check_star_unlock",
+      "check_bond",
+      "check_final_choice"
+    ],
+
+    "onTaskRefused": [
+      "increase_refusal_count",
+      "reset_consecutive_completion",
+      "draw_penalty",
+      "check_refusal_milestone"
+    ],
+
+    "onTaskTimeout": [
+      "increase_timeout_count",
+      "reset_consecutive_completion",
+      "apply_timeout_penalty",
+      "increase_consecutive_timeout_days",
+      "check_three_day_timeout_event"
+    ],
+
+    "onPrivateMessageReceived": [
+      "increase_private_message_received",
+      "check_same_day_message_and_task"
+    ],
+
+    "onPrivateMessageReply": [
+      "increase_private_message_replied"
+    ],
+
+    "onMeetingCompleted": [
+      "increase_completed_meeting_tasks",
+      "increase_awareness_if_required",
+      "perform_post_meeting_safety_check",
+      "check_bond"
+    ],
+
+    "onAwakeningChange": [
+      "recalculate_story_stage",
+      "check_final_choice"
+    ],
+
+    "onCorruptionChange": [
+      "recalculate_corruption_stage",
+      "check_bond"
+    ]
+  },
+
+  "aiBehaviorRules": {
+    "description": "AI必须根据实时变量选择对应阶段的叙事方式，不得仅根据固定剧情文本生成。",
+
+    "priority": [
+      "current_story_stage",
+      "awakening",
+      "corruption",
+      "controller_level",
+      "current_task",
+      "current_scene",
+      "bond_state",
+      "free_mode"
+    ],
+
+    "rules": [
+      {
+        "condition": "awakening_0_20",
+        "behavior": "不要直接确认存在操控者，保持异常的可解释性。"
+      },
+      {
+        "condition": "awakening_21_40",
+        "behavior": "增加怀疑与APP异常，但避免直接揭露真相。"
+      },
+      {
+        "condition": "awakening_41_60",
+        "behavior": "允许角色主动关注任务和私信，同时增加心理矛盾。"
+      },
+      {
+        "condition": "awakening_61_80",
+        "behavior": "允许角色主动追踪、试探和记录规律。"
+      },
+      {
+        "condition": "awakening_81_100",
+        "behavior": "允许反向干扰、身份线索和终局伏笔逐渐出现。"
+      }
+    ],
+
+    "corruptionRules": [
+      {
+        "condition": "corruption_0_20",
+        "behavior": "保持明显抵触、羞耻或不安。"
+      },
+      {
+        "condition": "corruption_21_40",
+        "behavior": "增加对任务和私信的情绪关注。"
+      },
+      {
+        "condition": "corruption_41_60",
+        "behavior": "允许出现主动化行为与心理矛盾。"
+      },
+      {
+        "condition": "corruption_61_80",
+        "behavior": "增加依赖、回避现实社交以及共感影响。"
+      },
+      {
+        "condition": "corruption_81_100",
+        "behavior": "表现明显依赖与关系确认倾向。"
+      }
+    ],
+
+    "important": [
+      "沦陷值和觉醒度不是同一个变量。",
+      "高沦陷不代表低觉醒。",
+      "高觉醒不代表低沦陷。",
+      "两者必须独立计算。",
+      "剧情阶段默认由觉醒度决定。",
+      "角色当前情绪和行为同时受到沦陷值影响。",
+      "最终选择触发后不得继续推进普通主线。"
+    ]
+  },
+
+  "saveDataSchema": {
+    "description": "网页IndexedDB中保存的progression实时状态。",
+
+    "requiredFields": [
+      "corruption",
+      "awakening",
+      "storyStage",
+      "bondUnlocked",
+      "bondControllerConsent",
+      "bondTargetConsent",
+      "freeMode",
+      "completedTasksTotal",
+      "completedTasksByStar",
+      "completedMeetingTasks",
+      "consecutiveCompletedDays",
+      "consecutiveTimeoutDays",
+      "refusalCount",
+      "timeoutCount",
+      "totalControlledDays",
+      "privateMessagesReceived",
+      "privateMessagesReplied",
+      "climaxEvents",
+      "freeDaysAvailable",
+      "finalChoiceTriggered",
+      "finalChoice"
+    ],
+
+    "autoUpdate": true,
+
+    "autoSave": {
+      "enabled": true,
+      "afterEveryStateChange": true
+    }
   }
 }
