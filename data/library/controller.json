@@ -1,0 +1,266 @@
+{
+  "id": "controller",
+  "version": 1,
+  "title": "操控者等级与权限库",
+  "description": "记录操控者等级、经验、功能解锁以及白日操控权限。该文件属于静态规则库，不保存当前玩家的实际等级。",
+  "aiVisible": true,
+  "playerVisible": true,
+
+  "levelSystem": {
+    "minLevel": 1,
+    "maxLevel": 20,
+    "experiencePerLevel": 100,
+    "experienceName": "高潮值",
+    "experienceRange": {
+      "min": 0,
+      "max": 100
+    },
+    "overflow": true,
+    "overflowDescription": "升级时超过100的经验自动转入下一级。",
+    "example": {
+      "before": "Lv.5（89/100）",
+      "gain": 25,
+      "after": "Lv.6（14/100）"
+    }
+  },
+
+  "levels": [
+    {
+      "level": 1,
+      "name": "Lv.1",
+      "unlock": [
+        "基础操控",
+        "基础场景",
+        "基础姿势调整",
+        "视角缩放"
+      ]
+    },
+    {
+      "level": 2,
+      "name": "Lv.2",
+      "unlock": [
+        "服装库"
+      ]
+    },
+    {
+      "level": 3,
+      "name": "Lv.3",
+      "unlock": [
+        "道具功能",
+        "敏感部位自定义标记"
+      ]
+    },
+    {
+      "level": 4,
+      "name": "Lv.4",
+      "unlock": [
+        "新增道具"
+      ]
+    },
+    {
+      "level": 5,
+      "name": "Lv.5",
+      "unlock": [
+        "新增场景",
+        "药物系统",
+        "新增插入类道具"
+      ]
+    },
+    {
+      "level": 6,
+      "name": "Lv.6",
+      "unlock": [
+        "任务发布"
+      ]
+    },
+    {
+      "level": 7,
+      "name": "Lv.7",
+      "unlock": [
+        "新增场景",
+        "新增道具"
+      ]
+    },
+    {
+      "level": 8,
+      "name": "Lv.8",
+      "unlock": [
+        "私信系统",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 9,
+      "name": "Lv.9",
+      "unlock": [
+        "新增高级道具",
+        "午睡时段操控"
+      ]
+    },
+    {
+      "level": 10,
+      "name": "Lv.10",
+      "unlock": [
+        "新增场景",
+        "新增束缚类道具",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 11,
+      "name": "Lv.11",
+      "unlock": [
+        "双道具同时使用",
+        "新增道具"
+      ]
+    },
+    {
+      "level": 12,
+      "name": "Lv.12",
+      "unlock": [
+        "新增场景",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 13,
+      "name": "Lv.13",
+      "unlock": [
+        "独处时段白日操控",
+        "共感调控",
+        "新增道具"
+      ]
+    },
+    {
+      "level": 14,
+      "name": "Lv.14",
+      "unlock": [
+        "新增场景",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 15,
+      "name": "Lv.15",
+      "unlock": [
+        "全时段隐蔽操控",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 16,
+      "name": "Lv.16",
+      "unlock": [
+        "新增场景",
+        "新增药物"
+      ]
+    },
+    {
+      "level": 17,
+      "name": "Lv.17",
+      "unlock": [
+        "场景自定义"
+      ]
+    },
+    {
+      "level": 18,
+      "name": "Lv.18",
+      "unlock": [
+        "自由操控模式",
+        "特殊观察功能"
+      ]
+    },
+    {
+      "level": 19,
+      "name": "Lv.19",
+      "unlock": [
+        "多目标操控"
+      ]
+    },
+    {
+      "level": 20,
+      "name": "Lv.20",
+      "unlock": [
+        "回放功能",
+        "隐藏线索开始浮现"
+      ]
+    }
+  ],
+
+  "dayControl": {
+    "description": "白日操控权限随操控者等级逐步开放。",
+    "stages": [
+      {
+        "minLevel": 1,
+        "maxLevel": 8,
+        "name": "夜间操控",
+        "timePeriods": [
+          "夜间熟睡"
+        ],
+        "rules": {
+          "type": "basic"
+        }
+      },
+      {
+        "minLevel": 9,
+        "maxLevel": 12,
+        "name": "午睡时段",
+        "timePeriods": [
+          "夜间熟睡",
+          "午睡"
+        ],
+        "rules": {
+          "duration": "1-2h",
+          "wakeValueMultiplier": 1.2
+        }
+      },
+      {
+        "minLevel": 13,
+        "maxLevel": 14,
+        "name": "独处时段",
+        "timePeriods": [
+          "夜间熟睡",
+          "午睡",
+          "独处时段"
+        ],
+        "rules": {
+          "targetAwake": true,
+          "wakeValueMultiplier": 3,
+          "operationIntensity": "limited"
+        }
+      },
+      {
+        "minLevel": 15,
+        "maxLevel": 17,
+        "name": "全时段隐蔽操控",
+        "timePeriods": [
+          "夜间",
+          "午睡",
+          "独处时段",
+          "其他符合条件的时段"
+        ],
+        "rules": {
+          "publicSceneRiskLimit": true
+        }
+      },
+      {
+        "minLevel": 18,
+        "maxLevel": 20,
+        "name": "自由操控",
+        "timePeriods": [
+          "全时段"
+        ],
+        "rules": {
+          "wakeValueMultiplier": 1.5,
+          "targetBodySubmission": true
+        }
+      }
+    ]
+  },
+
+  "permissionRules": {
+    "levelUnlocksArePermanent": true,
+    "higherLevelIncludesLowerLevelPermissions": true,
+    "levelCannotDecreaseNormally": true
+  }
+}
