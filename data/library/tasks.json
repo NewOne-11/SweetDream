@@ -1,0 +1,1906 @@
+{
+  "id": "tasks",
+  "version": "2.0.0",
+  "title": "任务资料库",
+  "description": "文游任务静态数据库。包含初始任务池、星级任务池、任务分类、任务选择规则、AI生成规则以及任务数据结构。",
+  "databaseType": "static",
+
+  "visibility": {
+    "playerCanRead": true,
+    "aiCanRead": true,
+    "playerCanEdit": false,
+    "adminCanEdit": true
+  },
+
+  "system": {
+    "enabled": true,
+
+    "initialPool": {
+      "enabled": true,
+      "description": "开局从初始任务池中随机抽取5条任务。",
+      "taskCount": 5,
+
+      "selection": {
+        "random": true,
+        "unique": true,
+        "sameTypeLimit": false
+      },
+
+      "unlockCondition": {
+        "type": "all_completed",
+        "requiredCount": 5
+      }
+    },
+
+    "dailyTasks": {
+      "enabled": true,
+      "minCount": 1,
+      "maxCount": 3,
+      "randomSelection": true,
+
+      "sameTypeLimit": {
+        "enabled": true,
+        "maxSameTypePerDay": 1
+      },
+
+      "repeatProtection": {
+        "enabled": true,
+        "sameTaskCannotRepeatImmediately": true,
+        "historyDays": 7
+      }
+    },
+
+    "poolPersistence": {
+      "enabled": true,
+      "description": "已解锁的低星任务池不会因为新星级解锁而消失。",
+      "previousPoolsRemainAvailable": true,
+      "allowMixedSelection": true
+    }
+  },
+
+  "taskTypes": {
+    "daily": {
+      "id": "daily",
+      "name": "日常",
+      "description": "普通日常类任务。",
+      "enabled": true
+    },
+
+    "item": {
+      "id": "item",
+      "name": "道具",
+      "description": "需要指定道具才能完成的任务。",
+      "enabled": true,
+      "requiresItem": true
+    },
+
+    "semiPublic": {
+      "id": "semiPublic",
+      "name": "半公开",
+      "description": "存在一定外部环境风险的任务。",
+      "enabled": true,
+      "riskLevel": "medium"
+    },
+
+    "exposure": {
+      "id": "exposure",
+      "name": "露出",
+      "description": "具有较高环境暴露风险的任务。",
+      "enabled": true,
+      "riskLevel": "high"
+    },
+
+    "meeting": {
+      "id": "meeting",
+      "name": "见面",
+      "description": "涉及操控者与被操控者现实接触的任务。",
+      "enabled": true,
+      "riskLevel": "special"
+    }
+  },
+
+  "starSystem": {
+    "description": "任务星级决定任务难度、沦陷值范围以及可使用的任务类型。",
+
+    "stars": {
+      "0": {
+        "id": "initial",
+        "name": "初始任务",
+        "difficulty": 1,
+
+        "unlock": {
+          "always": true
+        },
+
+        "corruptionRange": {
+          "min": 0,
+          "max": 20
+        }
+      },
+
+      "1": {
+        "id": "star_1",
+        "name": "一星",
+        "difficulty": 1,
+
+        "unlock": {
+          "type": "completedTasks",
+          "previousStar": 0,
+          "required": 5
+        },
+
+        "corruptionRange": {
+          "min": 20,
+          "max": 28
+        }
+      },
+
+      "2": {
+        "id": "star_2",
+        "name": "二星",
+        "difficulty": 2,
+
+        "unlock": {
+          "type": "completedTasks",
+          "previousStar": 1,
+          "required": 10
+        },
+
+        "corruptionRange": {
+          "min": 30,
+          "max": 38
+        }
+      },
+
+      "3": {
+        "id": "star_3",
+        "name": "三星",
+        "difficulty": 3,
+
+        "unlock": {
+          "type": "completedTasks",
+          "previousStar": 2,
+          "required": 10
+        },
+
+        "corruptionRange": {
+          "min": 40,
+          "max": 50
+        },
+
+        "special": {
+          "meetingTasksAllowed": true
+        }
+      },
+
+      "4": {
+        "id": "star_4",
+        "name": "四星",
+        "difficulty": 4,
+
+        "unlock": {
+          "type": "completedTasks",
+          "previousStar": 3,
+          "required": 8
+        },
+
+        "corruptionRange": {
+          "min": 50,
+          "max": 58
+        }
+      },
+
+      "5": {
+        "id": "star_5",
+        "name": "五星",
+        "difficulty": 5,
+
+        "unlock": {
+          "type": "completedTasks",
+          "previousStar": 4,
+          "required": 5
+        },
+
+        "corruptionRange": {
+          "min": 60,
+          "max": 85
+        },
+
+        "special": {
+          "highRisk": true
+        }
+      }
+    },
+
+    "regression": {
+      "enabled": false,
+      "description": "已经解锁的星级不会因为状态下降而重新锁定。"
+    }
+  },
+
+  "initialPool": {
+    "enabled": true,
+    "description": "初始任务池。",
+    "tasks": [
+      {
+        "id": "init_001",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "daily",
+        "title": "日间真空",
+        "description": "今日全天不穿内衣裤出门，进行正常的外出活动。",
+        "corruption": 5,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["真空", "室外", "轻度"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_002",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "exposure",
+        "title": "窗前魅影",
+        "description": "在家保持全裸状态，但在活动期间，必须有至少一次全裸经过未拉窗帘的窗户旁。",
+        "corruption": 15,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "medium",
+        "tags": ["全裸", "视线边界", "室内露出"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_003",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "semiPublic",
+        "title": "公厕欢愉",
+        "description": "在公共卫生间的隔间内进行自慰，并成功达到高潮一次。",
+        "corruption": 15,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "medium",
+        "tags": ["公共场所", "自慰", "高潮"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_004",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "蛋中静置",
+        "description": "将跳蛋塞入前穴或后庭内，开启最低震动档位并保持30分钟。",
+        "corruption": 15,
+        "requiredItems": ["eq_toy_tiaodan"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["跳蛋", "置入", "持续"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_005",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "仿真高潮",
+        "description": "使用小号仿真阳具（S码）进行自慰，直至达到一次完全的高潮。",
+        "corruption": 18,
+        "requiredItems": ["eq_ins_fangzhen"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["道具自慰", "仿真", "高潮"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_006",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "双端束缚日常",
+        "description": "将乳夹夹在双侧乳头上，并保持该状态在家活动2小时。",
+        "corruption": 12,
+        "requiredItems": ["eq_toy_rujia"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["乳夹", "室内活动", "轻度痛感"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_007",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "daily",
+        "title": "宽松居家真空",
+        "description": "仅穿着一件宽大的短袖T恤在家度过一天，内里不穿戴任何内衣裤。",
+        "corruption": 10,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["居家", "真空", "轻度"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_008",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "daily",
+        "title": "水流爱抚",
+        "description": "在洗澡时，用花洒喷头对准私密处进行水流冲击，以此进行自慰直至高潮。",
+        "corruption": 12,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["洗浴", "自慰", "高潮"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_009",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "真空长夜",
+        "description": "在睡前使用小号仿真阳具（S码）自慰一次，随后脱掉内裤，保持下身真空入睡。",
+        "corruption": 16,
+        "requiredItems": ["eq_ins_fangzhen"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["夜间", "自慰", "真空入睡"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_010",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "后庭异物初试",
+        "description": "将震动按摩棒轻轻插入后庭内，保持静置状态20分钟。",
+        "corruption": 16,
+        "requiredItems": ["eq_toy_anmobang"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["后庭", "按摩棒", "静置"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_011",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "按摩棒狂欢",
+        "description": "使用手持式震动按摩棒进行敏感带刺激或插入自慰，直至达到一次高潮。",
+        "corruption": 14,
+        "requiredItems": ["eq_toy_anmobang"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["按摩棒", "自慰", "高潮"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_012",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "伴震眠眠",
+        "description": "将跳蛋固定在私密处（如阴蒂、乳头或龟头），开启最低档脉冲或持续震动，保持直至自然入睡。",
+        "corruption": 16,
+        "requiredItems": ["eq_toy_tiaodan"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["震动", "入睡", "持续"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_013",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "daily",
+        "title": "镜前审视",
+        "description": "在试衣镜或大穿衣镜前保持全身赤裸，一边凝视镜中的自己，一边自慰至高潮。",
+        "corruption": 18,
+        "requiredItems": [],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["镜前", "自慰", "羞耻心"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_014",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "珠串静留",
+        "description": "趴在床上，将硅胶串珠缓慢全部塞入后庭内，保持静置状态30分钟。",
+        "corruption": 17,
+        "requiredItems": ["eq_ins_chuanzhu"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["串珠", "后庭", "静置"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      },
+      {
+        "id": "init_015",
+        "source": "original_setting",
+        "enabled": true,
+        "star": 0,
+        "type": "item",
+        "title": "震动日常",
+        "description": "在体内或体表穿戴跳蛋并开启最低档，以此状态完成一遍擦桌、扫地等日常家务。",
+        "corruption": 12,
+        "requiredItems": ["eq_toy_tiaodan"],
+        "requiredDrugs": [],
+        "difficulty": 1,
+        "riskLevel": "low",
+        "tags": ["家务", "跳蛋", "日常"],
+        "preferredTraits": [],
+        "blockedTraits": [],
+        "rewardPool": "initial",
+        "penaltyPool": "initial",
+        "cooldownDays": 1,
+        "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+      }
+    ]
+  },
+
+  "starPools": {
+    "star_1": {
+      "enabled": true,
+      "description": "一星任务池。",
+      "tasks": [
+        {
+          "id": "star1_001",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "item",
+          "title": "中号扩张自我",
+          "description": "使用中号仿真阳具（M码）进行深入自慰，直至达到高潮。",
+          "corruption": 24,
+          "requiredItems": ["eq_ins_fangzhen"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "low",
+          "tags": ["仿真", "自慰", "中档尺寸"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_002",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "item",
+          "title": "拉扯进出练习",
+          "description": "在临睡前，将硅胶串珠逐颗塞入体内（前穴或后穴），塞满后，再逐颗反向缓慢拔出，感受牵连摩擦。",
+          "corruption": 24,
+          "requiredItems": ["eq_ins_chuanzhu"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "low",
+          "tags": ["串珠", "扩张", "牵连"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_003",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "item",
+          "title": "气流锁闭感受",
+          "description": "将吮吸器对准私处敏感点固定，开启最低档脉冲吮吸模式，持续保持30分钟。",
+          "corruption": 22,
+          "requiredItems": ["eq_toy_shunxiqi"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "low",
+          "tags": ["吮吸", "非接触", "持续"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_004",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "item",
+          "title": "敏感度加剧日常",
+          "description": "夹戴可调松紧的乳夹，在家中进行正常学习或娱乐活动，维持2小时。",
+          "corruption": 18,
+          "requiredItems": ["eq_toy_rujia"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "low",
+          "tags": ["乳头刺激", "乳夹", "耐力"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_005",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "semiPublic",
+          "title": "便利店买物挑战",
+          "description": "在裙底或裤内固定跳蛋，开启最低震动档，前往附近便利店选购商品并结账，全程须保持神色自然。",
+          "corruption": 28,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "medium",
+          "tags": ["户外", "便利店", "跳蛋"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_006",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "semiPublic",
+          "title": "最后一排默剧",
+          "description": "在电影院观影期间，选择最后一排座位，在体内固定跳蛋并保持开机状态15分钟，期间不能离场、不许发出异响。",
+          "corruption": 30,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "medium",
+          "tags": ["电影院", "公共暴露", "克制"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_007",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "exposure",
+          "title": "无防护通勤",
+          "description": "下半身不穿任何内裤，仅套穿正常的外裤或裙子出门活动一整天，外面穿着须得体大方。",
+          "corruption": 25,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "medium",
+          "tags": ["真空", "室外", "日常"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star1_008",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 1,
+          "type": "exposure",
+          "title": "细绳短裙采购",
+          "description": "下身仅穿戴丁字裤和一条不过膝的短裙，前往客流正常的超市逛一圈，完成日常采购。",
+          "corruption": 22,
+          "requiredItems": ["cl_thong"],
+          "requiredDrugs": [],
+          "difficulty": 1,
+          "riskLevel": "medium",
+          "tags": ["丁字裤", "短裙", "超市露出"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star1",
+          "penaltyPool": "star1",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        }
+      ]
+    },
+
+    "star_2": {
+      "enabled": true,
+      "description": "二星任务池。",
+      "tasks": [
+        {
+          "id": "star2_001",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "item",
+          "title": "双端同步置入",
+          "description": "使用双头棒器具，将其两端分别同时缓慢探入前穴和后庭中，保持双端充实状态15分钟。",
+          "corruption": 32,
+          "requiredItems": ["eq_ins_shuangtou"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "low",
+          "tags": ["双头棒", "双重置入", "异物感"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_002",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "item",
+          "title": "震动夹击享受",
+          "description": "将跳蛋固定于私密处敏感点，同时将按摩棒温柔置入体内，启动双重震动并维持20分钟。",
+          "corruption": 35,
+          "requiredItems": ["eq_toy_tiaodan", "eq_toy_anmobang"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "low",
+          "tags": ["多道具", "双重震动", "置入"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_003",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "item",
+          "title": "体质改变长日",
+          "description": "按照操控者指令，服用指定药物（如敏感药或发发情剂），并在药效影响下维持度过正常的一天。",
+          "corruption": 33,
+          "requiredItems": [],
+          "requiredDrugs": ["med_sensitive"],
+          "tags": ["药物", "敏感", "日常限制"],
+          "difficulty": 2,
+          "riskLevel": "low",
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_004",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "semiPublic",
+          "title": "书香下的震颤",
+          "description": "在公共图书馆或学校自习室的课桌下，暗中开启体内的跳蛋震动，保持10分钟，期间决不能发出声音或做出怪异动作。",
+          "corruption": 35,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "medium",
+          "tags": ["自习室", "隐蔽刺激", "自控力"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_005",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "semiPublic",
+          "title": "靠窗通道演说",
+          "description": "在乘坐公交或地铁时，穿戴好跳蛋并开启运行。选择坐在靠过道的一侧，在车厢众人的余光下保持神态自若直至到站。",
+          "corruption": 34,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "high",
+          "tags": ["公交地铁", "大庭广众", "跳蛋控制"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_006",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "semiPublic",
+          "title": "饭桌暗流",
+          "description": "在与熟人或朋友线下聚餐期间，全程穿戴跳蛋运行，并若无其事地与桌上众人谈笑互动。",
+          "corruption": 35,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "medium",
+          "tags": ["聚餐", "社交伪装", "跳蛋"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_007",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "exposure",
+          "title": "夜园敞襟",
+          "description": "外层穿一件遮掩风衣，内里真空只着性感蕾丝内衣套装。深夜前往无人的小公园散步，确认四下无人的空隙中，大敞风衣行走1分钟。",
+          "corruption": 35,
+          "requiredItems": ["cl_underwear"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "high",
+          "tags": ["风衣", "情趣内衣", "深夜露出"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star2_008",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 2,
+          "type": "exposure",
+          "title": "阳台萌猫爬行",
+          "description": "穿戴带有牵引铃铛的项圈及后庭肛塞（如猫娘乳胶服配饰），在自家的开放式阳台地面上温顺地爬行两圈。",
+          "corruption": 38,
+          "requiredItems": ["cl_cat_latex"],
+          "requiredDrugs": [],
+          "difficulty": 2,
+          "riskLevel": "high",
+          "tags": ["肛塞", "阳台露出", "猫娘爬行"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star2",
+          "penaltyPool": "star2",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        }
+      ]
+    },
+
+    "star_3": {
+      "enabled": true,
+      "description": "二星半至三星任务池。",
+      "tasks": [
+        {
+          "id": "star3_001",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "item",
+          "title": "全身绳网长夜",
+          "description": "使用束缚绳对自己的双手、脚踝和躯干进行绳索固定（或使用特定龟甲缚绑法），维持受限拘束状态就寝入睡。",
+          "corruption": 42,
+          "requiredItems": ["eq_rope"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "low",
+          "tags": ["绳缚", "限制行动", "整夜"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_002",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "item",
+          "title": "饱胀临界点",
+          "description": "睡前将可充气膨胀棒缓缓探入体内，并在安全阀限度内充气至自我最大承受度，闭目感受持续逼仄饱胀感。",
+          "corruption": 43,
+          "requiredItems": ["eq_ins_pengzhang"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "low",
+          "tags": ["膨胀棒", "体内充气", "强烈扩张"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_003",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "item",
+          "title": "化学感官重叠",
+          "description": "同时服用两种由操控者指定的互不排斥的药剂（例如敏感药和发情剂），承受高负荷感官潮红度过一天。",
+          "corruption": 44,
+          "requiredItems": [],
+          "requiredDrugs": ["med_sensitive", "med_estrus"],
+          "difficulty": 3,
+          "riskLevel": "low",
+          "tags": ["多重药物", "极限感官", "药物失控"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_004",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "item",
+          "title": "视听剥夺置入",
+          "description": "戴好隔音耳塞与全黑避光眼罩，在完全丧失视听的被动状态下，将模拟肉棒插入体内维持充实1小时。",
+          "corruption": 45,
+          "requiredItems": ["eq_ins_moni"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "low",
+          "tags": ["视听剥夺", "模拟肉棒", "未知支配"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_005",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "semiPublic",
+          "title": "咫尺耳语窗",
+          "description": "白天在公司办公室或学校教室中，在身侧邻座有人的情况下，开启体内的跳蛋维持震动10分钟，保持姿态端正端庄。",
+          "corruption": 45,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "high",
+          "tags": ["办公室教室", "极近距离", "心跳忍耐"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_006",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "semiPublic",
+          "title": "商厦试衣欢弄",
+          "description": "戴着跳蛋前去人流量较大的商场闲逛，在中途寻找一间试衣间，进入并反锁，在试衣间内借助跳蛋自慰释放一次高潮。",
+          "corruption": 45,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "medium",
+          "tags": ["商场试衣间", "高潮释放", "窃语"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_007",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "semiPublic",
+          "title": "密友檐下不轨",
+          "description": "在寄宿于朋友家过夜期间，背对着熟睡的朋友，悄悄在被窝中完成操控者指定的私密挑战（如静默达到高潮）。",
+          "corruption": 42,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "medium",
+          "tags": ["寄宿", "背德感", "密友共处"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_008",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "exposure",
+          "title": "创口贴贴身野游",
+          "description": "外套一件长风衣，内里赤裸仅用创可贴三件套盖挡三点。深夜前往无人的小公园幽静处，敞开或脱掉风衣自慰至高潮。",
+          "corruption": 48,
+          "requiredItems": ["cl_bandaid_set"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "high",
+          "tags": ["创可贴套件", "风衣全裸", "野外自慰"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_009",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "exposure",
+          "title": "月影犬系漫步",
+          "description": "颈间套好带牵引的项圈，由操控者或特定媒介手握牵引绳，在深夜无人的阴暗小公园小径上，像小狗般爬行一圈。",
+          "corruption": 50,
+          "requiredItems": ["eq_rope"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "high",
+          "tags": ["牵引项圈", "爬行", "深夜野外"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star3_010",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 3,
+          "type": "exposure",
+          "title": "裸体羹汤",
+          "description": "身上仅穿一件裸体围裙，在后背与下半身完全赤露的状态下，在厨房生火做饭并做完日常家务。",
+          "corruption": 42,
+          "requiredItems": ["cl_naked_apron"],
+          "requiredDrugs": [],
+          "difficulty": 3,
+          "riskLevel": "low",
+          "tags": ["裸体围裙", "居家日常", "羞耻训练"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star3",
+          "penaltyPool": "star3",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        }
+      ]
+    },
+
+    "star_4": {
+      "enabled": true,
+      "description": "四星高级任务池。",
+      "tasks": [
+        {
+          "id": "star4_001",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "item",
+          "title": "生物电波长梦",
+          "description": "将高科技模拟肉棒缓缓置入体内深处，保持整夜不断电、不拔出状态安然入睡，梦中承受搏动感。",
+          "corruption": 52,
+          "requiredItems": ["eq_ins_moni"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "low",
+          "tags": ["模拟肉棒", "体内充实", "整夜"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_002",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "item",
+          "title": "三元交响齐鸣",
+          "description": "前穴塞入跳蛋、后庭同时塞入串珠并用按摩棒辅助体表，启动三点震颤，苦苦维持30分钟。",
+          "corruption": 53,
+          "requiredItems": ["eq_toy_tiaodan", "eq_toy_anmobang", "eq_ins_chuanzhu"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "low",
+          "tags": ["多点置入", "体内震颤", "生理临界"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_003",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "item",
+          "title": "三重药物失衡",
+          "description": "同时服用三种指定药剂（例如敏感药、发情药和催乳剂），体验身体严重潮红、乳络胀痛的极端状态并过完一天。",
+          "corruption": 53,
+          "requiredItems": [],
+          "requiredDrugs": ["med_sensitive", "med_estrus", "med_lactation"],
+          "difficulty": 4,
+          "riskLevel": "low",
+          "tags": ["药物过载", "催乳敏感", "生理重组"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_004",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "semiPublic",
+          "title": "长途禁闭行舟",
+          "description": "在体内固定开机的跳蛋，搭乘一次不低于2小时的长途火车或省际客运大巴，从起点到终点途中禁止前往盥洗室。",
+          "corruption": 50,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "high",
+          "tags": ["长途交通", "膀胱极限", "跳蛋折磨"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_005",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "semiPublic",
+          "title": "掌心雷波掌控",
+          "description": "在公司上班或学校上课期间，全天佩戴联网式跳蛋，将控制权移交主人，接受随时随地、频率难测的电波遥控。",
+          "corruption": 55,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "high",
+          "tags": ["全天监控", "主人控制", "随时随地"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_006",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "semiPublic",
+          "title": "众目之席暗讽",
+          "description": "在三人及以上的熟人线下社交聚会中穿戴跳蛋运行，全程言行需流利周全、保持社交微笑不露出破绽。",
+          "corruption": 52,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "medium",
+          "tags": ["多人群聚", "谈吐自若", "心理博弈"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_007",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "exposure",
+          "title": "长椅上的崩毁",
+          "description": "外套长风衣，内里一丝不挂仅置跳蛋。深夜独自来到寂静公园的长椅上坐下，由主人APP远程将震动开至最大，在长椅上体验一次高潮崩毁。",
+          "corruption": 58,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "high",
+          "tags": ["夜间公园", "风衣真空", "远程高潮"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_008",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "exposure",
+          "title": "铁栏旁受辱匍匐",
+          "description": "深夜前往空旷无人露天停车场。颈间系好牵引项圈由主人牵行匍匐，中途被用项圈短绳锁系在水泥柱或铁栏杆旁，接受用道具或手玩弄至高潮。",
+          "corruption": 62,
+          "requiredItems": ["eq_rope"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "extreme",
+          "tags": ["停车场", "系绳束缚", "当场高潮"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star4_009",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 4,
+          "type": "exposure",
+          "title": "珠帘轻拨探便利",
+          "description": "内里穿着珍珠T裤、外罩一件及膝大风衣。在凌晨两三点空旷期进入便利店，在收银台前，在敞开风衣的同时维持体面应对。",
+          "corruption": 55,
+          "requiredItems": ["cl_pearl_thong"],
+          "requiredDrugs": [],
+          "difficulty": 4,
+          "riskLevel": "extreme",
+          "tags": ["珍珠丁字裤", "便利店", "风衣敞开"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star4",
+          "penaltyPool": "star4",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        }
+      ]
+    },
+
+    "star_5": {
+      "enabled": true,
+      "description": "五星极限任务池。",
+      "tasks": [
+        {
+          "id": "star5_001",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "item",
+          "title": "钢铁壁垒锁封",
+          "description": "体内塞入生物模拟肉棒，并在体表锁上特制金属贞操锁。锁匙交由远程APP控制，设定在24小时内定时解除，期间绝不开启。",
+          "corruption": 65,
+          "requiredItems": ["eq_ins_moni"],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "medium",
+          "tags": ["贞操锁", "模拟肉棒", "长时间禁锢"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_002",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "item",
+          "title": "幽暗禁区全锁死",
+          "description": "双手和双脚脚踝交叉牢系，佩戴眼罩和耳塞完全剥夺感官。体内安置膨胀棒充气膨胀至最大容忍度，以该绝望姿态维持一整晚。",
+          "corruption": 65,
+          "requiredItems": ["eq_rope", "eq_ins_pengzhang"],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "low",
+          "tags": ["剥夺五感", "强烈充气", "全身绳缚", "整夜"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_003",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "item",
+          "title": "四重系统全面沦陷",
+          "description": "同时服下敏感药、安眠药、催乳剂及发情剂四类药剂。全天承受冷颤、虚汗、乳肉胀痛和心律加速的交织状态，任由身体机能深度沦陷。",
+          "corruption": 63,
+          "requiredItems": [],
+          "requiredDrugs": ["med_sensitive", "med_estrus", "med_lactation", "med_aphrodisiac"],
+          "difficulty": 5,
+          "riskLevel": "low",
+          "tags": ["极端药物", "生理失准", "浑浑噩噩"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_004",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "exposure",
+          "title": "暗夜灌木野合",
+          "description": "风衣内全裸不着一缕，前穴置入跳蛋、后庭置入肛塞。深夜被带到空无一人的小公园深处，脱掉风衣接受在灌木丛中的真实插入。",
+          "corruption": 75,
+          "requiredItems": ["eq_toy_tiaodan", "eq_ins_chuanzhu"],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "extreme",
+          "tags": ["野外露出", "双管齐下", "现场结合"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_005",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "exposure",
+          "title": "幽黄路灯下的犬伏",
+          "description": "在凌晨万籁俱寂的街道上，仅在颈部穿戴皮质牵引项圈，全裸温顺地匍匐前行。最后跪在亮着枯黄光晕的路灯下被从后插入。",
+          "corruption": 82,
+          "requiredItems": ["eq_rope"],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "extreme",
+          "tags": ["全裸匍匐", "街头露出", "路灯下"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_006",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "exposure",
+          "title": "暗车惊魂风摇",
+          "description": "深夜将车停在地下车库偏僻角落，在车厢内进行亲密结合。要求将两侧车窗留出一指宽缝隙，即使听到有人走动经过的声响也不准停歇。",
+          "corruption": 78,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "extreme",
+          "tags": ["地库车震", "窗缝流风", "听觉惊吓"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_007",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "exposure",
+          "title": "工地危影侧击",
+          "description": "深夜在喧嚣散去的建筑工地高大围挡边缘，背靠铁皮围板顺从接受后入。耳畔必须隐约能听见远处保安巡视的手电亮光和脚步声。",
+          "corruption": 85,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "extreme",
+          "tags": ["工地围挡", "听觉胁迫", "高危露出"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_008",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "meeting",
+          "title": "秘室盲眼交付",
+          "description": "收到主人发送的定位门牌号，独自前往指定房间并反锁大门。进入房间前戴好眼罩，全身赤裸躺在床榻上，等待并顺从接受主人真实的身体占有。",
+          "corruption": 78,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "special",
+          "tags": ["线下见面", "眼罩盲视", "真实占有"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_009",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "meeting",
+          "title": "隐匿暗角线偶",
+          "description": "前往特定的僻静公共暗角（如废弃走廊、深夜林荫）与主人见面。体内佩戴远程遥控跳蛋，将遥控器面交主人，在完全服从口令下站立忍耐震颤。",
+          "corruption": 72,
+          "requiredItems": ["eq_toy_tiaodan"],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "special",
+          "tags": ["线下聚首", "现场掌控", "跳蛋折磨"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        },
+        {
+          "id": "star5_010",
+          "source": "original_setting",
+          "enabled": true,
+          "star": 5,
+          "type": "meeting",
+          "title": "盲目引渡终局",
+          "description": "眼系黑色缎带在指定车站接头，不发一言登车。被带往未知的秘密公寓中实施彻底的身体插入，完成后重新蒙眼引渡回原本的接送地点。",
+          "corruption": 85,
+          "requiredItems": [],
+          "requiredDrugs": [],
+          "difficulty": 5,
+          "riskLevel": "special",
+          "tags": ["盲视绑架", "真实置入", "未知支配"],
+          "preferredTraits": [],
+          "blockedTraits": [],
+          "rewardPool": "star5",
+          "penaltyPool": "star5",
+          "cooldownDays": 1,
+          "generation": { "canBeUsedAsTemplate": true, "canBeDirectlySelected": true, "canBeModified": true }
+        }
+      ]
+    }
+  },
+
+  "taskSchema": {
+    "requiredFields": [
+      "id",
+      "source",
+      "enabled",
+      "star",
+      "type",
+      "title",
+      "description",
+      "corruption"
+    ],
+
+    "fields": {
+      "id": {
+        "type": "string",
+        "unique": true
+      },
+
+      "source": {
+        "type": "enum",
+        "allowed": [
+          "original_setting",
+          "ai_generated",
+          "manual"
+        ]
+      },
+
+      "enabled": {
+        "type": "boolean"
+      },
+
+      "star": {
+        "type": "number",
+        "allowed": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+
+      "type": {
+        "type": "enum",
+        "allowed": [
+          "daily",
+          "item",
+          "semiPublic",
+          "exposure",
+          "meeting"
+        ]
+      },
+
+      "title": {
+        "type": "string"
+      },
+
+      "description": {
+        "type": "string"
+      },
+
+      "corruption": {
+        "type": "number",
+        "description": "完成任务后增加的沦陷值。",
+        "mustMatchStarRange": true
+      },
+
+      "requiredItems": {
+        "type": "array",
+        "default": []
+      },
+
+      "requiredDrugs": {
+        "type": "array",
+        "default": []
+      },
+
+      "difficulty": {
+        "type": "number",
+        "min": 1,
+        "max": 5
+      },
+
+      "riskLevel": {
+        "type": "enum",
+        "allowed": [
+          "low",
+          "medium",
+          "high",
+          "extreme",
+          "special"
+        ]
+      },
+
+      "tags": {
+        "type": "array",
+        "default": []
+      },
+
+      "preferredTraits": {
+        "type": "array",
+        "default": []
+      },
+
+      "blockedTraits": {
+        "type": "array",
+        "default": []
+      },
+
+      "rewardPool": {
+        "type": "string"
+      },
+
+      "penaltyPool": {
+        "type": "string"
+      },
+
+      "cooldownDays": {
+        "type": "number",
+        "default": 1
+      },
+
+      "generation": {
+        "type": "object"
+      }
+    }
+  },
+
+  "generationRules": {
+    "enabled": true,
+
+    "description": "当固定任务池无法满足当前需求，允许AI在既定规则范围内生成新任务。",
+
+    "sourcePriority": [
+      "original_setting",
+      "task_template",
+      "ai_generated"
+    ],
+
+    "aiGeneration": {
+      "enabled": true,
+
+      "allowedWhen": [
+        "fixed_pool_insufficient",
+        "player_requested_random_task",
+        "story_requires_special_task"
+      ],
+
+      "mustRespect": [
+        "current_controller_level",
+        "current_unlocked_star",
+        "current_corruption",
+        "current_awakening",
+        "current_story_stage",
+        "character_profile",
+        "character_preferences",
+        "character_rejections",
+        "character_role_tendency",
+        "available_items",
+        "available_drugs",
+        "recent_task_history",
+        "completed_task_history",
+        "refused_task_history"
+      ],
+
+      "mustNot": [
+        "exceed_unlocked_star",
+        "ignore_explicit_rejections",
+        "repeat_recent_task",
+        "exceed_daily_type_limit",
+        "invent_unavailable_item",
+        "invent_unavailable_drug",
+        "change_static_rules",
+        "change_corruption_rules",
+        "change_star_rules"
+      ]
+    },
+
+    "adaptation": {
+      "enabled": true,
+
+      "positiveVariables": [
+        "sensitiveAreas",
+        "sexualTriggers",
+        "roleTendency",
+        "bodyFeatures",
+        "preferences"
+      ],
+
+      "negativeVariables": [
+        "explicitRejections"
+      ],
+
+      "priority": [
+        "explicitRejections",
+        "storyStage",
+        "star",
+        "corruption",
+        "preferences",
+        "characterTraits"
+      ]
+    },
+
+    "templateSystem": {
+      "enabled": true,
+
+      "description": "AI生成任务时优先参考已有固定任务的结构和标签，而不是完全自由发挥。",
+
+      "canLearnFromOriginalTasks": true,
+      "canCopyOriginalTaskText": false,
+      "canCreateVariation": true,
+      "variationMustRemainWithinRules": true
+    }
+  },
+
+  "selectionRules": {
+    "enabled": true,
+
+    "algorithm": [
+      "load_current_progression",
+      "load_current_character",
+      "load_controller_state",
+      "load_unlocked_task_pools",
+      "remove_disabled_tasks",
+      "remove_locked_star_tasks",
+      "remove_recently_completed_tasks",
+      "remove_same_type_duplicates",
+      "remove_character_conflicts",
+      "remove_rejected_content",
+      "remove_unavailable_items",
+      "remove_unavailable_drugs",
+      "apply_star_weight",
+      "random_select",
+      "if_insufficient_generate_ai_task",
+      "validate_task",
+      "save_daily_task"
+    ],
+
+    "randomization": {
+      "enabled": true,
+      "defaultMethod": "weighted_random",
+
+      "higherStarWeight": {
+        "enabled": true,
+        "description": "已解锁的高星任务可以获得更高随机权重，但低星任务仍然保留。"
+      }
+    },
+
+    "fallback": {
+      "enabled": true,
+
+      "priority": [
+        "another_task_same_star",
+        "previous_unlocked_star",
+        "ai_generated_task"
+      ]
+    }
+  },
+
+  "completionRules": {
+    "onComplete": [
+      "mark_completed",
+      "increase_total_completed",
+      "increase_completed_by_star",
+      "apply_corruption",
+      "draw_reward",
+      "update_task_history",
+      "check_star_unlock",
+      "check_progression",
+      "check_story_trigger"
+    ],
+
+    "onRefuse": [
+      "mark_refused",
+      "increase_refusal_count",
+      "draw_penalty",
+      "update_task_history"
+    ],
+
+    "onTimeout": [
+      "mark_timeout",
+      "increase_timeout_count",
+      "draw_penalty",
+      "update_task_history"
+    ]
+  },
+
+  "historyRules": {
+    "enabled": true,
+    "saveToIndexedDB": true,
+
+    "recordFields": [
+      "taskId",
+      "source",
+      "star",
+      "type",
+      "title",
+      "date",
+      "status",
+      "corruptionChange",
+      "rewardId",
+      "penaltyId"
+    ],
+
+    "repeatProtection": {
+      "enabled": true,
+      "recentDays": 7,
+      "sameTaskImmediateRepeat": false
+    }
+  },
+
+  "aiOutputSchema": {
+    "description": "AI生成任务时必须返回符合此结构的数据。",
+
+    "required": [
+      "title",
+      "description",
+      "star",
+      "type",
+      "corruption"
+    ],
+
+    "additionalFieldsAllowed": [
+      "requiredItems",
+      "requiredDrugs",
+      "difficulty",
+      "riskLevel",
+      "tags",
+      "rewardPool",
+      "penaltyPool"
+    ],
+
+    "forceSource": "ai_generated"
+  },
+
+  "visibilityRules": {
+    "playerView": {
+      "show": [
+        "title",
+        "description",
+        "star",
+        "type",
+        "corruption",
+        "requiredItems",
+        "difficulty",
+        "riskLevel",
+        "status"
+      ],
+
+      "hide": [
+        "generationRules",
+        "selectionRules",
+        "hiddenTags",
+        "internalId",
+        "source"
+      ]
+    },
+
+    "aiView": {
+      "show": "all",
+      "description": "AI可以读取完整任务数据库以及任务系统规则。"
+    }
+  },
+
+  "validation": {
+    "enabled": true,
+
+    "checks": [
+      "unique_task_id",
+      "valid_star",
+      "valid_task_type",
+      "corruption_matches_star",
+      "required_items_exist",
+      "required_drugs_exist",
+      "no_duplicate_task",
+      "no_rejected_content",
+      "no_locked_task",
+      "schema_valid"
+    ]
+  }
+}
