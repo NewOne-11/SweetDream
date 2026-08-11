@@ -1,0 +1,612 @@
+{
+  "id": "penalties",
+  "version": "1.0.0",
+  "title": "惩罚资料库",
+  "description": "任务拒绝、超时及违规后的系统惩罚池。",
+  "databaseType": "static",
+
+  "visibility": {
+    "playerCanRead": true,
+    "aiCanRead": true,
+    "playerCanEdit": false,
+    "adminCanEdit": true
+  },
+
+  "system": {
+    "enabled": true,
+
+    "selection": {
+      "method": "weighted_random",
+      "allowDuplicate": false,
+      "respectUnlockConditions": true
+    },
+
+    "triggers": {
+      "taskRefused": true,
+      "taskTimeout": true,
+      "systemViolation": false,
+      "safetyExit": false
+    },
+
+    "immunity": {
+      "enabled": true,
+      "itemId": "ticket_penalty_immunity"
+    }
+  },
+
+  "penaltyTypes": {
+    "taskIncrease": {
+      "id": "taskIncrease",
+      "name": "任务增加"
+    },
+
+    "appRestriction": {
+      "id": "appRestriction",
+      "name": "APP功能限制"
+    },
+
+    "physical": {
+      "id": "physical",
+      "name": "生理性惩罚"
+    },
+
+    "corruption": {
+      "id": "corruption",
+      "name": "沦陷值调整"
+    },
+
+    "message": {
+      "id": "message",
+      "name": "系统消息"
+    },
+
+    "taskPool": {
+      "id": "taskPool",
+      "name": "任务池调整"
+    },
+
+    "inventory": {
+      "id": "inventory",
+      "name": "背包调整"
+    },
+
+    "communication": {
+      "id": "communication",
+      "name": "通讯功能限制"
+    }
+  },
+
+  "pools": {
+    "initial": {
+      "star": 0,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_initial_double_tasks",
+          "type": "taskIncrease",
+          "name": "次日任务翻倍",
+          "enabled": true,
+          "effect": {
+            "target": "next_day_task_count",
+            "operation": "multiply",
+            "value": 2
+          }
+        },
+        {
+          "id": "penalty_initial_popup",
+          "type": "appRestriction",
+          "name": "APP强制弹窗1小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 1,
+            "type": "unclosable_modal"
+          }
+        },
+        {
+          "id": "penalty_initial_corruption",
+          "type": "corruption",
+          "name": "沦陷值+5",
+          "enabled": true,
+          "effect": {
+            "operation": "add",
+            "value": 5
+          }
+        },
+        {
+          "id": "penalty_initial_warning",
+          "type": "message",
+          "name": "私信警告",
+          "enabled": true,
+          "effect": {
+            "type": "warning_message"
+          }
+        }
+      ]
+    },
+
+    "star_1": {
+      "star": 1,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_star1_double_tasks",
+          "type": "taskIncrease",
+          "name": "次日任务翻倍",
+          "enabled": true,
+          "effect": {
+            "target": "next_day_task_count",
+            "operation": "multiply",
+            "value": 2
+          }
+        },
+        {
+          "id": "penalty_star1_popup",
+          "type": "appRestriction",
+          "name": "APP强制弹窗1小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 1,
+            "type": "unclosable_modal"
+          }
+        },
+        {
+          "id": "penalty_star1_corruption",
+          "type": "corruption",
+          "name": "沦陷值+5",
+          "enabled": true,
+          "effect": {
+            "operation": "add",
+            "value": 5
+          }
+        },
+        {
+          "id": "penalty_star1_extra_task",
+          "type": "taskIncrease",
+          "name": "次日追加一条一星任务",
+          "enabled": true,
+          "effect": {
+            "star": 1,
+            "quantity": 1
+          }
+        },
+        {
+          "id": "penalty_star1_warning",
+          "type": "message",
+          "name": "私信警告",
+          "enabled": true,
+          "effect": {
+            "type": "warning_message"
+          }
+        },
+        {
+          "id": "penalty_star1_red_interface",
+          "type": "appRestriction",
+          "name": "APP界面变红24小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 24,
+            "visualState": "warning_red"
+          }
+        }
+      ]
+    },
+
+    "star_2": {
+      "star": 2,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_star2_forced_orgasm",
+          "type": "physical",
+          "name": "强制高潮×2 + 共感惩罚30分钟",
+          "enabled": true,
+          "effect": {
+            "action": "forced_orgasm",
+            "orgasmCount": 2,
+            "resonanceDurationMinutes": 30
+          }
+        },
+        {
+          "id": "penalty_star2_extra_tasks",
+          "type": "taskIncrease",
+          "name": "次日追加2条额外任务",
+          "enabled": true,
+          "effect": {
+            "quantity": 2
+          }
+        },
+        {
+          "id": "penalty_star2_draft",
+          "type": "appRestriction",
+          "name": "草稿箱出现含糊信息",
+          "enabled": true,
+          "effect": {
+            "durationHours": 48,
+            "canWithdraw": true,
+            "withdrawalCondition": "complete_extra_tasks_within_48_hours"
+          }
+        },
+        {
+          "id": "penalty_star2_corruption",
+          "type": "corruption",
+          "name": "连续两天任务沦陷值+5",
+          "enabled": true,
+          "effect": {
+            "valuePerDay": 5,
+            "days": 2,
+            "operation": "add"
+          }
+        },
+        {
+          "id": "penalty_star2_lock",
+          "type": "appRestriction",
+          "name": "APP锁定3小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 3,
+            "lockLevel": "full"
+          }
+        },
+        {
+          "id": "penalty_star2_message_lock",
+          "type": "communication",
+          "name": "私信被禁用48小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 48
+          }
+        }
+      ]
+    },
+
+    "star_3": {
+      "star": 3,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_star3_forced_orgasm",
+          "type": "physical",
+          "name": "强制高潮×3 + 共感惩罚1小时",
+          "enabled": true,
+          "effect": {
+            "action": "forced_orgasm",
+            "orgasmCount": 3,
+            "resonanceDurationMinutes": 60
+          }
+        },
+        {
+          "id": "penalty_star3_task_restriction",
+          "type": "taskPool",
+          "name": "连续三天只推送三星任务",
+          "enabled": true,
+          "effect": {
+            "star": 3,
+            "days": 3
+          }
+        },
+        {
+          "id": "penalty_star3_lock",
+          "type": "appRestriction",
+          "name": "APP锁定24小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 24,
+            "lockLevel": "full"
+          }
+        },
+        {
+          "id": "penalty_star3_pre_send_draft",
+          "type": "appRestriction",
+          "name": "草稿箱预发送内容（48小时完成指定任务可撤回）",
+          "enabled": true,
+          "effect": {
+            "durationHours": 48,
+            "canWithdraw": true,
+            "withdrawalCondition": "complete_designated_task_within_48_hours"
+          }
+        },
+        {
+          "id": "penalty_star3_corruption",
+          "type": "corruption",
+          "name": "沦陷值+10",
+          "enabled": true,
+          "effect": {
+            "operation": "add",
+            "value": 10
+          }
+        },
+        {
+          "id": "penalty_star3_inventory_clear_tickets",
+          "type": "inventory",
+          "name": "背包券类全清空",
+          "enabled": true,
+          "effect": {
+            "category": "ticket",
+            "operation": "clear"
+          }
+        },
+        {
+          "id": "penalty_star3_next_star_task",
+          "type": "taskPool",
+          "name": "次日推送一条四星任务",
+          "enabled": true,
+          "effect": {
+            "minimumStar": 4,
+            "durationDays": 1
+          }
+        }
+      ]
+    },
+
+    "star_4": {
+      "star": 4,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_star4_forced_orgasm",
+          "type": "physical",
+          "name": "强制高潮×5 + 共感惩罚2小时",
+          "enabled": true,
+          "effect": {
+            "action": "forced_orgasm",
+            "orgasmCount": 5,
+            "resonanceDurationMinutes": 120
+          }
+        },
+        {
+          "id": "penalty_star4_lock",
+          "type": "appRestriction",
+          "name": "APP锁定48小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 48,
+            "lockLevel": "full"
+          }
+        },
+        {
+          "id": "penalty_star4_countdown_draft",
+          "type": "appRestriction",
+          "name": "草稿箱发送倒计时12小时（不可撤回）",
+          "enabled": true,
+          "effect": {
+            "countdownHours": 12,
+            "irrevocable": true
+          }
+        },
+        {
+          "id": "penalty_star4_random_leak",
+          "type": "communication",
+          "name": "通讯录随机一人收到私密内容",
+          "enabled": true,
+          "effect": {
+            "targetCount": 1,
+            "targetSelection": "random_contact",
+            "contentType": "private_text"
+          }
+        },
+        {
+          "id": "penalty_star4_corruption",
+          "type": "corruption",
+          "name": "沦陷值+20",
+          "enabled": true,
+          "effect": {
+            "operation": "add",
+            "value": 20
+          }
+        },
+        {
+          "id": "penalty_star4_inventory_clear",
+          "type": "inventory",
+          "name": "背包全部清空",
+          "enabled": true,
+          "effect": {
+            "operation": "clear_all"
+          }
+        },
+        {
+          "id": "penalty_star4_task_restriction",
+          "type": "taskPool",
+          "name": "连续一周只推送四星任务",
+          "enabled": true,
+          "effect": {
+            "star": 4,
+            "days": 7
+          }
+        },
+        {
+          "id": "penalty_star4_avatar_leak",
+          "type": "appRestriction",
+          "name": "APP将你私密自拍设为头像",
+          "enabled": true,
+          "effect": {
+            "target": "avatar",
+            "sourceType": "private_selfie"
+          }
+        }
+      ]
+    },
+
+    "star_5": {
+      "star": 5,
+      "drawCount": 1,
+
+      "penalties": [
+        {
+          "id": "penalty_star5_forced_orgasm",
+          "type": "physical",
+          "name": "强制高潮×10 + 共感惩罚4小时",
+          "enabled": true,
+          "effect": {
+            "action": "forced_orgasm",
+            "orgasmCount": 10,
+            "resonanceDurationMinutes": 240
+          }
+        },
+        {
+          "id": "penalty_star5_lock",
+          "type": "appRestriction",
+          "name": "APP锁定72小时",
+          "enabled": true,
+          "effect": {
+            "durationHours": 72,
+            "lockLevel": "full"
+          }
+        },
+        {
+          "id": "penalty_star5_leak_draft",
+          "type": "communication",
+          "name": "草稿箱内容直接发送给通讯录随机三人（不可撤回）",
+          "enabled": true,
+          "effect": {
+            "targetCount": 3,
+            "targetSelection": "random_contact",
+            "contentType": "draft_content",
+            "irrevocable": true
+          }
+        },
+        {
+          "id": "penalty_star5_corruption",
+          "type": "corruption",
+          "name": "沦陷值+30",
+          "enabled": true,
+          "effect": {
+            "operation": "add",
+            "value": 30
+          }
+        },
+        {
+          "id": "penalty_star5_inventory_reduce",
+          "type": "inventory",
+          "name": "背包永久缩减至2格",
+          "enabled": true,
+          "effect": {
+            "target": "inventory_capacity",
+            "operation": "set_minimum",
+            "value": 2
+          }
+        },
+        {
+          "id": "penalty_star5_task_restriction",
+          "type": "taskPool",
+          "name": "连续两周只推送五星任务",
+          "enabled": true,
+          "effect": {
+            "star": 5,
+            "days": 14
+          }
+        },
+        {
+          "id": "penalty_star5_leak_photos",
+          "type": "communication",
+          "name": "APP将你的私密照片+沦陷值发送给通讯录随机五人",
+          "enabled": true,
+          "effect": {
+            "targetCount": 5,
+            "targetSelection": "random_contact",
+            "contentType": "private_photo_and_corruption_data"
+          }
+        },
+        {
+          "id": "penalty_star5_bypass_rejections",
+          "type": "taskPool",
+          "name": "操控者获得一次「无视排斥项」权限（仅一次）",
+          "enabled": true,
+          "effect": {
+            "target": "controller_permissions",
+            "grant": "bypass_explicit_rejections",
+            "count": 1
+          }
+        },
+        {
+          "id": "penalty_star5_forced_meeting",
+          "type": "taskPool",
+          "name": "下一次见面任务强制进行（且不得戴眼罩/面具）",
+          "enabled": true,
+          "effect": {
+            "target": "next_meeting_task",
+            "forceRequired": true,
+            "restrictedItems": ["eyemask", "face_mask"]
+          }
+        }
+      ]
+    }
+  },
+
+  "safetyRules": {
+    "enabled": true,
+
+    "neverTriggeredBy": [
+      "safety_exit",
+      "system_error",
+      "app_error"
+    ],
+
+    "protectedActions": [
+      "safety_exit",
+      "report_violation",
+      "report_unsafe_condition"
+    ],
+
+    "protectedState": {
+      "canUseSafetyExit": true,
+      "safetyExitDoesNotCountAsRefusal": true,
+      "safetyExitDoesNotTriggerPenalty": true
+    }
+  },
+
+  "aiRules": {
+    "enabled": true,
+
+    "canSelectPenalty": true,
+
+    "mustRespect": [
+      "current_star",
+      "current_progression",
+      "unlock_conditions",
+      "active_permissions",
+      "penalty_immunity",
+      "penalty_history"
+    ],
+
+    "mustNot": [
+      "invent_penalty_id",
+      "invent_effect",
+      "apply_locked_penalty",
+      "bypass_penalty_immunity",
+      "change_static_rules",
+      "apply_safety_related_penalty"
+    ]
+  },
+
+  "history": {
+    "enabled": true,
+    "saveToIndexedDB": true,
+
+    "recordFields": [
+      "penaltyId",
+      "penaltyType",
+      "taskId",
+      "star",
+      "trigger",
+      "timestamp",
+      "effectApplied"
+    ]
+  },
+
+  "validation": {
+    "enabled": true,
+
+    "checks": [
+      "unique_penalty_id",
+      "valid_penalty_type",
+      "valid_star_pool",
+      "valid_effect",
+      "schema_valid"
+    ]
+  }
+}
