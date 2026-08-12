@@ -20,7 +20,7 @@ class UiRenderer {
         this.panelWidth = 36; // 内部有效字符宽度
     }
 
-    /**
+/**
      * 进入游戏终端并启动
      */
     async start() {
@@ -29,7 +29,7 @@ class UiRenderer {
         // 1. 初始化界面顶部的时间日期
         this.updateTimeDisplay();
 
-        // 2. 绑定事件总线，监听中间变量变化
+        // 2. 绑定事件总线
         eventBus.on("action:resolved", (e) => {
             this.writeSystemLog(`系统检测：受到指令刺激。当前体内高潮值累计达 ${e.currentOrgasm.toFixed(0)}%，苏醒值上升至 ${e.currentWake.toFixed(0)}%`);
         });
@@ -42,54 +42,38 @@ class UiRenderer {
             this.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
         });
 
-        // 3. 载入第一章开局引言
-        this.loadOpeningPlot();
+        // 3. 原生按钮衔接：在正式游戏大厅中绑定按钮监听
+        this.bindGameUiButtons();
+
+        // 4. 执行 AI 神经冷启动
+        await this.triggerAiColdStart();
     }
 
     /**
-     * 更新顶部时间戳
+     * 为第三页的各大交互按钮绑定原生事件，彻底消灭行内 onclick
      */
-    updateTimeDisplay() {
-        const timeBox = document.querySelector(".system-title");
-        if (timeBox) {
-            const formatted = this.currentTime.toLocaleString("zh-CN", {
-                year: "numeric", month: "2-digit", day: "2-digit",
-                hour: "2-digit", minute: "2-digit", hour12: false
-            });
-            timeBox.innerText = `⏱ CONNECTED TERMINAL - [ ${formatted} ]`;
+    bindGameUiButtons() {
+        // 发送按钮
+        const sendBtn = document.getElementById("btn-send-action");
+        if (sendBtn) {
+            sendBtn.addEventListener("click", () => this.handleInputSubmit());
         }
-    }
 
-    /**
-     * 加载序幕文案
-     */
-    loadOpeningPlot() {
-        this.terminal.innerHTML = `
-            <p>那天早上醒来，你发现手机屏幕上多了一个粉色图标。</p>
-            <p>「Sweet Dream」——你不记得下载过。删不掉。重启没用。</p>
-            <p>你咬着嘴唇点开它。系统提示音突然响亮，第一条任务冷冰冰地弹了出……</p>
-        `;
-        this.terminal.scrollTop = this.terminal.scrollHeight;
-    }
+        // 输入框敲击回车事件
+        if (this.inputElement) {
+            this.inputElement.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") this.handleInputSubmit();
+            });
+        }
 
-    /**
-     * 发送玩家行为并推进时间与 AI 进度
-     */
-    async handleInputSubmit() {
-        const text = this.inputElement.value.trim();
-        if (!text) return;
+        // APP界面、操控者状态、设定书三个弹窗切换按钮
+        document.getElementById("btn-tab-tasks")?.addEventListener("click", () => window.showAppModal("tasks"));
+        document.getElementById("btn-tab-bag")?.addEventListener("click", () => window.showAppModal("bag"));
+        document.getElementById("btn-tab-settings")?.addEventListener("click", () => window.showAppModal("settings"));
 
-        this.inputElement.value = "";
-        this.writePlayerInput(text);
-
-        // 推进时间（每回合30分钟）
-        this.currentTime.setMinutes(this.currentTime.getMinutes() + 30);
-        this.updateTimeDisplay();
-
-        // 呼叫 AI 决策
-        this.writeSystemLog("正在同步梦境电波信号...");
-        const responseText = await aiEngine.generateStoryProgress(text);
-        this.writeAIPilot(responseText);
+        // 弹窗关闭按钮及黑框遮罩点击关闭
+        document.getElementById("btn-close-modal")?.addEventListener("click", () => window.closeAppModal());
+        document.getElementById("modal-overlay")?.addEventListener("click", () => window.closeAppModal());
     }
 
     /* ------------------- 文本记录输出工具 ------------------- */
