@@ -461,3 +461,14 @@ window.closeAppModal = () => {
     document.getElementById("modal-overlay").classList.add("hidden");
     document.getElementById("app-modal").classList.add("hidden");
 };
+
+setTimeout(() => {
+    const enterGameBtn = document.getElementById("btn-enter-game");
+    if (enterGameBtn) {
+        enterGameBtn.addEventListener("click", () => {
+            document.getElementById("view-match").classList.add("hidden");
+            document.getElementById("view-game").classList.remove("hidden");
+            uiRenderer.start();
+        });
+    }
+}, 300);
