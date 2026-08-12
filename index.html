@@ -1,143 +1,92 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="zh-CN">
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
-
-
-<title>
-Sweet Dream
-</title>
-
-
-<style>
-
-
-body{
-
-font-family:
-Arial;
-
-background:#f5f5f5;
-
-padding:20px;
-
-}
-
-
-.box{
-
-background:white;
-
-padding:20px;
-
-border-radius:15px;
-
-max-width:600px;
-
-margin:auto;
-
-}
-
-
-
-.field{
-
-margin-bottom:20px;
-
-}
-
-
-
-label{
-
-display:block;
-
-font-weight:bold;
-
-margin-bottom:8px;
-
-}
-
-
-input,
-textarea,
-select{
-
-width:100%;
-
-padding:10px;
-
-border-radius:8px;
-
-border:1px solid #ddd;
-
-}
-
-
-button{
-
-width:100%;
-
-padding:15px;
-
-background:#333;
-
-color:white;
-
-border:none;
-
-border-radius:10px;
-
-}
-
-
-
-</style>
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Dream</title>
+    <!-- HTML 与 CSS 样式分离，引入外部样式表 -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
-
-
 <body>
 
+    <div class="box">
+        <!-- 视图 1：创建角色界面 -->
+        <div id="view-creator">
+            <h1>🌙 创建角色</h1>
+            <div id="creator">
+                正在加载角色模板...
+            </div>
+            <button onclick="saveCharacter()">完成创建</button>
+        </div>
 
-<div class="box">
+        <!-- 视图 2：Controller 随机面具确认界面（创建完成后显示） -->
+        <div id="view-match" class="hidden">
+            <h1>⚡ 正在连线未知设备...</h1>
+            <p class="subtitle">APP 正在根据您的角色倾向及性兴奋触发点，匹配相容的操控者频段。</p>
+            
+            <div id="match-loading-log">
+                <!-- 动态显示掷点与匹配日志 -->
+            </div>
 
+            <div id="controller-card" class="hidden">
+                <div class="card-header">📡 已锁定操控者人格频段</div>
+                <div class="card-body">
+                    <p><strong>外显面具：</strong><span id="ctrl-primary-mask">-</span></p>
+                    <p><strong>潜在内核：</strong><span id="ctrl-core">-</span></p>
+                    <p><strong>现实关系：</strong><span id="ctrl-relation">-</span></p>
+                    <p><strong>操控起点：</strong><span id="ctrl-starting">-</span></p>
+                </div>
+            </div>
 
-<h1>
-🌙 创建角色
-</h1>
+            <button id="btn-enter-game" class="hidden" onclick="enterGameTerminal()">接受操控，接入梦境</button>
+        </div>
 
+        <!-- 视图 3：正式游戏终端（被操控者/目标视角） -->
+        <div id="view-game" class="hidden">
+            <div class="game-layout">
+                <!-- 左半部：剧情文字区与输入框 -->
+                <div class="story-area">
+                    <div class="system-title">📜 STORY & RESISTANCE TERMINAL</div>
+                    <div id="story-log">
+                        <!-- 动态载入剧情及动作反馈 -->
+                    </div>
+                    <div class="control-bar">
+                        <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
+                        <button onclick="sendActionText()">发送</button>
+                    </div>
+                </div>
 
-<div id="creator">
+                <!-- 右半部：Sweet Dream 手机 APP ASCII 渲染控制台 -->
+                <div class="app-area">
+                    <div class="app-buttons">
+                        <button class="tab-btn" onclick="showAppModal('tasks')">任务库</button>
+                        <button class="tab-btn" onclick="showAppModal('bag')">背包</button>
+                        <button class="tab-btn" onclick="showAppModal('settings')">设定书</button>
+                    </div>
+                    <!-- 强制格式输出的代码块容器 -->
+                    <pre id="app-screen">
+                        <!-- 动态渲染被操控端 ASCII 面板 -->
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
 
-正在加载角色模板...
+    <!-- 弹窗组件 -->
+    <div id="modal-overlay" class="modal-overlay hidden" onclick="closeAppModal()"></div>
+    <div id="app-modal" class="modal hidden">
+        <div class="modal-header">
+            <h2 id="modal-title">模块标题</h2>
+            <button class="close-btn" onclick="closeAppModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+            <!-- 动态注入内容 -->
+        </div>
+    </div>
 
-</div>
-
-
-<button onclick="saveCharacter()">
-
-完成创建
-
-</button>
-
-
-</div>
-
-
-<script src="js/database.js"></script>
-
-<script src="js/creator.js"></script>
-
-
+    <!-- 脚本载入 -->
+    <script src="js/database.js"></script>
+    <script src="js/creator.js"></script>
+    <script src="js/runtime/uiRenderer.js"></script>
 </body>
-
 </html>
