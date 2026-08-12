@@ -131,8 +131,8 @@
     { "id": "switch_counting", "name": "计数癖", "tags": ["counting", "observation"] },
     { "id": "switch_voice", "name": "声音成瘾", "tags": ["voice", "audio"] },
     { "id": "switch_temperature", "name": "体温沉溺", "tags": ["temperature", "touch"], "userFillRequired": true },
-
-    "__USER_FILL_SWITCH_POOL__": {
+    {
+      "id": "user_fill_switch_pool",
       "description": "原始设定中涉及具体露骨内容的开关在此补充。",
       "items": []
     }
@@ -511,7 +511,7 @@
     "behaviorProfile": {
       "type": "object",
       "generatedByAI": true,
-      "description": "根据面具、内核、关系及开关综合生成，用于指导AI后续行为。"
+      "description": "根据面具、内核、关系及开关综合生成，用于指导AI后续行为."
     },
     "generationTimestamp": {
       "type": "string"
