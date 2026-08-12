@@ -349,17 +349,15 @@ async function startControllerRoll() {
         }
     });
 
-    // 渲染卡片内容
+// 展现信息卡片
     document.getElementById("ctrl-primary-mask").innerText = primaryMask.name;
     document.getElementById("ctrl-core").innerText = selectedCore.name;
     document.getElementById("ctrl-relation").innerText = relation;
     document.getElementById("ctrl-starting").innerText = startingPoint.description.substring(0, 15) + "...";
 
-    // 展现信息卡和确认开始按钮
+    // 核心修改：展示整个操作按钮组（重新匹配与确认继续）
     document.getElementById("controller-card").classList.remove("hidden");
-    document.getElementById("btn-enter-game").classList.remove("hidden");
-}
-
+    document.getElementById("match-actions").classList.remove("hidden");
 window.enterGameTerminal = () => {
     document.getElementById("view-match").classList.add("hidden");
     document.getElementById("view-game").classList.remove("hidden");
