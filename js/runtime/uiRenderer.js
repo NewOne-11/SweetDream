@@ -269,7 +269,6 @@ async function startControllerRoll() {
         res();
     }, delay));
 
-    // 将整个匹配与状态机合并过程全部放入 try 块中，提供全线运行安全监视
     try {
         await printLog("正在检测本地运行时状态...", 200);
         
@@ -319,16 +318,15 @@ async function startControllerRoll() {
 
         // 数据写入
         await printLog("正在同步连线状态到中间变量数据库...", 300);
-        await stateManager.initialize();
         
-        // 写入玩家基本信息
+        // 核心修正：移除 await stateManager.initialize() 这一行，直接同步写入变量
         stateManager.set("playerProfile", playerProfile);
         
-        // 安全读取羞耻度并计算初始沦陷值
+        // 安全读取性羞耻度
         const shameLevel = playerProfile.psychology?.shame || "中等";
         const baseCorruption = shameLevel === "容易羞耻" ? 15 : (shameLevel === "不易羞耻" ? 5 : 10);
 
-        // 写入初始生成的 Controller 属性
+        // 核心修正：同步调用 stateManager.patch 写入生成的 Controller 参数
         stateManager.patch({
             controllerLevel: 1,
             controllerExperience: 0,
@@ -368,10 +366,10 @@ async function startControllerRoll() {
         await printLog("✨ 连线链路建立成功，等待接入...", 200);
 
     } catch (e) {
-        // 捕获任何潜在的属性未定义、数据库未初始化或存储冲突，并在绿色控制台输出具体代码行错因
         await printLog(`❌ 连线崩溃原因：${e.message}`, 0);
         console.error("游戏连线阶段崩溃详情:", e);
     }
+}
 }
 
 window.handleInputKey = (event) => {
