@@ -460,3 +460,5 @@ window.closeAppModal = () => {
     document.getElementById("app-modal").classList.add("hidden");
 };
 
+
+window.startControllerRoll = startControllerRoll;
