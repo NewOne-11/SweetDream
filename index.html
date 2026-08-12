@@ -41,32 +41,26 @@
             <button id="btn-enter-game" class="hidden" onclick="enterGameTerminal()">接受操控，接入梦境</button>
         </div>
 
-        <!-- 视图 3：正式游戏终端（被操控者/目标视角） -->
+        <!-- 视图 3：正式游戏终端（被操控者/目标视角 - 极致简约版） -->
         <div id="view-game" class="hidden">
             <div class="game-layout">
-                <!-- 左半部：剧情文字区与输入框 -->
-                <div class="story-area">
-                    <div class="system-title">📜 STORY & RESISTANCE TERMINAL</div>
-                    <div id="story-log">
-                        <!-- 动态载入剧情及动作反馈 -->
-                    </div>
-                    <div class="control-bar">
-                        <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
-                        <button onclick="sendActionText()">发送</button>
-                    </div>
+                <!-- 顶部：时间日期框 -->
+                <div class="system-title">⏱ CONNECTED TERMINAL - [ 正在校准电波... ]</div>
+
+                <!-- 中间：大屏剧情文字区 -->
+                <div id="story-log">
+                    <!-- 动态载入剧情及动作反馈 -->
                 </div>
 
-                <!-- 右半部：Sweet Dream 手机 APP ASCII 渲染控制台 -->
-                <div class="app-area">
+                <!-- 底部：输入框 + 功能弹窗按钮群 -->
+                <div class="control-bar">
                     <div class="app-buttons">
-                        <button class="tab-btn" onclick="showAppModal('tasks')">任务库</button>
-                        <button class="tab-btn" onclick="showAppModal('bag')">背包</button>
-                        <button class="tab-btn" onclick="showAppModal('settings')">设定书</button>
+                        <button class="tab-btn" onclick="showAppModal('tasks')">📱 APP 界面</button>
+                        <button class="tab-btn" onclick="showAppModal('bag')">📟 操控者状态</button>
+                        <button class="tab-btn" onclick="showAppModal('settings')">📖 设定书</button>
                     </div>
-                    <!-- 强制格式输出的代码块容器 -->
-                    <pre id="app-screen">
-                        <!-- 动态渲染被操控端 ASCII 面板 -->
-                    </pre>
+                    <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
+                    <button class="btn btn-primary" onclick="sendActionText()">发送</button>
                 </div>
             </div>
         </div>
@@ -84,9 +78,9 @@
         </div>
     </div>
 
-    <!-- 脚本载入 -->
+    <!-- 统一使用现代浏览器 ESM 脚本加载模块，保证 import/export 链条畅通 -->
     <script src="js/database.js"></script>
-    <script src="js/creator.js"></script>
-    <script src="js/runtime/uiRenderer.js"></script>
+    <script type="module" src="js/creator.js"></script>
+    <script type="module" src="js/runtime/uiRenderer.js"></script>
 </body>
 </html>
