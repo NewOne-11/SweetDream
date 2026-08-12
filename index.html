@@ -19,7 +19,7 @@
             <button onclick="saveCharacter()">完成创建</button>
         </div>
 
-        <!-- 视图 2：Controller 随机面具确认界面（创建完成后显示） -->
+        <!-- 视图 2：Controller 随机面具确认界面（包含重Roll键与继续键） -->
         <div id="view-match" class="hidden">
             <h1>⚡ 正在连线未知设备...</h1>
             <p class="subtitle">APP 正在根据您的角色倾向及性兴奋触发点，匹配相容的操控者频段。</p>
@@ -38,7 +38,11 @@
                 </div>
             </div>
 
-            <button id="btn-enter-game" class="hidden" onclick="enterGameTerminal()">接受操控，接入梦境</button>
+            <!-- 将单按钮升级为操作按钮组，初始化时隐藏 -->
+            <div id="match-actions" class="hidden" style="display: flex; gap: 10px;">
+                <button id="btn-reroll" class="btn" style="flex: 1;" onclick="rerollController()">重新匹配 (Reroll)</button>
+                <button id="btn-enter-game" class="btn btn-primary" style="flex: 1.5;" onclick="enterGameTerminal()">确认继续 (Continue)</button>
+            </div>
         </div>
 
         <!-- 视图 3：正式游戏终端（被操控者/目标视角 - 极致简约版） -->
