@@ -461,4 +461,4 @@ window.closeAppModal = () => {
 };
 
 
-window.startControllerRoll = startControllerRoll;
+
