@@ -274,9 +274,18 @@ async function startControllerRoll() {
     let masksLib;
     try {
         const response = await fetch("data/library/controller_masks.json");
+        
+        // 如果 HTTP 状态码不是 200 (例如 404)，抛出具体状态
+        if (!response.ok) {
+            throw new Error(`网络请求失败，HTTP 状态码: ${response.status}`);
+        }
+        
+        // 解析 JSON
         masksLib = await response.json();
     } catch (e) {
-        await printLog("❌ 错误：无法读取 data/library/controller_masks.json，请确认路径。", 0);
+        // 核心诊断：直接向屏幕打印底层报错原因，是 404 还是 JSON 语法错误一目了然
+        await printLog(`❌ 连线失败原因：${e.message}`, 0);
+        console.error("开发者控制台报错详情:", e);
         return;
     }
 
