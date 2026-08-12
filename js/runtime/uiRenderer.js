@@ -20,7 +20,7 @@ class UiRenderer {
         this.panelWidth = 36; // 内部有效字符宽度
     }
 
-    /**
+ /**
      * 进入游戏终端并启动
      */
     async start() {
@@ -29,7 +29,7 @@ class UiRenderer {
         // 1. 初始化界面顶部的时间日期
         this.updateTimeDisplay();
 
-        // 2. 绑定事件总线，监听中间变量变化
+        // 2. 绑定事件总线
         eventBus.on("action:resolved", (e) => {
             this.writeSystemLog(`系统检测：受到指令刺激。当前体内高潮值累计达 ${e.currentOrgasm.toFixed(0)}%，苏醒值上升至 ${e.currentWake.toFixed(0)}%`);
         });
@@ -42,8 +42,30 @@ class UiRenderer {
             this.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
         });
 
-        // 3. 载入第一章开局引言
-        this.loadOpeningPlot();
+        // 3. 执行 AI 冷启动初始化：强制让 AI 认知其当前分配好的 Persona，并产出初章叙事
+        await this.triggerAiColdStart();
+    }
+
+    /**
+     * AI 开局神经冷启动
+     */
+    async triggerAiColdStart() {
+        this.writeSystemLog("正在初始化操控者神经突触连线...");
+        
+        const player = stateManager.getPlayer();
+        const ctrl = stateManager.getController();
+
+        // 组装开局引导指令
+        const initInstruction = `
+[SYSTEM: 角色创建已成功，游戏正式开始。
+目标玩家名字是 "${player.name}"。
+你被分配到的操控者人格面具为 "主面具: ${ctrl.primaryMask}"，现实中是目标玩家的 "${ctrl.relationship}"。
+请根据你被分配到的外显人格，撰写开局第一幕的剧情：描述玩家早上醒来发现手机上多了一个删不掉的名为「Sweet Dream」的粉色图标，引导他们惊慌点开它，并发送第一条带有调逗或命令性质的操控者私信。]
+        `;
+
+        // 呼叫 AI 生成
+        const firstGreeting = await aiEngine.generateStoryProgress(initInstruction);
+        this.writeAIPilot(firstGreeting);
     }
 
     /**
