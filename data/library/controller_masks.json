@@ -1,0 +1,651 @@
+{
+  "id": "controller_masks",
+  "version": "1.0.0",
+  "title": "主人随机面具库",
+  "description": "为每局游戏生成唯一的Controller人格、内核、关系、行为开关及操控起点。生成结果受玩家个人信息面板约束，并在生成后锁定。",
+  "type": "controller_generation_library",
+  "aiVisible": true,
+  "playerVisible": false,
+  "debugMode": false,
+
+  "generationConfig": {
+    "enabled": true,
+    "generationMode": "profile_weighted_random",
+    "generateOn": "new_game",
+    "regenerateOn": "new_game_only",
+    "lockAfterGeneration": true,
+    "allowManualReroll": false,
+    "allowDebugReroll": true,
+    "aiExpansion": true,
+    "conflictResolution": "reroll_component",
+    "maxRerollAttempts": 10
+  },
+
+  "inputBindings": {
+    "playerProfile": {
+      "rolePreference": {
+        "source": "playerProfile.question_05",
+        "description": "角色倾向：Dom/S、Sub/M、Switch"
+      },
+      "overallSensitivity": {
+        "source": "playerProfile.question_15",
+        "description": "整体敏感度"
+      },
+      "sensitiveParts": {
+        "source": "playerProfile.question_16",
+        "description": "敏感部位"
+      },
+      "shameLevel": {
+        "source": "playerProfile.question_17",
+        "description": "羞耻感"
+      },
+      "arousalTriggers": {
+        "source": "playerProfile.question_19",
+        "description": "性兴奋触发点"
+      },
+      "rejectedContent": {
+        "source": "playerProfile.question_20",
+        "description": "明确排斥项"
+      },
+      "sexualOrientation": {
+        "source": "playerProfile.sexualOrientation",
+        "description": "用于保证Controller性别与玩家性取向相容"
+      }
+    }
+  },
+
+  "maskPool": [
+    { "id": "mask_gentle_guidance", "name": "温柔引导", "tags": ["gentle", "guidance", "care"], "direction": "gentle" },
+    { "id": "mask_cold_restraint", "name": "冷淡克制", "tags": ["cold", "restrained", "controlled"], "direction": "dominant" },
+    { "id": "mask_teasing", "name": "戏谑捉弄", "tags": ["teasing", "playful", "provocative"], "direction": "dominant" },
+    { "id": "mask_strong_control", "name": "强势掌控", "tags": ["strong", "control", "command"], "direction": "dominant" },
+    { "id": "mask_possessive", "name": "偏执占有", "tags": ["possessive", "obsessive"], "direction": "dominant" },
+    { "id": "mask_push_pull", "name": "若即若离", "tags": ["push_pull", "ambiguous", "distance"], "direction": "mixed" },
+    { "id": "mask_exploration", "name": "探索好奇", "tags": ["curious", "exploration"], "direction": "mixed" },
+    { "id": "mask_shame_training", "name": "羞耻驯服", "tags": ["shame", "training"], "direction": "dominant" },
+    { "id": "mask_pathological", "name": "病态迷恋", "tags": ["obsession", "intense"], "direction": "dominant" },
+    { "id": "mask_sophisticated", "name": "斯文败类", "tags": ["sophisticated", "provocative", "contrast"], "direction": "dominant" },
+    { "id": "mask_restrained", "name": "隐忍克制", "tags": ["restrained", "suppressed"], "direction": "mixed" },
+    { "id": "mask_uncontrolled", "name": "疯批失控", "tags": ["unstable", "intense", "uncontrolled"], "direction": "dominant" },
+    { "id": "mask_gentle_black", "name": "温柔腹黑", "tags": ["gentle", "calculating", "contrast"], "direction": "mixed" },
+    { "id": "mask_silent_cold", "name": "冷漠寡言", "tags": ["silent", "cold"], "direction": "dominant" },
+    { "id": "mask_clingy", "name": "黏人撒娇", "tags": ["clingy", "cute", "dependent"], "direction": "submissive" },
+    { "id": "mask_tsundere", "name": "毒舌傲娇", "tags": ["sharp_tongue", "tsundere", "teasing"], "direction": "mixed" },
+    { "id": "mask_casual", "name": "漫不经心", "tags": ["casual", "carefree"], "direction": "mixed" },
+    { "id": "mask_rigid", "name": "一板一眼", "tags": ["strict", "orderly", "serious"], "direction": "dominant" },
+    { "id": "mask_worship", "name": "虔诚崇拜", "tags": ["worship", "devotion"], "direction": "submissive" },
+    { "id": "mask_gloomy", "name": "阴郁孤僻", "tags": ["gloomy", "isolated"], "direction": "mixed" },
+    { "id": "mask_charming", "name": "风流多情", "tags": ["charming", "social", "romantic"], "direction": "mixed" },
+    { "id": "mask_strict", "name": "严肃苛刻", "tags": ["strict", "critical", "dominant"], "direction": "dominant" },
+    { "id": "mask_pure", "name": "纯情青涩", "tags": ["pure", "shy", "young_at_heart"], "direction": "submissive" },
+    { "id": "mask_experienced", "name": "游刃有余", "tags": ["experienced", "confident", "controlled"], "direction": "dominant" }
+  ],
+
+  "corePool": [
+    { "id": "core_desire_attention", "name": "渴求关注" },
+    { "id": "core_pure_lust", "name": "纯粹爱欲" },
+    { "id": "core_vengeful_possession", "name": "报复占有" },
+    { "id": "core_enlightenment", "name": "引导启蒙" },
+    { "id": "core_power_addiction", "name": "权力沉溺" },
+    { "id": "core_lonely_companionship", "name": "孤独陪伴" },
+    { "id": "core_self_loathing", "name": "自我厌恶" },
+    { "id": "core_devotion", "name": "献身精神" },
+    { "id": "core_hedonism", "name": "享乐主义" },
+    { "id": "core_exclusivity", "name": "独占欲" },
+    { "id": "core_sadism", "name": "施虐倾向" },
+    { "id": "core_masochism", "name": "受虐倾向" },
+    { "id": "core_voyeurism", "name": "窥视成瘾" },
+    { "id": "core_taming_desire", "name": "驯服欲" },
+    { "id": "core_tamed_desire", "name": "被驯服欲" },
+    { "id": "core_worship_desire", "name": "崇拜欲" },
+    { "id": "core_desecration", "name": "亵渎欲" },
+    { "id": "core_destruction", "name": "破坏欲" },
+    { "id": "core_protection", "name": "守护欲" },
+    { "id": "core_obsessive_loyal_dog", "name": "偏执忠犬" },
+    { "id": "core_emotional_vampire", "name": "情感吸血" },
+    { "id": "core_absolute_dominance", "name": "绝对支配" },
+    { "id": "core_total_submission", "name": "彻底顺从" },
+    { "id": "core_joker", "name": "乐子人" },
+    { "id": "core_responsible", "name": "认真负责" }
+  ],
+
+  "switchPool": [
+    { "id": "switch_tears", "name": "眼泪反应", "tags": ["emotion", "tears"] },
+    { "id": "switch_silence", "name": "沉默制裁", "tags": ["silence", "punishment"] },
+    { "id": "switch_edge", "name": "失控边缘", "tags": ["instability", "tension"] },
+    { "id": "switch_jealousy", "name": "嫉妒触发", "tags": ["jealousy", "possessive"] },
+    { "id": "switch_question", "name": "主动询问", "tags": ["care", "communication"] },
+    { "id": "switch_photo", "name": "照片收藏", "tags": ["memory", "collection"] },
+    { "id": "switch_safe_exit", "name": "安全退出触发", "tags": ["safety", "exit"] },
+    { "id": "switch_gift", "name": "礼物标记", "tags": ["gift", "attachment"] },
+    { "id": "switch_birthday", "name": "生日反应", "tags": ["birthday", "care"] },
+    { "id": "switch_illness", "name": "生病检测", "tags": ["health", "care"] },
+    { "id": "switch_sleep", "name": "睡眠监测", "tags": ["sleep", "observation"] },
+    { "id": "switch_task_speed", "name": "任务完成速度", "tags": ["task", "observation"] },
+    { "id": "switch_message_speed", "name": "回复私信速度", "tags": ["message", "attention"] },
+    { "id": "switch_meeting_touch", "name": "见面时肢体触碰", "tags": ["meeting", "touch"], "userFillRequired": true },
+    { "id": "switch_meeting_probe", "name": "见面时语言试探", "tags": ["meeting", "verbal_probe"] },
+    { "id": "switch_bite_preference", "name": "咬痕偏好", "tags": ["pain", "possessive"] },
+    { "id": "switch_marking", "name": "标记占有", "tags": ["possessive"], "userFillRequired": true },
+    { "id": "switch_cleanup", "name": "事后清理", "tags": ["care", "aftercare"] },
+    { "id": "switch_counting", "name": "计数癖", "tags": ["counting", "observation"] },
+    { "id": "switch_voice", "name": "声音成瘾", "tags": ["voice", "audio"] },
+    { "id": "switch_temperature", "name": "体温沉溺", "tags": ["temperature", "touch"], "userFillRequired": true },
+
+    "__USER_FILL_SWITCH_POOL__": {
+      "description": "原始设定中涉及具体露骨内容的开关在此补充。",
+      "items": []
+    }
+  ],
+
+  "relationshipPool": [
+    {
+      "group": "blood_or_family_like",
+      "items": [
+        "亲哥/亲姐",
+        "亲弟/亲妹",
+        "继兄/继姐",
+        "继弟/继妹",
+        "养父",
+        "小妈",
+        "继子",
+        "继女"
+      ],
+      "enabled": false,
+      "description": "默认关闭。仅在系统明确允许成人角色且关系设定经过额外安全校验时使用。"
+    },
+    {
+      "group": "daily_contact",
+      "items": [
+        "同学",
+        "同事",
+        "上司",
+        "下属",
+        "室友",
+        "邻居",
+        "合租室友",
+        "老师",
+        "学生",
+        "教练",
+        "学员",
+        "青梅竹马"
+      ]
+    },
+    {
+      "group": "past_emotional",
+      "items": [
+        "前任",
+        "暗恋过你的人",
+        "你暗恋过的人",
+        "初恋",
+        "曾经最好的朋友"
+      ]
+    },
+    {
+      "group": "stranger",
+      "items": [
+        "常见面（在办公、通勤、餐饮等日常场合经常碰到但没说过话的人）",
+        "完全随机匹配"
+      ]
+    }
+  ],
+
+  "startingPointPool": [
+    {
+      "id": "start_immediate",
+      "description": "拿到APP当天就进行了第一次操控"
+    },
+    {
+      "id": "start_three_days",
+      "description": "拿到APP后犹豫了三天"
+    },
+    {
+      "id": "start_one_week",
+      "description": "犹豫了一周，删除APP后又重新安装"
+    },
+    {
+      "id": "start_target_rejection",
+      "description": "最初以目标身份被APP匹配，在拒绝后转为主人身份"
+    }
+  ],
+
+  "matchingRules": {
+    "maskRules": {
+      "triggerMappings": {
+        "被压制/控制": {
+          "preferred": [
+            "mask_strong_control",
+            "mask_possessive",
+            "mask_uncontrolled"
+          ],
+          "userFill": [
+            "霸道强势"
+          ]
+        },
+        "言语挑逗/命令": {
+          "preferred": [
+            "mask_teasing",
+            "mask_tsundere",
+            "mask_sophisticated",
+            "mask_experienced"
+          ]
+        },
+        "对方强势/居高临下": {
+          "preferred": [
+            "mask_cold_restraint",
+            "mask_strict",
+            "mask_rigid",
+            "mask_experienced"
+          ]
+        },
+        "疼痛感": {
+          "preferred": [
+            "mask_pathological",
+            "mask_uncontrolled",
+            "mask_gloomy"
+          ],
+          "userFill": [
+            "施虐相关面具"
+          ]
+        },
+        "被多人注视": {
+          "preferred": [
+            "mask_shame_training",
+            "mask_exploration",
+            "mask_charming"
+          ]
+        },
+        "被羞辱/贬低": {
+          "preferred": [
+            "mask_teasing",
+            "mask_tsundere",
+            "mask_pathological",
+            "mask_sophisticated"
+          ]
+        },
+        "温柔照顾/宠溺": {
+          "preferred": [
+            "mask_gentle_guidance",
+            "mask_clingy",
+            "mask_worship",
+            "mask_pure"
+          ]
+        },
+        "对方穿制服/正装": {
+          "preferred": [
+            "mask_restrained",
+            "mask_rigid",
+            "mask_strict",
+            "mask_experienced"
+          ]
+        }
+      },
+
+      "rolePreferenceModifiers": {
+        "Sub/M": {
+          "preferredDirection": "dominant",
+          "excludedDirections": ["submissive"],
+          "weightMultiplier": 2.0
+        },
+        "Dom/S": {
+          "preferredDirection": "gentle",
+          "allowContrast": true,
+          "weightMultiplier": 1.5
+        },
+        "Switch": {
+          "restriction": "none",
+          "weightMultiplier": 1.0
+        }
+      },
+
+      "selection": {
+        "count": 2,
+        "primaryIndex": 0,
+        "hiddenIndex": 1,
+        "allowDuplicate": false
+      }
+    },
+
+    "coreRules": {
+      "rolePreferenceModifiers": {
+        "Sub/M": {
+          "preferred": [
+            "core_absolute_dominance",
+            "core_power_addiction",
+            "core_sadism",
+            "core_exclusivity",
+            "core_taming_desire",
+            "core_voyeurism",
+            "core_desecration",
+            "core_emotional_vampire"
+          ]
+        },
+        "Dom/S": {
+          "preferred": [
+            "core_total_submission",
+            "core_tamed_desire",
+            "core_worship_desire",
+            "core_devotion",
+            "core_masochism",
+            "core_obsessive_loyal_dog",
+            "core_protection",
+            "core_desire_attention"
+          ]
+        },
+        "Switch": {
+          "restriction": "none",
+          "weight": "equal"
+        }
+      },
+      "selection": {
+        "count": 1,
+        "visible": false
+      }
+    },
+
+    "relationshipRules": {
+      "selection": {
+        "count": 1,
+        "restriction": "none"
+      }
+    },
+
+    "switchRules": {
+      "triggerMappings": {
+        "被抚摸特定部位": [
+          "switch_temperature",
+          "switch_meeting_touch",
+          "switch_bite_preference",
+          "switch_marking"
+        ],
+        "被压制/控制": [
+          "switch_edge",
+          "switch_silence"
+        ],
+        "言语挑逗/命令": [
+          "switch_voice",
+          "switch_message_speed",
+          "switch_meeting_probe"
+        ],
+        "疼痛感": [
+          "switch_bite_preference",
+          "switch_marking"
+        ],
+        "被多人注视": [
+          "switch_photo",
+          "switch_task_speed"
+        ],
+        "被羞辱/贬低": [
+          "switch_silence",
+          "switch_jealousy"
+        ],
+        "温柔照顾/宠溺": [
+          "switch_cleanup",
+          "switch_gift",
+          "switch_illness",
+          "switch_birthday"
+        ]
+      },
+
+      "rejectionFilter": {
+        "enabled": true,
+        "source": "playerProfile.question_20",
+        "mode": "hard_exclude",
+        "description": "与玩家明确排斥项相关的开关必须从候选池中移除。"
+      },
+
+      "selection": {
+        "count": 3,
+        "allowDuplicate": false,
+        "minimumContrastWithPrimaryMask": 1
+      }
+    }
+  },
+
+  "generationPipeline": [
+    {
+      "step": 1,
+      "id": "READ_PROFILE",
+      "action": "读取玩家个人信息面板限定项",
+      "requiredInputs": [
+        "rolePreference",
+        "overallSensitivity",
+        "sensitiveParts",
+        "shameLevel",
+        "arousalTriggers",
+        "rejectedContent",
+        "sexualOrientation"
+      ]
+    },
+    {
+      "step": 2,
+      "id": "ROLL_MASK",
+      "action": "依据角色倾向与性兴奋触发点筛选面具候选池，并随机抽取两个不同词条",
+      "result": {
+        "primaryMask": "外显面具",
+        "hiddenMask": "隐藏面具"
+      }
+    },
+    {
+      "step": 3,
+      "id": "ROLL_CORE",
+      "action": "依据角色倾向筛选内核池并随机抽取一个不可见底层动机",
+      "result": {
+        "core": "hidden"
+      }
+    },
+    {
+      "step": 4,
+      "id": "ROLL_RELATIONSHIP",
+      "action": "从关系库中随机抽取一个关系词条",
+      "restriction": "none"
+    },
+    {
+      "step": 5,
+      "id": "ROLL_SWITCHES",
+      "action": "依据性兴奋触发点筛选开关，并排除与明确排斥项冲突的开关后随机抽取三个",
+      "requirements": [
+        "minimum_one_switch_contrasts_with_primary_mask",
+        "all_rejected_content_filtered"
+      ]
+    },
+    {
+      "step": 6,
+      "id": "ROLL_STARTING_POINT",
+      "action": "从操控起点池随机抽取一个"
+    },
+    {
+      "step": 7,
+      "id": "VALIDATE_GENERATED_CONTROLLER",
+      "action": "执行完整性、兼容性、排斥项及年龄安全检查",
+      "onFailure": "reroll_conflicting_component"
+    },
+    {
+      "step": 8,
+      "id": "LOCK_CONTROLLER",
+      "action": "将生成结果写入当前存档并锁定，后续剧情不得随机改变基础人格结构"
+    }
+  ],
+
+  "generatedControllerSchema": {
+    "controllerId": {
+      "type": "string",
+      "generated": true
+    },
+    "primaryMask": {
+      "type": "string",
+      "required": true,
+      "visibleToPlayer": true
+    },
+    "hiddenMask": {
+      "type": "string",
+      "required": true,
+      "visibleToPlayer": false
+    },
+    "core": {
+      "type": "string",
+      "required": true,
+      "visibleToPlayer": false
+    },
+    "relationship": {
+      "type": "string",
+      "required": true,
+      "visibleToPlayer": true
+    },
+    "switches": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "visibleToPlayer": false
+    },
+    "controlStartingPoint": {
+      "type": "string",
+      "required": true,
+      "visibleToPlayer": false
+    },
+    "generatedBackground": {
+      "type": "string",
+      "generatedByAI": true,
+      "visibleToPlayer": true
+    },
+    "behaviorProfile": {
+      "type": "object",
+      "generatedByAI": true,
+      "description": "根据面具、内核、关系及开关综合生成，用于指导AI后续行为。"
+    },
+    "generationTimestamp": {
+      "type": "string"
+    },
+    "locked": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+
+  "behaviorGenerationRules": {
+    "primaryMask": {
+      "weight": 0.60,
+      "description": "决定Controller日常主要表达方式。"
+    },
+    "hiddenMask": {
+      "weight": 0.20,
+      "description": "只在特定开关、剧情节点或高好感度条件下逐渐暴露。"
+    },
+    "core": {
+      "weight": 0.20,
+      "description": "决定长期行为动机，不直接向玩家展示。"
+    },
+    "contrastRule": {
+      "enabled": true,
+      "description": "AI生成行为时允许外显面具与隐藏面具、内核产生反差，但必须存在可追溯的过渡。"
+    },
+    "personalityConsistency": {
+      "enabled": true,
+      "description": "同一Controller在同一存档中不得无理由发生人格漂移。"
+    }
+  },
+
+  "safetyAndCompatibility": {
+    "adultOnly": true,
+    "minorControllerForbidden": true,
+    "minorTargetForbidden": true,
+
+    "orientationCompatibility": {
+      "enabled": true,
+      "description": "Controller性别必须与玩家性取向及当前系统允许范围相容。"
+    },
+
+    "rejectionProtection": {
+      "enabled": true,
+      "priority": "hard_filter",
+      "description": "玩家明确排斥项不得被随机生成系统主动选择。"
+    },
+
+    "relationshipSafety": {
+      "familyLikeRelationshipsEnabled": false,
+      "studentTeacherSexualRelationshipEnabled": false,
+      "description": "存在现实权力或家庭关系风险的关系默认关闭，由用户自行配置安全替代关系。"
+    }
+  },
+
+  "profileDrivenModifiers": {
+    "overallSensitivity": {
+      "source": "question_15",
+      "effect": "影响Controller初始任务档位与行为节奏"
+    },
+    "sensitiveParts": {
+      "source": "question_16",
+      "effect": "影响后续任务生成的标签优先级",
+      "userFillRequired": true
+    },
+    "shameLevel": {
+      "source": "question_17",
+      "effect": "影响公开、暴露、私信试探等标签权重",
+      "userFillRequired": true
+    },
+    "arousalTriggers": {
+      "source": "question_19",
+      "effect": "决定Controller主导风格及开关匹配"
+    },
+    "rejectedContent": {
+      "source": "question_20",
+      "effect": "硬性排除冲突内容"
+    }
+  },
+
+  "validationChecklist": [
+    "未修改玩家任何填写内容",
+    "未替玩家生成动作、语言、表情或心理",
+    "生成完成后Controller基础人格保持锁定",
+    "任务与私信生成必须经过排斥项过滤",
+    "Controller性别与玩家性取向相容",
+    "主面具与角色倾向及触发点匹配",
+    "隐藏面具与主面具存在合理关系",
+    "内核与角色倾向匹配",
+    "开关与玩家触发点匹配",
+    "排斥项相关开关已被硬性排除",
+    "主面具、隐藏面具、内核之间允许反差但不得无理由人格漂移",
+    "任务尺度必须由controller.json中的等级及目标状态规则决定",
+    "隐藏线索仍由controller.json负责",
+    "沦陷值及奖惩仍由controller.json负责",
+    "玩家行为触发开关时调用对应switch",
+    "敏感部位相关任务标签由玩家资料提供",
+    "生成结果必须写入IndexedDB并锁定",
+    "不得生成未成年Controller或未成年Target"
+  ],
+
+  "userFillAreas": {
+    "explicitSwitches": {
+      "description": "在此补充需要的具体开关标签。",
+      "items": []
+    },
+    "explicitTriggerMappings": {
+      "description": "在此补充具体触发点对应关系。",
+      "items": []
+    },
+    "sensitivePartMappings": {
+      "description": "在此补充敏感部位与任务标签之间的映射。",
+      "items": []
+    },
+    "explicitBehaviorParameters": {
+      "description": "在此补充需要的具体行为参数。",
+      "items": []
+    }
+  },
+
+  "integration": {
+    "controllerRulesFile": "controller.json",
+    "playerProfileSource": "playerProfile",
+    "stateDestination": "controllerState",
+    "persistentStorage": "IndexedDB",
+    "loadOrder": [
+      "LOAD_PLAYER_PROFILE",
+      "LOAD_CONTROLLER_MASK_LIBRARY",
+      "GENERATE_CONTROLLER",
+      "VALIDATE_CONTROLLER",
+      "WRITE_CONTROLLER_STATE",
+      "LOAD_CONTROLLER_RULES"
+    ],
+    "description": "本文件负责生成Controller，不负责执行游戏规则。生成完成后由controller.json接管具体运行逻辑。"
+  }
+}
