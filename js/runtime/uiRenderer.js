@@ -301,7 +301,7 @@ async function startControllerRoll() {
         // 匹配内核
         const cores = masksLib.corePool;
         const selectedCore = cores[Math.floor(Math.random() * cores.length)] || { name: "绝对支配" };
-        await printLog = await this.printLog(`🎲 [深层内心动机] 确定为: 〖${selectedCore.name}〗`, 400);
+        await printLog(`🎲 [深层内心动机] 确定为: 〖${selectedCore.name}〗`, 400);
 
         // 匹配关系与起点
         const relationships = masksLib.relationshipPool.find(r => r.group === "daily_contact").items;
