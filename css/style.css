@@ -1,0 +1,279 @@
+:root {
+    --bg-dark: #090a10;
+    --panel-dark: #121420;
+    --border-pink: #f472b6;
+    --text-light: #e5e7eb;
+    --text-muted: #9ca3af;
+    --accent-blue: #38bdf8;
+    --glow-shadow: 0 0 10px rgba(244, 114, 182, 0.2);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    font-family: "Courier New", Courier, monospace;
+    padding: 10px;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box {
+    background: var(--panel-dark);
+    border: 1px solid #26293c;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1000px;
+    height: 95vh;
+    box-shadow: var(--glow-shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 隐藏工具类 */
+.hidden {
+    display: none !important;
+}
+
+h1 {
+    color: var(--border-pink);
+    font-size: 22px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 5px rgba(244, 114, 182, 0.4);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+/* 创建角色表单样式优化 */
+#creator {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding-right: 5px;
+}
+
+.section {
+    border-bottom: 1px solid #26293c;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.field {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--accent-blue);
+}
+
+input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    background-color: #1a1d2e;
+    border: 1px solid #2d3142;
+    color: var(--text-light);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--border-pink);
+}
+
+button {
+    background-color: var(--border-pink);
+    color: #000;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: #f43f5e;
+    box-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
+}
+
+/* 匹配掷点界面样式 */
+#match-loading-log {
+    background: #06070a;
+    border: 1px solid #1f2235;
+    border-radius: 6px;
+    height: 180px;
+    overflow-y: auto;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #4ade80;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+#controller-card {
+    background: #1e1b29;
+    border: 1px solid var(--border-pink);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: bold;
+    color: var(--border-pink);
+    border-bottom: 1px solid #3b233c;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.card-body p {
+    margin: 6px 0;
+    font-size: 13px;
+}
+
+/* 正式游戏终端排版 */
+.game-layout {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.story-area {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #0b0c14;
+    border: 1px solid #1f2235;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.system-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    border-bottom: 1px solid #1f2235;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+#story-log {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.control-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.control-bar input {
+    flex: 1;
+}
+
+/* 手机模拟器区 */
+.app-area {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-buttons {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.tab-btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 6px;
+    background-color: #212538;
+    color: var(--text-light);
+    border: 1px solid #2d3142;
+}
+
+.tab-btn:hover {
+    background-color: var(--border-pink);
+    color: #000;
+}
+
+#app-screen {
+    flex: 1;
+    background: #000;
+    color: #ef4444; /* 契合APP底色的高警示红色或粉色 */
+    padding: 5px;
+    border: 2px solid #2d3142;
+    border-radius: 8px;
+    overflow-y: auto;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+}
+
+.modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel-dark);
+    border: 1px solid var(--border-pink);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    z-index: 101;
+    box-shadow: var(--glow-shadow);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2d3142;
+    padding: 10px 15px;
+}
+
+.modal-body {
+    padding: 15px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.close-btn {
+    background: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    padding: 0;
+}
+.close-btn:hover {
+    color: var(--border-pink);
+    box-shadow: none;
+    background: none;
+}
