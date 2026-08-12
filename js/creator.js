@@ -818,7 +818,7 @@ function updateConditions(){
 
 
 
-
+window.saveCharacter = saveCharacter;
 
 
 openDatabase()
