@@ -1,9 +1,9 @@
 /**
  * SweetDream
- * UI Responsive Console Renderer
+ * UI Responsive Console Renderer & Controller Generator (Combined)
  * 
- * 极简主界面 + 数据驱动型自适应 ASCII 弹窗渲染中枢。
- * 路径：js/runtime/uiRenderer.js (新建文件)
+ * 极简主界面 + 操控者生成系统 + 数据驱动型自适应 ASCII 弹窗渲染中枢。
+ * 路径：js/runtime/uiRenderer.js
  */
 
 import { eventBus } from "./eventBus.js";
@@ -20,7 +20,7 @@ class UiRenderer {
         this.panelWidth = 36; // 内部有效字符宽度
     }
 
- /**
+    /**
      * 进入游戏终端并启动
      */
     async start() {
@@ -29,7 +29,7 @@ class UiRenderer {
         // 1. 初始化界面顶部的时间日期
         this.updateTimeDisplay();
 
-        // 2. 绑定事件总线
+        // 2. 绑定事件总线，监听中间变量变化
         eventBus.on("action:resolved", (e) => {
             this.writeSystemLog(`系统检测：受到指令刺激。当前体内高潮值累计达 ${e.currentOrgasm.toFixed(0)}%，苏醒值上升至 ${e.currentWake.toFixed(0)}%`);
         });
@@ -42,30 +42,8 @@ class UiRenderer {
             this.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
         });
 
-        // 3. 执行 AI 冷启动初始化：强制让 AI 认知其当前分配好的 Persona，并产出初章叙事
-        await this.triggerAiColdStart();
-    }
-
-    /**
-     * AI 开局神经冷启动
-     */
-    async triggerAiColdStart() {
-        this.writeSystemLog("正在初始化操控者神经突触连线...");
-        
-        const player = stateManager.getPlayer();
-        const ctrl = stateManager.getController();
-
-        // 组装开局引导指令
-        const initInstruction = `
-[SYSTEM: 角色创建已成功，游戏正式开始。
-目标玩家名字是 "${player.name}"。
-你被分配到的操控者人格面具为 "主面具: ${ctrl.primaryMask}"，现实中是目标玩家的 "${ctrl.relationship}"。
-请根据你被分配到的外显人格，撰写开局第一幕的剧情：描述玩家早上醒来发现手机上多了一个删不掉的名为「Sweet Dream」的粉色图标，引导他们惊慌点开它，并发送第一条带有调逗或命令性质的操控者私信。]
-        `;
-
-        // 呼叫 AI 生成
-        const firstGreeting = await aiEngine.generateStoryProgress(initInstruction);
-        this.writeAIPilot(firstGreeting);
+        // 3. 载入第一章开局引言
+        this.loadOpeningPlot();
     }
 
     /**
@@ -197,7 +175,7 @@ class UiRenderer {
         lines.push(this.formatLine("Sweet Dream (Active)"));
         lines.push("├──────────────────────────────────────┤");
         
-        lines.push(this.formatLine(`目标编号：#3811`, `姓名：${player.name}`));
+        lines.push(this.formatLine(`目标编号：#3811`, `姓名：${player.profile?.identity?.name || "玩家"}`));
         
         const corr = prog.corruption || 10;
         const awak = prog.awakening || 0;
@@ -230,7 +208,7 @@ class UiRenderer {
         lines.push(this.formatLine(`生理苏醒: [${wBar}]`, `${(ctrl.wakeValue || 0).toFixed(0)}%`));
         lines.push("├──────────────────────────────────────┤");
 
-        const mask = ctrl.primaryMask || "操控者";
+        const mask = ctrl.controllerProfile?.maskPrimary || "操控者";
         lines.push(this.formatLine(`【实时私信】`));
         if (ctrl.privateMessages && ctrl.privateMessages.length > 0) {
             const latestMsg = ctrl.privateMessages[ctrl.privateMessages.length - 1];
@@ -261,15 +239,15 @@ class UiRenderer {
         lines.push("┌──────────────────────────────────────┐");
         lines.push(this.formatLine("Controller Status Monitor"));
         lines.push("├──────────────────────────────────────┤");
-        lines.push(this.formatLine(`主显外壳：${ctrl.primaryMask || "温柔引导"}`));
+        lines.push(this.formatLine(`主显外壳：${ctrl.controllerProfile?.maskPrimary || "温柔引导"}`));
         lines.push(this.formatLine(`隐藏人格：(未解锁)`));
         lines.push(this.formatLine(`操控等级：Lv.${ctrl.controllerLevel || 1}`, `经验:${ctrl.controllerExperience || 0}/100`));
-        lines.push(this.formatLine(`人际契合：${ctrl.relationship || "青梅竹马"}`));
-        lines.push(this.formatLine(`控制起点：${ctrl.controlStartingPoint ? ctrl.controlStartingPoint.substring(0, 11) + "..." : "未知"}`));
+        lines.push(this.formatLine(`人际契合：${ctrl.controllerProfile?.relationship || "青梅竹马"}`));
+        lines.push(this.formatLine(`控制起点：${ctrl.controllerProfile?.controlStart ? ctrl.controllerProfile.controlStart.substring(0, 11) + "..." : "未知"}`));
         lines.push("├──────────────────────────────────────┤");
         lines.push(this.formatLine("【契约感知开关】"));
-        if (ctrl.switches && ctrl.switches.length > 0) {
-            ctrl.switches.forEach(sw => {
+        if (ctrl.controllerProfile?.switches && ctrl.controllerProfile.switches.length > 0) {
+            ctrl.controllerProfile.switches.forEach(sw => {
                 lines.push(this.formatLine(`- 感知开启: ${sw}`));
             });
         } else {
@@ -282,6 +260,129 @@ class UiRenderer {
 }
 
 export const uiRenderer = new UiRenderer();
+
+// 核心过度桥接：拦截原保存角色行为，转入 Controller 生成掷点界面
+setTimeout(() => {
+    const originalSaveCharacter = window.saveCharacter;
+    if (originalSaveCharacter) {
+        window.saveCharacter = function() {
+            // 1. 先执行你原始写好的保存和 IndexedDB 写入流程
+            originalSaveCharacter();
+
+            // 2. 切换界面视图到掷点面板
+            document.getElementById("view-creator").classList.add("hidden");
+            document.getElementById("view-match").classList.remove("hidden");
+
+            // 3. 运行匹配生成管线
+            startControllerRoll();
+        };
+    }
+}, 200);
+
+/**
+ * 掷点匹配并向数据库写入初始中间变量
+ */
+async function startControllerRoll() {
+    const logDiv = document.getElementById("match-loading-log");
+    if (!logDiv) return;
+
+    logDiv.innerHTML = "";
+    const printLog = (text, delay = 350) => new Promise(res => setTimeout(() => {
+        logDiv.innerHTML += `> <span style="color: #4ade80;">[SYSTEM]</span> ${text}<br/>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        res();
+    }, delay));
+
+    await printLog("正在检测本地运行时状态...", 200);
+    
+    let masksLib;
+    try {
+        const response = await fetch("data/library/controller_masks.json");
+        masksLib = await response.json();
+    } catch (e) {
+        await printLog("❌ 错误：无法读取 data/library/controller_masks.json，请确认路径。", 0);
+        return;
+    }
+
+    await printLog("读取玩家特征与性敏感度限制项中...", 300);
+    const playerProfile = window.player || {}; // 获取 creator.js 内存中的玩家设定对象
+
+    // 适配倾向
+    const rolePref = playerProfile.profile?.identity?.rolePreference || "被支配方(Sub/M)";
+    let maskDirection = "dominant";
+    if (rolePref.includes("Dom/S")) maskDirection = "submissive";
+    if (rolePref.includes("Switch")) maskDirection = "mixed";
+
+    // 匹配主面具
+    const pool = masksLib.maskPool.filter(m => m.direction === maskDirection || m.direction === "mixed");
+    const primaryMask = pool[Math.floor(Math.random() * pool.length)] || { name: "冷淡克制" };
+    let hiddenMask = pool[Math.floor(Math.random() * pool.length)] || { name: "若即若离" };
+    if (primaryMask.id === hiddenMask.id) {
+        hiddenMask = pool.find(m => m.id !== primaryMask.id) || hiddenMask;
+    }
+
+    await printLog(`🎲 [主面具判定] 锁定的外显面具为: 〖${primaryMask.name}〗`, 500);
+    await printLog(`🎲 [次面具判定] 锁定的隐藏面具为: 〖${hiddenMask.name}〗`, 400);
+
+    // 匹配内核
+    const cores = masksLib.corePool;
+    const selectedCore = cores[Math.floor(Math.random() * cores.length)] || { name: "绝对支配" };
+    await printLog(`🎲 [深层内心动机] 确定为: 〖${selectedCore.name}〗`, 400);
+
+    // 匹配关系与起点
+    const relationships = masksLib.relationshipPool.find(r => r.group === "daily_contact").items;
+    const relation = relationships[Math.floor(Math.random() * relationships.length)] || "同学";
+    const startingPoints = masksLib.startingPointPool;
+    const startingPoint = startingPoints[Math.floor(Math.random() * startingPoints.length)] || { description: "当天操控" };
+
+    await printLog(`🎲 [现实关系连线] 操控者身份是你的: 【${relation}】`, 400);
+    await printLog(`🎲 [时空原点溯源] 连线起点：${startingPoint.description}`, 400);
+
+    // 匹配开关
+    const selectedSwitches = ["眼泪反应", "沉默制裁", "失控边缘"];
+    await printLog(`🎲 [感官触觉开关] 已成功配置传感器：${selectedSwitches.join(", ")}`, 400);
+
+    // 初始化中间变量储存库 StateManager
+    await stateManager.initialize();
+    
+    // 合并并还原初始状态树
+    await stateManager.restore({
+        playerProfile: playerProfile,
+        controllerLevel: 1,
+        controllerExperience: 0,
+        orgasmValue: 12, // 初始高潮预热
+        wakeValue: 5,
+        currentScene: "scene_bedroom",
+        currentTaskId: "init_001",
+        inventory: {
+            "eq_toy_tiaodan": 1,
+            "ticket_skip_task": 1
+        },
+        controllerProfile: {
+            generated: true,
+            maskPrimary: primaryMask.name,
+            maskHidden: hiddenMask.name,
+            core: selectedCore.name,
+            relationship: relation,
+            switches: selectedSwitches,
+            controlStart: startingPoint.description
+        },
+        currentProgress: {
+            name: playerProfile.profile?.identity?.name || "未知",
+            corruption: playerProfile.psychology?.shame === "容易羞耻" ? 15 : 10
+        }
+    });
+
+    // 渲染卡片内容
+    document.getElementById("ctrl-primary-mask").innerText = primaryMask.name;
+    document.getElementById("ctrl-core").innerText = selectedCore.name;
+    document.getElementById("ctrl-relation").innerText = relation;
+    document.getElementById("ctrl-starting").innerText = startingPoint.description.substring(0, 15) + "...";
+
+    // 展现信息卡和确认开始按钮
+    document.getElementById("controller-card").classList.remove("hidden");
+    document.getElementById("btn-enter-game").classList.remove("hidden");
+}
 
 window.enterGameTerminal = () => {
     document.getElementById("view-match").classList.add("hidden");
