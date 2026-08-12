@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sweet Dream</title>
-    <!-- HTML 与 CSS 样式分离，引入外部样式表 -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,17 +15,16 @@
             <div id="creator">
                 正在加载角色模板...
             </div>
-            <button onclick="saveCharacter()">完成创建</button>
+            <!-- 修改点：去掉了 onclick，增加 id -->
+            <button id="btn-save-character">完成创建</button>
         </div>
 
-        <!-- 视图 2：Controller 随机面具确认界面（创建完成后显示） -->
+        <!-- 视图 2：Controller 随机面具确认界面 -->
         <div id="view-match" class="hidden">
             <h1>⚡ 正在连线未知设备...</h1>
             <p class="subtitle">APP 正在根据您的角色倾向及性兴奋触发点，匹配相容的操控者频段。</p>
             
-            <div id="match-loading-log">
-                <!-- 动态显示掷点与匹配日志 -->
-            </div>
+            <div id="match-loading-log"></div>
 
             <div id="controller-card" class="hidden">
                 <div class="card-header">📡 已锁定操控者人格频段</div>
@@ -38,47 +36,43 @@
                 </div>
             </div>
 
-            <button id="btn-enter-game" class="hidden" onclick="enterGameTerminal()">接受操控，接入梦境</button>
+            <!-- 修改点：去掉了 onclick，增加 id -->
+            <button id="btn-enter-game" class="hidden">接受操控，接入梦境</button>
         </div>
 
-        <!-- 视图 3：正式游戏终端（被操控者/目标视角 - 极致简约版） -->
+        <!-- 视图 3：正式游戏终端（目标视角） -->
         <div id="view-game" class="hidden">
             <div class="game-layout">
-                <!-- 顶部：时间日期框 -->
                 <div class="system-title">⏱ CONNECTED TERMINAL - [ 正在校准电波... ]</div>
 
-                <!-- 中间：大屏剧情文字区 -->
-                <div id="story-log">
-                    <!-- 动态载入剧情及动作反馈 -->
-                </div>
+                <div id="story-log"></div>
 
-                <!-- 底部：输入框 + 功能弹窗按钮群 -->
                 <div class="control-bar">
+                    <!-- 修改点：去掉了所有 tab-btn 的 onclick，增加了 id -->
                     <div class="app-buttons">
-                        <button class="tab-btn" onclick="showAppModal('tasks')">📱 APP 界面</button>
-                        <button class="tab-btn" onclick="showAppModal('bag')">📟 操控者状态</button>
-                        <button class="tab-btn" onclick="showAppModal('settings')">📖 设定书</button>
+                        <button class="tab-btn" id="btn-tab-tasks">📱 APP 界面</button>
+                        <button class="tab-btn" id="btn-tab-bag">📟 操控者状态</button>
+                        <button class="tab-btn" id="btn-tab-settings">📖 设定书</button>
                     </div>
-                    <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
-                    <button class="btn btn-primary" onclick="sendActionText()">发送</button>
+                    <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." />
+                    <!-- 修改点：去掉了 onclick，增加 id -->
+                    <button class="btn btn-primary" id="btn-send-action" style="padding: 12px 25px;">发送</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 弹窗组件 -->
-    <div id="modal-overlay" class="modal-overlay hidden" onclick="closeAppModal()"></div>
+    <div id="modal-overlay" class="modal-overlay hidden"></div>
     <div id="app-modal" class="modal hidden">
         <div class="modal-header">
             <h2 id="modal-title">模块标题</h2>
-            <button class="close-btn" onclick="closeAppModal()">✕</button>
+            <!-- 修改点：去掉了 close-btn 的 onclick，增加 id -->
+            <button class="close-btn" id="btn-close-modal">✕</button>
         </div>
-        <div class="modal-body" id="modal-body-content">
-            <!-- 动态注入内容 -->
-        </div>
+        <div class="modal-body" id="modal-body-content"></div>
     </div>
 
-    <!-- 统一使用现代浏览器 ESM 脚本加载模块，保证 import/export 链条畅通 -->
     <script src="js/database.js"></script>
     <script type="module" src="js/creator.js"></script>
     <script type="module" src="js/runtime/uiRenderer.js"></script>
