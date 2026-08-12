@@ -818,7 +818,7 @@ function updateConditions(){
 
 
 
-
+window.saveCharacter = saveCharacter;
 
 
 openDatabase()
@@ -826,11 +826,4 @@ openDatabase()
 
     loadSchema();
 
-});
-
-
-    const saveBtn = document.getElementById("btn-save-character");
-    if (saveBtn) {
-        saveBtn.addEventListener("click", saveCharacter);
-    }
 });
