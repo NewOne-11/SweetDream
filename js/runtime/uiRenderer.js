@@ -42,38 +42,30 @@ class UiRenderer {
             this.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
         });
 
-        // 3. 原生按钮衔接：在正式游戏大厅中绑定按钮监听
-        this.bindGameUiButtons();
-
-        // 4. 执行 AI 神经冷启动
+        // 3. 执行 AI 冷启动初始化：强制让 AI 认知其当前分配好的 Persona，并产出初章叙事
         await this.triggerAiColdStart();
     }
 
     /**
-     * 为第三页的各大交互按钮绑定原生事件，彻底消灭行内 onclick
+     * AI 开局神经冷启动
      */
-    bindGameUiButtons() {
-        // 发送按钮
-        const sendBtn = document.getElementById("btn-send-action");
-        if (sendBtn) {
-            sendBtn.addEventListener("click", () => this.handleInputSubmit());
-        }
+    async triggerAiColdStart() {
+        this.writeSystemLog("正在初始化操控者神经突触连线...");
+        
+        const player = stateManager.getPlayer();
+        const ctrl = stateManager.getController();
 
-        // 输入框敲击回车事件
-        if (this.inputElement) {
-            this.inputElement.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") this.handleInputSubmit();
-            });
-        }
+        // 组装开局引导指令
+        const initInstruction = `
+[SYSTEM: 角色创建已成功，游戏正式开始。
+目标玩家名字是 "${player.name}"。
+你被分配到的操控者人格面具为 "主面具: ${ctrl.primaryMask}"，现实中是目标玩家的 "${ctrl.relationship}"。
+请根据你被分配到的外显人格，撰写开局第一幕的剧情：描述玩家早上醒来发现手机上多了一个删不掉的名为「Sweet Dream」的粉色图标，引导他们惊慌点开它，并发送第一条带有调逗或命令性质的操控者私信。]
+        `;
 
-        // APP界面、操控者状态、设定书三个弹窗切换按钮
-        document.getElementById("btn-tab-tasks")?.addEventListener("click", () => window.showAppModal("tasks"));
-        document.getElementById("btn-tab-bag")?.addEventListener("click", () => window.showAppModal("bag"));
-        document.getElementById("btn-tab-settings")?.addEventListener("click", () => window.showAppModal("settings"));
-
-        // 弹窗关闭按钮及黑框遮罩点击关闭
-        document.getElementById("btn-close-modal")?.addEventListener("click", () => window.closeAppModal());
-        document.getElementById("modal-overlay")?.addEventListener("click", () => window.closeAppModal());
+        // 呼叫 AI 生成
+        const firstGreeting = await aiEngine.generateStoryProgress(initInstruction);
+        this.writeAIPilot(firstGreeting);
     }
 
     /* ------------------- 文本记录输出工具 ------------------- */
@@ -462,13 +454,3 @@ window.closeAppModal = () => {
     document.getElementById("app-modal").classList.add("hidden");
 };
 
-setTimeout(() => {
-    const enterGameBtn = document.getElementById("btn-enter-game");
-    if (enterGameBtn) {
-        enterGameBtn.addEventListener("click", () => {
-            document.getElementById("view-match").classList.add("hidden");
-            document.getElementById("view-game").classList.remove("hidden");
-            uiRenderer.start();
-        });
-    }
-}, 300);
