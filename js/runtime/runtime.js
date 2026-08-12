@@ -1,868 +1,1700 @@
 /**
- * runtime.js
- *
- * 游戏运行时核心控制器
- *
- * 职责：
- * 1. 连接 StateManager（动态状态）
- * 2. 连接静态数据库
- * 3. 接收 AI 产生的游戏事件
- * 4. 将事件转换为状态变化
- * 5. 触发数据库查询
- * 6. 通知 UI 更新
+ * SweetDream Runtime Engine
+ * --------------------------------------------------
+ * 负责：
+ * 1. 游戏运行时状态调度
+ * 2. StateManager 与 EventBus 的连接
+ * 3. 游戏循环执行
+ * 4. 等级 / 场景 / 任务 / 状态变化事件
+ * 5. 数据库查询接口预留
+ * 6. AI 输出后的运行时状态同步
  *
  * 注意：
- * runtime 不直接保存游戏状态。
- * 所有动态状态统一交给 StateManager。
+ * Runtime 不保存独立 State。
+ * 所有动态变量统一由 StateManager 管理。
  */
 
-export class GameRuntime {
+import stateManager from "./stateManager.js";
+import eventBus from "./eventBus.js";
 
-    constructor({
-        stateManager,
-        database = null,
-        aiBridge = null,
-        uiBridge = null,
-        debug = false
-    } = {}) {
 
-        if (!stateManager) {
-            throw new Error(
-                "[GameRuntime] StateManager is required."
-            );
-        }
+class Runtime {
 
-        this.stateManager = stateManager;
+    constructor() {
 
-        // 静态数据库
-        this.database = database;
+        this.state = stateManager;
+        this.events = eventBus;
 
-        // AI 接口
-        this.aiBridge = aiBridge;
+        // 静态数据库接口
+        // 下一阶段 database/ 完成后由 main.js 注入
+        this.database = null;
+
+        // AI 服务接口
+        // 下一阶段 ai/ 完成后由 main.js 注入
+        this.ai = null;
 
         // UI 接口
-        this.uiBridge = uiBridge;
+        // 下一阶段 ui/ 完成后由 main.js 注入
+        this.ui = null;
 
-        this.debug = debug;
-
-        // 当前运行状态
         this.running = false;
+        this.currentAction = null;
 
-        // 当前游戏会话
-        this.sessionId = null;
+        this.session = {
+            id: null,
+            startedAt: null
+        };
 
-        // 事件监听器
-        this.listeners = new Map();
-
-        this.log("GameRuntime initialized.");
+        this._bindEvents();
     }
 
 
     /* =========================================================
        1. 初始化
-       ========================================================= */
+    ========================================================= */
 
     async init() {
 
-        this.log("Initializing runtime...");
+        if (this.running) {
+            return;
+        }
 
-        // 读取动态状态
-        await this.stateManager.load();
+        // 读取持久化状态
+        await this._loadState();
 
-        // 创建或恢复 Session
-        this.sessionId =
-            this.stateManager.get("currentSessionId") ||
-            this.createSessionId();
+        // 验证状态
+        this.validateState();
 
-        this.stateManager.set(
-            "currentSessionId",
-            this.sessionId
-        );
+        // 创建 / 恢复 Session
+        this._initializeSession();
 
-        // 启动运行状态
         this.running = true;
 
-        // 通知 UI
-        this.emit("runtime:ready", {
-            sessionId: this.sessionId,
-            state: this.getState()
+        this.events.emit("runtime:ready", {
+            state: this.getState(),
+            session: this.session
         });
-
-        this.refreshUI();
-
-        this.log("Runtime ready.");
 
         return this.getState();
     }
 
 
     /* =========================================================
-       2. Session
-       ========================================================= */
+       2. 连接外部模块
+    ========================================================= */
 
-    createSessionId() {
+    setDatabase(database) {
 
-        return (
-            "session_" +
-            Date.now() +
-            "_" +
-            Math.random()
-                .toString(36)
-                .substring(2, 9)
-        );
+        this.database = database;
+
+        this.events.emit("database:connected", {
+            database
+        });
+
+        return this;
+    }
+
+
+    setAI(ai) {
+
+        this.ai = ai;
+
+        this.events.emit("ai:connected", {
+            ai
+        });
+
+        return this;
+    }
+
+
+    setUI(ui) {
+
+        this.ui = ui;
+
+        this.events.emit("ui:connected", {
+            ui
+        });
+
+        return this;
     }
 
 
     /* =========================================================
-       3. 获取当前状态
-       ========================================================= */
+       3. StateManager / EventBus 接线
+    ========================================================= */
+
+    _bindEvents() {
+
+        /*
+         * StateManager → Runtime
+         *
+         * 不强制要求 StateManager 必须实现 subscribe。
+         * 如果实现了，则自动监听。
+         */
+
+        if (typeof this.state.subscribe === "function") {
+
+            this.state.subscribe((change) => {
+
+                this.events.emit("state:changed", change);
+
+                this._notifyUI("state:changed", change);
+            });
+        }
+
+
+        /*
+         * 状态变化
+         */
+
+        this.events.on("state:changed", (change) => {
+
+            this._handleStateChange(change);
+
+        });
+
+
+        /*
+         * 等级变化
+         */
+
+        this.events.on("level:up", (data) => {
+
+            this._handleLevelUp(data);
+
+        });
+
+
+        /*
+         * 场景变化
+         */
+
+        this.events.on("scene:changed", (data) => {
+
+            this._handleSceneChange(data);
+
+        });
+
+
+        /*
+         * 任务变化
+         */
+
+        this.events.on("task:started", (data) => {
+
+            this._notifyUI("task:started", data);
+
+        });
+
+
+        this.events.on("task:completed", (data) => {
+
+            this._notifyUI("task:completed", data);
+
+        });
+
+
+        /*
+         * 高潮结算
+         *
+         * 这里只负责游戏状态事件，
+         * 具体内容由规则数据库决定。
+         */
+
+        this.events.on("climax:settled", (data) => {
+
+            this._notifyUI("climax:settled", data);
+
+        });
+
+
+        /*
+         * 目标觉醒度变化
+         */
+
+        this.events.on("awareness:changed", (data) => {
+
+            this._notifyUI("awareness:changed", data);
+
+        });
+    }
+
+
+    /* =========================================================
+       4. 状态读取
+    ========================================================= */
 
     getState() {
 
-        return this.stateManager.getState();
+        if (typeof this.state.getState === "function") {
+            return this.state.getState();
+        }
+
+        if (typeof this.state.getAll === "function") {
+            return this.state.getAll();
+        }
+
+        if (typeof this.state.get === "function") {
+            return this.state.get();
+        }
+
+        return {};
+    }
+
+
+    get(key) {
+
+        if (typeof this.state.get === "function") {
+            return this.state.get(key);
+        }
+
+        return this.getState()?.[key];
     }
 
 
     /* =========================================================
-       4. 修改状态
-       ========================================================= */
+       5. 状态写入
+    ========================================================= */
 
-    setState(key, value) {
+    async set(key, value, options = {}) {
 
-        this.stateManager.set(key, value);
+        const oldValue = this.get(key);
 
-        this.emit("state:changed", {
-            key,
-            value,
-            state: this.getState()
-        });
+        if (typeof this.state.set === "function") {
 
-        this.refreshUI();
-    }
-
-
-    updateState(updates = {}) {
-
-        Object.entries(updates).forEach(
-            ([key, value]) => {
-                this.stateManager.set(key, value);
-            }
-        );
-
-        this.emit("state:updated", {
-            updates,
-            state: this.getState()
-        });
-
-        this.refreshUI();
-    }
-
-
-    /* =========================================================
-       5. 数据库查询
-       ========================================================= */
-
-    getDatabase(name) {
-
-        if (!this.database) {
-            this.log(
-                `[Database] Database module not connected: ${name}`
-            );
-
-            return null;
-        }
-
-        if (typeof this.database.get === "function") {
-            return this.database.get(name);
-        }
-
-        return this.database[name] || null;
-    }
-
-
-    getControllerData() {
-
-        return this.getDatabase("controller");
-    }
-
-
-    getTaskData() {
-
-        return this.getDatabase("tasks");
-    }
-
-
-    getSceneData() {
-
-        return this.getDatabase("scenes");
-    }
-
-
-    getItemData() {
-
-        return this.getDatabase("items");
-    }
-
-
-    getRewardData() {
-
-        return this.getDatabase("rewards");
-    }
-
-
-    getPenaltyData() {
-
-        return this.getDatabase("penalties");
-    }
-
-
-    getProgressionData() {
-
-        return this.getDatabase("progression");
-    }
-
-
-    getActionData() {
-
-        return this.getDatabase("actions");
-    }
-
-
-    getControllerMaskData() {
-
-        return this.getDatabase("controller_masks");
-    }
-
-
-    /* =========================================================
-       6. 根据当前等级读取 Controller 数据
-       ========================================================= */
-
-    getCurrentLevelData() {
-
-        const controller = this.getControllerData();
-
-        if (!controller) {
-            return null;
-        }
-
-        const level =
-            this.stateManager.get("controllerLevel") || 1;
-
-        /*
-         * 兼容：
-         *
-         * controller.json
-         * {
-         *   staticRules: {
-         *      levels: [...]
-         *   }
-         * }
-         *
-         * 或者：
-         *
-         * {
-         *   levels: [...]
-         * }
-         */
-
-        const levels =
-            controller?.staticRules?.levels ||
-            controller?.levels ||
-            [];
-
-        return levels.find(
-            item => item.level === level
-        ) || null;
-    }
-
-
-    /* =========================================================
-       7. 根据 ID 查询内容
-       ========================================================= */
-
-    findById(databaseName, id) {
-
-        const data = this.getDatabase(databaseName);
-
-        if (!data || !id) {
-            return null;
-        }
-
-        // 常见格式一：
-        // { items: [...] }
-
-        const collection =
-            data.items ||
-            data.tasks ||
-            data.scenes ||
-            data.actions ||
-            data.rewards ||
-            data.penalties ||
-            data.records ||
-            data;
-
-        if (Array.isArray(collection)) {
-
-            return collection.find(
-                item => item.id === id
-            ) || null;
-        }
-
-        // 常见格式二：
-        // { "item_xxx": {...} }
-
-        if (
-            typeof collection === "object" &&
-            collection[id]
-        ) {
-            return collection[id];
-        }
-
-        return null;
-    }
-
-
-    /* =========================================================
-       8. AI 事件入口
-       =========================================================
-       
-       以后 AI 不应该直接修改 IndexedDB。
-
-       AI 输出：
-
-       {
-           type: "LEVEL_UP",
-           level: 12
-       }
-
-       或：
-
-       {
-           type: "TASK_GENERATED",
-           taskId: "task_xxx"
-       }
-
-       统一进入这里。
-
-       runtime 再决定：
-       AI → Runtime → StateManager
-                     ↓
-                  Database
-                     ↓
-                     UI
-    */
-
-    async processAIEvent(event) {
-
-        if (!event || !event.type) {
-
-            console.warn(
-                "[GameRuntime] Invalid AI event:",
-                event
-            );
-
-            return;
-        }
-
-        this.log(
-            `[AI EVENT] ${event.type}`
-        );
-
-        this.emit(
-            "ai:event",
-            event
-        );
-
-        switch (event.type) {
-
-            case "STATE_UPDATE":
-                await this.handleStateUpdate(event);
-                break;
-
-            case "LEVEL_UP":
-                await this.handleLevelUp(event);
-                break;
-
-            case "TASK_GENERATED":
-                await this.handleTaskGenerated(event);
-                break;
-
-            case "TASK_COMPLETED":
-                await this.handleTaskCompleted(event);
-                break;
-
-            case "SCENE_CHANGED":
-                await this.handleSceneChanged(event);
-                break;
-
-            case "ITEM_UNLOCKED":
-                await this.handleItemUnlocked(event);
-                break;
-
-            case "MESSAGE":
-                await this.handleMessage(event);
-                break;
-
-            default:
-
-                console.warn(
-                    `[GameRuntime] Unknown AI event: ${event.type}`
-                );
-        }
-
-        await this.save();
-
-        this.refreshUI();
-    }
-
-
-    /* =========================================================
-       9. AI → 状态修改
-       ========================================================= */
-
-    async handleStateUpdate(event) {
-
-        if (!event.updates) {
-            return;
-        }
-
-        this.updateState(
-            event.updates
-        );
-    }
-
-
-    /* =========================================================
-       10. 升级事件
-       ========================================================= */
-
-    async handleLevelUp(event) {
-
-        const newLevel =
-            Number(event.level);
-
-        if (!Number.isFinite(newLevel)) {
-            return;
-        }
-
-        this.setState(
-            "controllerLevel",
-            newLevel
-        );
-
-        // 查找该等级对应的静态数据库内容
-        const levelData =
-            this.getCurrentLevelData();
-
-        this.emit(
-            "level:up",
-            {
-                level: newLevel,
-                data: levelData
-            }
-        );
-
-        /*
-         * 这里非常重要：
-         *
-         * AI 只需要告诉 Runtime：
-         *
-         * LEVEL_UP / 12
-         *
-         * Runtime 自动：
-         *
-         * controllerLevel = 12
-         * ↓
-         * controller.json
-         * ↓
-         * 找到 Lv.12
-         * ↓
-         * 返回对应 unlock
-         * ↓
-         * UI 更新
-         */
-
-        this.log(
-            `Controller level changed to Lv.${newLevel}`
-        );
-    }
-
-
-    /* =========================================================
-       11. 任务生成
-       ========================================================= */
-
-    async handleTaskGenerated(event) {
-
-        const taskId =
-            event.taskId;
-
-        if (!taskId) {
-            return;
-        }
-
-        // 去静态 tasks.json 查任务
-        const task =
-            this.findById(
-                "tasks",
-                taskId
-            );
-
-        if (!task) {
-
-            console.warn(
-                `[GameRuntime] Task not found: ${taskId}`
-            );
-
-            return;
-        }
-
-        this.setState(
-            "currentTaskId",
-            taskId
-        );
-
-        this.emit(
-            "task:generated",
-            {
-                taskId,
-                task
-            }
-        );
-
-        this.log(
-            `Task loaded: ${taskId}`
-        );
-    }
-
-
-    /* =========================================================
-       12. 任务完成
-       ========================================================= */
-
-    async handleTaskCompleted(event) {
-
-        const taskId =
-            event.taskId;
-
-        if (!taskId) {
-            return;
-        }
-
-        const completedTasks =
-            this.stateManager.get(
-                "completedTasks"
-            ) || [];
-
-        if (
-            !completedTasks.includes(taskId)
-        ) {
-
-            completedTasks.push(taskId);
-
-            this.setState(
-                "completedTasks",
-                completedTasks
-            );
-        }
-
-        // 当前任务清空
-        if (
-            this.stateManager.get(
-                "currentTaskId"
-            ) === taskId
-        ) {
-
-            this.setState(
-                "currentTaskId",
-                null
-            );
-        }
-
-        this.emit(
-            "task:completed",
-            {
-                taskId
-            }
-        );
-    }
-
-
-    /* =========================================================
-       13. 场景切换
-       ========================================================= */
-
-    async handleSceneChanged(event) {
-
-        const sceneId =
-            event.sceneId;
-
-        if (!sceneId) {
-            return;
-        }
-
-        const scene =
-            this.findById(
-                "scenes",
-                sceneId
-            );
-
-        if (!scene) {
-
-            console.warn(
-                `[GameRuntime] Scene not found: ${sceneId}`
-            );
-
-            return;
-        }
-
-        this.setState(
-            "currentScene",
-            sceneId
-        );
-
-        this.emit(
-            "scene:changed",
-            {
-                sceneId,
-                scene
-            }
-        );
-    }
-
-
-    /* =========================================================
-       14. 道具解锁
-       ========================================================= */
-
-    async handleItemUnlocked(event) {
-
-        const itemId =
-            event.itemId;
-
-        if (!itemId) {
-            return;
-        }
-
-        const item =
-            this.findById(
-                "items",
-                itemId
-            );
-
-        if (!item) {
-            return;
-        }
-
-        const inventory =
-            this.stateManager.get(
-                "inventory"
-            ) || {};
-
-        if (!inventory[itemId]) {
-
-            inventory[itemId] = {
-                id: itemId,
-                quantity: 1
-            };
+            await this.state.set(key, value, options);
 
         } else {
 
-            inventory[itemId].quantity += 1;
+            throw new Error(
+                "StateManager 缺少 set(key, value) 方法。"
+            );
         }
 
-        this.setState(
-            "inventory",
-            inventory
-        );
 
-        this.emit(
-            "item:unlocked",
-            {
-                itemId,
-                item
+        const newValue = this.get(key);
+
+
+        /*
+         * 如果 StateManager 本身没有自动广播，
+         * Runtime 在这里补发事件。
+         */
+
+        if (oldValue !== newValue) {
+
+            this.events.emit("state:changed", {
+                key,
+                oldValue,
+                newValue,
+                source: options.source || "runtime"
+            });
+        }
+
+
+        return newValue;
+    }
+
+
+    async update(values, options = {}) {
+
+        if (typeof this.state.update === "function") {
+
+            await this.state.update(values, options);
+
+        } else {
+
+            for (const [key, value] of Object.entries(values)) {
+
+                await this.set(key, value, options);
             }
-        );
+        }
+
+        return this.getState();
     }
 
 
     /* =========================================================
-       15. AI 普通文本
-       ========================================================= */
+       6. 状态验证
+    ========================================================= */
 
-    async handleMessage(event) {
+    validateState() {
 
-        this.emit(
-            "ai:message",
-            {
-                content:
-                    event.content || ""
+        const state = this.getState();
+
+        const numericRanges = {
+            orgasmValue: [0, 100],
+            wakeValue: [0, 100],
+            targetAwareness: [0, 100],
+            controllerLevel: [1, 25],
+            controllerExperience: [0, Infinity]
+        };
+
+
+        for (const [key, range] of Object.entries(numericRanges)) {
+
+            if (state[key] === undefined || state[key] === null) {
+                continue;
             }
-        );
+
+            const value = Number(state[key]);
+
+            if (Number.isNaN(value)) {
+
+                throw new Error(
+                    `Runtime 状态错误：${key} 不是有效数字。`
+                );
+            }
+
+
+            if (value < range[0]) {
+
+                this.state.set(
+                    key,
+                    range[0],
+                    { source: "state_validation" }
+                );
+            }
+
+
+            if (
+                range[1] !== Infinity &&
+                value > range[1]
+            ) {
+
+                this.state.set(
+                    key,
+                    range[1],
+                    { source: "state_validation" }
+                );
+            }
+        }
+
+
+        return true;
     }
 
 
     /* =========================================================
-       16. 保存
-       ========================================================= */
+       7. 游戏核心循环
+    ========================================================= */
 
-    async save() {
+    async execute(action = {}) {
 
-        if (
-            typeof this.stateManager.save ===
-            "function"
-        ) {
+        if (!this.running) {
 
-            await this.stateManager.save();
+            await this.init();
         }
 
-        this.emit(
-            "state:saved",
-            this.getState()
-        );
+
+        this.currentAction = action;
+
+
+        try {
+
+            this.events.emit("runtime:action:start", {
+                action
+            });
+
+
+            /*
+             * STEP 1
+             * STATE VALIDATION
+             */
+
+            this.validateState();
+
+
+            /*
+             * STEP 2
+             * LEVEL PERMISSION CHECK
+             */
+
+            const permissionResult =
+                await this.checkLevelPermission(action);
+
+            if (!permissionResult.allowed) {
+
+                return this._rejectAction(
+                    "LEVEL_PERMISSION_DENIED",
+                    permissionResult.reason
+                );
+            }
+
+
+            /*
+             * STEP 3
+             * SCENE CHECK
+             */
+
+            const sceneResult =
+                await this.checkScene(action);
+
+            if (!sceneResult.allowed) {
+
+                return this._rejectAction(
+                    "SCENE_RESTRICTED",
+                    sceneResult.reason
+                );
+            }
+
+
+            /*
+             * STEP 4
+             * CONTENT FILTER
+             */
+
+            const contentResult =
+                await this.filterContent(action);
+
+            if (!contentResult.allowed) {
+
+                return this._rejectAction(
+                    "CONTENT_FILTERED",
+                    contentResult.reason
+                );
+            }
+
+
+            /*
+             * STEP 5
+             * ACTION VALIDATION
+             */
+
+            const actionResult =
+                await this.validateAction(action);
+
+            if (!actionResult.allowed) {
+
+                return this._rejectAction(
+                    "ACTION_INVALID",
+                    actionResult.reason
+                );
+            }
+
+
+            /*
+             * STEP 6
+             * DATABASE LOOKUP
+             */
+
+            const databaseContext =
+                await this.lookupDatabase(action);
+
+
+            /*
+             * STEP 7
+             * CALCULATE STATE CHANGES
+             */
+
+            const changes =
+                await this.calculateStateChanges(
+                    action,
+                    databaseContext
+                );
+
+
+            /*
+             * STEP 8
+             * APPLY STATE CHANGES
+             */
+
+            await this.applyStateChanges(changes);
+
+
+            /*
+             * STEP 9
+             * CLAMP VARIABLES
+             */
+
+            await this.clampVariables();
+
+
+            /*
+             * STEP 10
+             * CHECK THRESHOLDS
+             */
+
+            const thresholdResult =
+                await this.checkThresholds();
+
+
+            /*
+             * STEP 11
+             * TRIGGER EVENTS
+             */
+
+            await this.triggerEvents(
+                action,
+                changes,
+                thresholdResult
+            );
+
+
+            /*
+             * STEP 12
+             * XP / TASK UPDATE
+             */
+
+            await this.updateProgress(
+                action,
+                databaseContext
+            );
+
+
+            /*
+             * STEP 13
+             * LEVEL UP
+             */
+
+            await this.checkLevelUp();
+
+
+            /*
+             * STEP 14
+             * AWARENESS
+             */
+
+            await this.checkAwareness();
+
+
+            /*
+             * STEP 15
+             * ENDING
+             */
+
+            const ending =
+                await this.checkEnding();
+
+
+            /*
+             * STEP 16
+             * SAVE
+             */
+
+            await this.saveState();
+
+
+            const result = {
+
+                success: true,
+
+                state: this.getState(),
+
+                changes,
+
+                threshold: thresholdResult,
+
+                ending
+            };
+
+
+            this.events.emit(
+                "runtime:action:complete",
+                result
+            );
+
+
+            return result;
+
+
+        } catch (error) {
+
+            this.events.emit(
+                "runtime:error",
+                {
+                    error,
+                    action
+                }
+            );
+
+
+            console.error(
+                "[Runtime] Action execution failed:",
+                error
+            );
+
+
+            return {
+
+                success: false,
+
+                error: error.message,
+
+                state: this.getState()
+            };
+
+        } finally {
+
+            this.currentAction = null;
+        }
     }
 
 
     /* =========================================================
-       17. UI 更新
-       ========================================================= */
+       8. 等级权限
+    ========================================================= */
 
-    refreshUI() {
+    async checkLevelPermission(action) {
+
+        const level =
+            Number(this.get("controllerLevel") || 1);
+
 
         if (
-            !this.uiBridge
+            action.requiredLevel &&
+            level < action.requiredLevel
         ) {
-            return;
+
+            return {
+
+                allowed: false,
+
+                reason:
+                    `当前等级 Lv.${level}，需要 Lv.${action.requiredLevel}。`
+            };
         }
 
+
+        /*
+         * 以后这里直接查询：
+         *
+         * controller.json
+         *
+         * 获取当前等级的 unlock 数据。
+         */
+
         if (
-            typeof this.uiBridge.updateState ===
-            "function"
+            this.database &&
+            typeof this.database.getLevel === "function"
         ) {
 
-            this.uiBridge.updateState(
+            const levelData =
+                await this.database.getLevel(level);
+
+
+            if (levelData) {
+
+                return {
+
+                    allowed: true,
+
+                    levelData
+                };
+            }
+        }
+
+
+        return {
+            allowed: true
+        };
+    }
+
+
+    /* =========================================================
+       9. 场景检查
+    ========================================================= */
+
+    async checkScene(action) {
+
+        const sceneId =
+            action.sceneId ||
+            this.get("currentScene");
+
+
+        if (!sceneId) {
+
+            return {
+                allowed: true
+            };
+        }
+
+
+        if (
+            this.database &&
+            typeof this.database.getScene === "function"
+        ) {
+
+            const scene =
+                await this.database.getScene(sceneId);
+
+
+            if (!scene) {
+
+                return {
+
+                    allowed: false,
+
+                    reason:
+                        `找不到场景数据库记录：${sceneId}`
+                };
+            }
+
+
+            const level =
+                Number(this.get("controllerLevel") || 1);
+
+
+            if (
+                scene.unlockLevel &&
+                level < scene.unlockLevel
+            ) {
+
+                return {
+
+                    allowed: false,
+
+                    reason:
+                        `场景 ${sceneId} 尚未解锁。`
+                };
+            }
+        }
+
+
+        return {
+            allowed: true
+        };
+    }
+
+
+    /* =========================================================
+       10. 内容过滤
+    ========================================================= */
+
+    async filterContent(action) {
+
+        /*
+         * 这里只建立接口。
+         *
+         * 真正的目标偏好 / 排斥项数据库
+         * 下一阶段从 controller_masks / profile 等模块读取。
+         */
+
+        if (
+            this.database &&
+            typeof this.database.validateContent === "function"
+        ) {
+
+            return await this.database.validateContent(
+                action,
                 this.getState()
             );
         }
+
+
+        return {
+            allowed: true
+        };
     }
 
 
     /* =========================================================
-       18. 事件系统
-       ========================================================= */
+       11. Action 验证
+    ========================================================= */
 
-    on(eventName, callback) {
+    async validateAction(action) {
 
-        if (
-            !this.listeners.has(eventName)
-        ) {
+        if (!action || typeof action !== "object") {
 
-            this.listeners.set(
-                eventName,
-                []
-            );
+            return {
+
+                allowed: false,
+
+                reason: "Action 必须是对象。"
+            };
         }
 
-        this.listeners
-            .get(eventName)
-            .push(callback);
+
+        return {
+            allowed: true
+        };
     }
 
 
-    off(eventName, callback) {
+    /* =========================================================
+       12. 数据库查询
+    ========================================================= */
+
+    async lookupDatabase(action) {
+
+        if (!this.database) {
+
+            return {};
+        }
+
+
+        const context = {};
+
+
+        /*
+         * 根据 action 自动查询不同数据库。
+         */
 
         if (
-            !this.listeners.has(eventName)
+            action.controllerLevel &&
+            typeof this.database.getLevel === "function"
         ) {
+
+            context.level =
+                await this.database.getLevel(
+                    action.controllerLevel
+                );
+        }
+
+
+        if (
+            action.sceneId &&
+            typeof this.database.getScene === "function"
+        ) {
+
+            context.scene =
+                await this.database.getScene(
+                    action.sceneId
+                );
+        }
+
+
+        if (
+            action.taskId &&
+            typeof this.database.getTask === "function"
+        ) {
+
+            context.task =
+                await this.database.getTask(
+                    action.taskId
+                );
+        }
+
+
+        if (
+            action.itemId &&
+            typeof this.database.getItem === "function"
+        ) {
+
+            context.item =
+                await this.database.getItem(
+                    action.itemId
+                );
+        }
+
+
+        return context;
+    }
+
+
+    /* =========================================================
+       13. 状态变化计算
+    ========================================================= */
+
+    async calculateStateChanges(
+        action,
+        databaseContext
+    ) {
+
+        /*
+         * 当前只建立通用状态计算框架。
+         *
+         * 具体公式以后从 controller.json
+         * / actions.json 等数据库读取。
+         */
+
+        const changes = {};
+
+
+        if (action.stateChanges) {
+
+            Object.assign(
+                changes,
+                action.stateChanges
+            );
+        }
+
+
+        return changes;
+    }
+
+
+    /* =========================================================
+       14. 应用状态变化
+    ========================================================= */
+
+    async applyStateChanges(changes) {
+
+        if (
+            !changes ||
+            Object.keys(changes).length === 0
+        ) {
+
             return;
         }
 
-        const callbacks =
-            this.listeners.get(
-                eventName
-            );
 
-        const index =
-            callbacks.indexOf(callback);
-
-        if (index !== -1) {
-            callbacks.splice(index, 1);
-        }
-    }
-
-
-    emit(eventName, data) {
-
-        const callbacks =
-            this.listeners.get(
-                eventName
-            ) || [];
-
-        callbacks.forEach(
-            callback => {
-
-                try {
-                    callback(data);
-
-                } catch (error) {
-
-                    console.error(
-                        `[GameRuntime] Event error: ${eventName}`,
-                        error
-                    );
-                }
+        await this.update(
+            changes,
+            {
+                source: "runtime"
             }
         );
     }
 
 
     /* =========================================================
-       19. 停止当前 Runtime
-       ========================================================= */
+       15. 数值钳制
+    ========================================================= */
 
-    async stop() {
+    async clampVariables() {
+
+        const clamp = (value) => {
+
+            const number = Number(value);
+
+            if (Number.isNaN(number)) {
+                return 0;
+            }
+
+            return Math.max(
+                0,
+                Math.min(100, number)
+            );
+        };
+
+
+        const state = this.getState();
+
+
+        const clampKeys = [
+            "orgasmValue",
+            "wakeValue",
+            "targetAwareness"
+        ];
+
+
+        for (const key of clampKeys) {
+
+            if (state[key] !== undefined) {
+
+                await this.set(
+                    key,
+                    clamp(state[key]),
+                    {
+                        source: "clamp"
+                    }
+                );
+            }
+        }
+    }
+
+
+    /* =========================================================
+       16. 阈值检查
+    ========================================================= */
+
+    async checkThresholds() {
+
+        const orgasmValue =
+            Number(this.get("orgasmValue") || 0);
+
+        const wakeValue =
+            Number(this.get("wakeValue") || 0);
+
+
+        const result = {
+
+            climax: false,
+
+            wake: false
+        };
+
+
+        if (wakeValue >= 100) {
+
+            result.wake = true;
+
+            this.events.emit(
+                "target:wake",
+                {
+                    wakeValue
+                }
+            );
+        }
+
+
+        if (orgasmValue >= 100) {
+
+            result.climax = true;
+
+            this.events.emit(
+                "climax:trigger",
+                {
+                    orgasmValue
+                }
+            );
+        }
+
+
+        return result;
+    }
+
+
+    /* =========================================================
+       17. 即时事件
+    ========================================================= */
+
+    async triggerEvents(
+        action,
+        changes,
+        thresholdResult
+    ) {
+
+        if (thresholdResult.climax) {
+
+            await this.handleClimaxSettlement(
+                action
+            );
+        }
+
+
+        if (thresholdResult.wake) {
+
+            await this.endControlSession(
+                "target_wake"
+            );
+        }
+
+
+        this.events.emit(
+            "runtime:state:update",
+            {
+                action,
+                changes
+            }
+        );
+    }
+
+
+    /* =========================================================
+       18. 结算
+    ========================================================= */
+
+    async handleClimaxSettlement(action) {
+
+        const currentValue =
+            Number(this.get("orgasmValue") || 0);
+
+
+        const previousCount =
+            Number(
+                this.get("recentClimaxCount") || 0
+            );
+
+
+        await this.set(
+            "orgasmValue",
+            0,
+            {
+                source: "climax_settlement"
+            }
+        );
+
+
+        await this.set(
+            "recentClimaxCount",
+            previousCount + 1,
+            {
+                source: "climax_settlement"
+            }
+        );
+
+
+        await this.set(
+            "lastClimaxTime",
+            new Date().toISOString(),
+            {
+                source: "climax_settlement"
+            }
+        );
+
+
+        this.events.emit(
+            "climax:settled",
+            {
+
+                previousValue: currentValue,
+
+                count:
+                    previousCount + 1,
+
+                action
+            }
+        );
+    }
+
+
+    /* =========================================================
+       19. 任务 / XP
+    ========================================================= */
+
+    async updateProgress(
+        action,
+        databaseContext
+    ) {
+
+        if (!action) {
+            return;
+        }
+
+
+        /*
+         * 以后这里连接：
+         *
+         * tasks.json
+         * rewards.json
+         * progression.json
+         */
+
+        if (action.experienceGain) {
+
+            const currentXP =
+                Number(
+                    this.get(
+                        "controllerExperience"
+                    ) || 0
+                );
+
+
+            await this.set(
+                "controllerExperience",
+                currentXP +
+                Number(action.experienceGain),
+                {
+                    source: "progress"
+                }
+            );
+        }
+    }
+
+
+    /* =========================================================
+       20. 升级
+    ========================================================= */
+
+    async checkLevelUp() {
+
+        let level =
+            Number(
+                this.get("controllerLevel") || 1
+            );
+
+        let xp =
+            Number(
+                this.get("controllerExperience") || 0
+            );
+
+
+        let leveledUp = false;
+
+
+        while (
+            xp >= 100 &&
+            level < 25
+        ) {
+
+            xp -= 100;
+
+            const oldLevel = level;
+
+            level += 1;
+
+            leveledUp = true;
+
+
+            await this.set(
+                "controllerLevel",
+                level,
+                {
+                    source: "level_up"
+                }
+            );
+
+
+            await this.set(
+                "controllerExperience",
+                xp,
+                {
+                    source: "level_up"
+                }
+            );
+
+
+            this.events.emit(
+                "level:up",
+                {
+                    oldLevel,
+                    newLevel: level
+                }
+            );
+        }
+
+
+        return leveledUp;
+    }
+
+
+    /* =========================================================
+       21. 目标 Awareness
+    ========================================================= */
+
+    async checkAwareness() {
+
+        const awareness =
+            Number(
+                this.get("targetAwareness") || 0
+            );
+
+
+        this.events.emit(
+            "awareness:changed",
+            {
+                value: awareness
+            }
+        );
+
+
+        if (awareness >= 100) {
+
+            this.events.emit(
+                "awareness:max",
+                {
+                    value: awareness
+                }
+            );
+        }
+
+
+        return awareness;
+    }
+
+
+    /* =========================================================
+       22. 结局检查
+    ========================================================= */
+
+    async checkEnding() {
+
+        const awareness =
+            Number(
+                this.get("targetAwareness") || 0
+            );
+
+
+        if (awareness >= 100) {
+
+            this.events.emit(
+                "ending:trigger",
+                {
+                    reason: "target_awareness_max"
+                }
+            );
+
+
+            return {
+                triggered: true,
+                reason: "target_awareness_max"
+            };
+        }
+
+
+        return {
+            triggered: false
+        };
+    }
+
+
+    /* =========================================================
+       23. Session
+    ========================================================= */
+
+    _initializeSession() {
+
+        let sessionId =
+            this.get("currentSessionId");
+
+
+        if (!sessionId) {
+
+            sessionId =
+                this._generateSessionId();
+
+
+            this.set(
+                "currentSessionId",
+                sessionId,
+                {
+                    source: "session"
+                }
+            );
+        }
+
+
+        this.session = {
+
+            id: sessionId,
+
+            startedAt:
+                new Date().toISOString()
+        };
+
+
+        this.events.emit(
+            "session:started",
+            this.session
+        );
+    }
+
+
+    async endControlSession(reason = "manual") {
+
+        const sessionId =
+            this.get("currentSessionId");
+
+
+        await this.set(
+            "currentSessionId",
+            null,
+            {
+                source: "session_end"
+            }
+        );
+
+
+        this.events.emit(
+            "session:ended",
+            {
+                sessionId,
+                reason
+            }
+        );
+
+
+        this.session = {
+
+            id: null,
+
+            startedAt: null
+        };
+    }
+
+
+    _generateSessionId() {
+
+        return (
+
+            "session_" +
+
+            Date.now().toString(36) +
+
+            "_" +
+
+            Math.random()
+                .toString(36)
+                .slice(2, 10)
+        );
+    }
+
+
+    /* =========================================================
+       24. 存档
+    ========================================================= */
+
+    async _loadState() {
+
+        if (
+            typeof this.state.load === "function"
+        ) {
+
+            await this.state.load();
+        }
+    }
+
+
+    async saveState() {
+
+        if (
+            typeof this.state.save === "function"
+        ) {
+
+            await this.state.save();
+        }
+
+
+        this.events.emit(
+            "state:saved",
+            {
+                state: this.getState()
+            }
+        );
+    }
+
+
+    /* =========================================================
+       25. UI 通知
+    ========================================================= */
+
+    _notifyUI(event, data) {
+
+        if (
+            this.ui &&
+            typeof this.ui.handleEvent === "function"
+        ) {
+
+            this.ui.handleEvent(
+                event,
+                data
+            );
+        }
+    }
+
+
+    /* =========================================================
+       26. State 变化处理
+    ========================================================= */
+
+    _handleStateChange(change) {
+
+        /*
+         * 这里暂时只负责事件分发。
+         *
+         * 后面可以根据 key 做专门处理：
+         *
+         * controllerLevel
+         * → database 查询
+         * → UI 更新
+         *
+         * currentScene
+         * → scenes.json 查询
+         * → UI 更新
+         *
+         * currentTaskId
+         * → tasks.json 查询
+         * → UI 更新
+         */
+
+
+        if (!change) {
+            return;
+        }
+
+
+        if (
+            change.key ===
+            "controllerLevel"
+        ) {
+
+            this.events.emit(
+                "controller:level:changed",
+                change
+            );
+        }
+
+
+        if (
+            change.key ===
+            "currentScene"
+        ) {
+
+            this.events.emit(
+                "controller:scene:changed",
+                change
+            );
+        }
+
+
+        if (
+            change.key ===
+            "currentTaskId"
+        ) {
+
+            this.events.emit(
+                "controller:task:changed",
+                change
+            );
+        }
+    }
+
+
+    /* =========================================================
+       27. 等级升级处理
+    ========================================================= */
+
+    async _handleLevelUp(data) {
+
+        /*
+         * 下一阶段这里会正式连接：
+         *
+         * controller.json
+         *
+         * 查询：
+         * levels[newLevel]
+         *
+         * 然后把 unlock 内容交给：
+         *
+         * databaseRegistry
+         * UI
+         * AI Context
+         */
+
+
+        if (
+            this.database &&
+            typeof this.database.getLevel ===
+            "function"
+        ) {
+
+            const levelData =
+                await this.database.getLevel(
+                    data.newLevel
+                );
+
+
+            if (levelData) {
+
+                this.events.emit(
+                    "controller:unlock",
+                    {
+                        level:
+                            data.newLevel,
+
+                        data:
+                            levelData
+                    }
+                );
+            }
+        }
+
+
+        this._notifyUI(
+            "level:up",
+            data
+        );
+    }
+
+
+    /* =========================================================
+       28. 场景变化处理
+    ========================================================= */
+
+    async _handleSceneChange(data) {
+
+        if (
+            this.database &&
+            typeof this.database.getScene ===
+            "function"
+        ) {
+
+            const sceneId =
+                data.sceneId ||
+                data.newValue;
+
+
+            const scene =
+                await this.database.getScene(
+                    sceneId
+                );
+
+
+            this.events.emit(
+                "scene:data",
+                {
+                    sceneId,
+                    scene
+                }
+            );
+        }
+
+
+        this._notifyUI(
+            "scene:changed",
+            data
+        );
+    }
+
+
+    /* =========================================================
+       29. 拒绝 Action
+    ========================================================= */
+
+    _rejectAction(code, reason) {
+
+        const result = {
+
+            success: false,
+
+            rejected: true,
+
+            code,
+
+            reason,
+
+            state: this.getState()
+        };
+
+
+        this.events.emit(
+            "runtime:action:rejected",
+            result
+        );
+
+
+        this._notifyUI(
+            "runtime:action:rejected",
+            result
+        );
+
+
+        return result;
+    }
+
+
+    /* =========================================================
+       30. 停止 Runtime
+    ========================================================= */
+
+    async shutdown() {
+
+        if (!this.running) {
+            return;
+        }
+
+
+        await this.saveState();
+
+
+        await this.endControlSession(
+            "runtime_shutdown"
+        );
+
 
         this.running = false;
 
-        await this.save();
 
-        this.emit(
-            "runtime:stopped",
+        this.events.emit(
+            "runtime:shutdown",
             {
-                sessionId:
-                    this.sessionId
+                state: this.getState()
             }
         );
-
-        this.log(
-            "Runtime stopped."
-        );
-    }
-
-
-    /* =========================================================
-       20. Debug
-       ========================================================= */
-
-    log(...args) {
-
-        if (this.debug) {
-
-            console.log(
-                "[GameRuntime]",
-                ...args
-            );
-        }
     }
 }
 
 
-/* =============================================================
-   工厂函数
-   ============================================================= */
+/*
+ * 单例 Runtime
+ *
+ * 整个游戏只使用一个 Runtime 实例。
+ */
 
-export function createGameRuntime(config) {
+const runtime = new Runtime();
 
-    return new GameRuntime(config);
-}
+
+export default runtime;
+
+export { Runtime };
