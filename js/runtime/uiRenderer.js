@@ -269,100 +269,110 @@ async function startControllerRoll() {
         res();
     }, delay));
 
-    await printLog("正在检测本地运行时状态...", 200);
-    
-    let masksLib;
+    // 将整个匹配与状态机合并过程全部放入 try 块中，提供全线运行安全监视
     try {
+        await printLog("正在检测本地运行时状态...", 200);
+        
         const response = await fetch("data/library/controller_masks.json");
-        masksLib = await response.json();
-    } catch (e) {
-        await printLog("❌ 错误：无法读取 data/library/controller_masks.json，请确认路径。", 0);
-        return;
-    }
-
-    await printLog("读取玩家特征与性敏感度限制项中...", 300);
-    const playerProfile = window.player || {}; // 获取 creator.js 内存中的玩家设定对象
-
-    // 适配倾向
-    const rolePref = playerProfile.profile?.identity?.rolePreference || "被支配方(Sub/M)";
-    let maskDirection = "dominant";
-    if (rolePref.includes("Dom/S")) maskDirection = "submissive";
-    if (rolePref.includes("Switch")) maskDirection = "mixed";
-
-    // 匹配主面具
-    const pool = masksLib.maskPool.filter(m => m.direction === maskDirection || m.direction === "mixed");
-    const primaryMask = pool[Math.floor(Math.random() * pool.length)] || { name: "冷淡克制" };
-    let hiddenMask = pool[Math.floor(Math.random() * pool.length)] || { name: "若即若离" };
-    if (primaryMask.id === hiddenMask.id) {
-        hiddenMask = pool.find(m => m.id !== primaryMask.id) || hiddenMask;
-    }
-
-    await printLog(`🎲 [主面具判定] 锁定的外显面具为: 〖${primaryMask.name}〗`, 500);
-    await printLog(`🎲 [次面具判定] 锁定的隐藏面具为: 〖${hiddenMask.name}〗`, 400);
-
-    // 匹配内核
-    const cores = masksLib.corePool;
-    const selectedCore = cores[Math.floor(Math.random() * cores.length)] || { name: "绝对支配" };
-    await printLog(`🎲 [深层内心动机] 确定为: 〖${selectedCore.name}〗`, 400);
-
-    // 匹配关系与起点
-    const relationships = masksLib.relationshipPool.find(r => r.group === "daily_contact").items;
-    const relation = relationships[Math.floor(Math.random() * relationships.length)] || "同学";
-    const startingPoints = masksLib.startingPointPool;
-    const startingPoint = startingPoints[Math.floor(Math.random() * startingPoints.length)] || { description: "当天操控" };
-
-    await printLog(`🎲 [现实关系连线] 操控者身份是你的: 【${relation}】`, 400);
-    await printLog(`🎲 [时空原点溯源] 连线起点：${startingPoint.description}`, 400);
-
-    // 匹配开关
-    const selectedSwitches = ["眼泪反应", "沉默制裁", "失控边缘"];
-    await printLog(`🎲 [感官触觉开关] 已成功配置传感器：${selectedSwitches.join(", ")}`, 400);
-
-    // 初始化中间变量储存库 StateManager
-    await stateManager.initialize();
-    
-    // 合并并还原初始状态树
-    await stateManager.restore({
-        playerProfile: playerProfile,
-        controllerLevel: 1,
-        controllerExperience: 0,
-        orgasmValue: 12, // 初始高潮预热
-        wakeValue: 5,
-        currentScene: "scene_bedroom",
-        currentTaskId: "init_001",
-        inventory: {
-            "eq_toy_tiaodan": 1,
-            "ticket_skip_task": 1
-        },
-        controllerProfile: {
-            generated: true,
-            maskPrimary: primaryMask.name,
-            maskHidden: hiddenMask.name,
-            core: selectedCore.name,
-            relationship: relation,
-            switches: selectedSwitches,
-            controlStart: startingPoint.description
-        },
-        currentProgress: {
-            name: playerProfile.profile?.identity?.name || "未知",
-            corruption: playerProfile.psychology?.shame === "容易羞耻" ? 15 : 10
+        if (!response.ok) {
+            throw new Error(`网络请求失败，HTTP 状态码: ${response.status}`);
         }
-    });
+        const masksLib = await response.json();
 
-// 展现信息卡片
-    document.getElementById("ctrl-primary-mask").innerText = primaryMask.name;
-    document.getElementById("ctrl-core").innerText = selectedCore.name;
-    document.getElementById("ctrl-relation").innerText = relation;
-    document.getElementById("ctrl-starting").innerText = startingPoint.description.substring(0, 15) + "...";
+        await printLog("读取玩家特征与性敏感度限制项中...", 300);
+        const playerProfile = window.player || {}; // 获取 creator.js 内存中的玩家设定对象
 
-    // 核心修改：展示整个操作按钮组（重新匹配与确认继续）
-    document.getElementById("controller-card").classList.remove("hidden");
-    document.getElementById("match-actions").classList.remove("hidden");
-window.enterGameTerminal = () => {
-    document.getElementById("view-match").classList.add("hidden");
-    document.getElementById("view-game").classList.remove("hidden");
-    uiRenderer.start();
-};
+        // 适配倾向 (增加安全可选链 ?. 保护)
+        const rolePref = playerProfile.profile?.identity?.rolePreference || "被支配方(Sub/M)";
+        let maskDirection = "dominant";
+        if (rolePref.includes("Dom/S")) maskDirection = "submissive";
+        if (rolePref.includes("Switch")) maskDirection = "mixed";
+
+        // 匹配主面具
+        const pool = masksLib.maskPool.filter(m => m.direction === maskDirection || m.direction === "mixed");
+        const primaryMask = pool[Math.floor(Math.random() * pool.length)] || { name: "冷淡克制" };
+        let hiddenMask = pool[Math.floor(Math.random() * pool.length)] || { name: "若即若离" };
+        if (primaryMask.id === hiddenMask.id) {
+            hiddenMask = pool.find(m => m.id !== primaryMask.id) || hiddenMask;
+        }
+
+        await printLog(`🎲 [主面具判定] 锁定的外显面具为: 〖${primaryMask.name}〗`, 500);
+        await printLog(`🎲 [次面具判定] 锁定的隐藏面具为: 〖${hiddenMask.name}〗`, 400);
+
+        // 匹配内核
+        const cores = masksLib.corePool;
+        const selectedCore = cores[Math.floor(Math.random() * cores.length)] || { name: "绝对支配" };
+        await printLog(`🎲 [深层内心动机] 确定为: 〖${selectedCore.name}〗`, 400);
+
+        // 匹配关系与起点
+        const relationships = masksLib.relationshipPool.find(r => r.group === "daily_contact").items;
+        const relation = relationships[Math.floor(Math.random() * relationships.length)] || "同学";
+        const startingPoints = masksLib.startingPointPool;
+        const startingPoint = startingPoints[Math.floor(Math.random() * startingPoints.length)] || { description: "当天操控" };
+
+        await printLog(`🎲 [现实关系连线] 操控者身份是你的: 【${relation}】`, 400);
+        await printLog(`🎲 [时空原点溯源] 连线起点：${startingPoint.description}`, 400);
+
+        // 匹配开关
+        const selectedSwitches = ["眼泪反应", "沉默制裁", "失控边缘"];
+        await printLog(`🎲 [感官触觉开关] 已成功配置传感器：${selectedSwitches.join(", ")}`, 400);
+
+        // 数据写入
+        await printLog("正在同步连线状态到中间变量数据库...", 300);
+        await stateManager.initialize();
+        
+        // 写入玩家基本信息
+        stateManager.set("playerProfile", playerProfile);
+        
+        // 安全读取羞耻度并计算初始沦陷值
+        const shameLevel = playerProfile.psychology?.shame || "中等";
+        const baseCorruption = shameLevel === "容易羞耻" ? 15 : (shameLevel === "不易羞耻" ? 5 : 10);
+
+        // 写入初始生成的 Controller 属性
+        stateManager.patch({
+            controllerLevel: 1,
+            controllerExperience: 0,
+            orgasmValue: 12, // 初始预热值
+            wakeValue: 5,
+            currentScene: "scene_bedroom",
+            currentTaskId: "init_001",
+            inventory: {
+                "eq_toy_tiaodan": 1,
+                "ticket_skip_task": 1
+            },
+            controllerProfile: {
+                generated: true,
+                maskPrimary: primaryMask.name,
+                maskHidden: hiddenMask.name,
+                core: selectedCore.name,
+                relationship: relation,
+                switches: selectedSwitches,
+                controlStart: startingPoint.description
+            },
+            currentProgress: {
+                name: playerProfile.profile?.identity?.name || "未知",
+                corruption: baseCorruption
+            }
+        });
+
+        // 展现信息卡片内容
+        document.getElementById("ctrl-primary-mask").innerText = primaryMask.name;
+        document.getElementById("ctrl-core").innerText = selectedCore.name;
+        document.getElementById("ctrl-relation").innerText = relation;
+        document.getElementById("ctrl-starting").innerText = startingPoint.description.substring(0, 15) + "...";
+
+        // 展示整个操作按钮组（重新匹配与确认继续）
+        document.getElementById("controller-card").classList.remove("hidden");
+        document.getElementById("match-actions").classList.remove("hidden");
+
+        await printLog("✨ 连线链路建立成功，等待接入...", 200);
+
+    } catch (e) {
+        // 捕获任何潜在的属性未定义、数据库未初始化或存储冲突，并在绿色控制台输出具体代码行错因
+        await printLog(`❌ 连线崩溃原因：${e.message}`, 0);
+        console.error("游戏连线阶段崩溃详情:", e);
+    }
+}
 
 window.handleInputKey = (event) => {
     if (event.key === "Enter") {
