@@ -461,4 +461,14 @@ window.closeAppModal = () => {
 };
 
 
-
+/**
+ * 确认继续 -> 进入正式游戏终端
+ */
+window.enterGameTerminal = () => {
+    // 隐藏匹配面板，大敞开显示正式终端
+    document.getElementById("view-match").classList.add("hidden");
+    document.getElementById("view-game").classList.remove("hidden");
+    
+    // 启动剧情渲染器与时钟
+    uiRenderer.start();
+};
