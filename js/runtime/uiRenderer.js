@@ -220,9 +220,9 @@ class UiRenderer {
         const privateMessages = stateManager.get("privateMessages") || [];
         if (privateMessages.length > 0) {
             const latestMsg = privateMessages[privateMessages.length - 1];
-            lines.push(this.formatLine(`${mask}：${latestMsg}`));
+            lines.push(this.formatLine(`主人：${latestMsg}`));
         } else {
-            lines.push(this.formatLine(`${mask}：暂无`));
+            lines.push(this.formatLine(`暂无`));
         }
         lines.push("├──────────────────────────────────────┤");
 
