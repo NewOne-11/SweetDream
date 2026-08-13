@@ -20,55 +20,69 @@ class UiRenderer {
         this.panelWidth = 36; // 内部有效字符宽度
     }
 
-/**
+    /**
      * 进入游戏终端并启动
      */
     async start() {
         await this.db.initialize();
 
-        // 1. 初始化界面顶部的时间日期
-        this.updateTimeDisplay();
+        // 核心修正：使用单例显式调用，防止苹果浏览器 WebKit 异步环境下 this 丢失
+        uiRenderer.updateTimeDisplay();
 
-        // 2. 绑定事件总线
+        // 绑定事件总线
         eventBus.on("action:resolved", (e) => {
-            this.writeSystemLog(`系统检测：受到指令刺激。当前体内高潮值累计达 ${e.currentOrgasm.toFixed(0)}%，苏醒值上升至 ${e.currentWake.toFixed(0)}%`);
+            uiRenderer.writeSystemLog(`系统检测：受到指令刺激。当前体内高潮值累计达 ${e.currentOrgasm.toFixed(0)}%，苏醒值上升至 ${e.currentWake.toFixed(0)}%`);
         });
 
         eventBus.on("target:woken", () => {
-            this.writeSystemLog("❌ 警报：苏醒值触顶，在惊恐中瞬间从床上惊醒！连线被强行切断。");
+            uiRenderer.writeSystemLog("❌ 警报：苏醒值触顶，在惊恐中瞬间从床上惊醒！连线被强行切断。");
         });
 
         eventBus.on("climax:triggered", () => {
-            this.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
+            uiRenderer.writeSystemLog("⚡ 警告：高潮值触顶，重置高潮值并提升操控等级。");
         });
 
-        // 3. 执行 AI 冷启动初始化：强制让 AI 认知其当前分配好的 Persona，并产出初章叙事
-        await this.triggerAiColdStart();
+        // 载入第一章开局引言
+        uiRenderer.loadOpeningPlot();
     }
 
     /**
-     * AI 开局神经冷启动
+     * 更新时间
      */
-    async triggerAiColdStart() {
-        this.writeSystemLog("正在初始化操控者神经突触连线...");
-        
-        const player = stateManager.getPlayer();
-        const ctrl = stateManager.getController();
-
-        // 组装开局引导指令
-        const initInstruction = `
-[SYSTEM: 角色创建已成功，游戏正式开始。
-目标玩家名字是 "${player.name}"。
-你被分配到的操控者人格面具为 "主面具: ${ctrl.primaryMask}"，现实中是目标玩家的 "${ctrl.relationship}"。
-请根据你被分配到的外显人格，撰写开局第一幕的剧情：描述玩家早上醒来发现手机上多了一个删不掉的名为「Sweet Dream」的粉色图标，引导他们惊慌点开它，并发送第一条带有调逗或命令性质的操控者私信。]
-        `;
-
-        // 呼叫 AI 生成
-        const firstGreeting = await aiEngine.generateStoryProgress(initInstruction);
-        this.writeAIPilot(firstGreeting);
+    updateTimeDisplay() {
+        const timeBox = document.querySelector(".system-title");
+        if (timeBox) {
+            const formatted = this.currentTime.toLocaleString("zh-CN", {
+                year: "numeric", month: "2-digit", day: "2-digit",
+                hour: "2-digit", minute: "2-digit", hour12: false
+            });
+            timeBox.innerText = `⏱ CONNECTED TERMINAL - [ ${formatted} ]`;
+        }
     }
 
-    /* ------------------- 文本记录输出工具 ------------------- */
+    loadOpeningPlot() {
+        this.terminal.innerHTML = `
+            <p>那天早上醒来，你发现手机屏幕上多了一个粉色图标。</p>
+            <p>「Sweet Dream」——你不记得下载过。删不掉。重启没用。</p>
+            <p>你咬着嘴唇点开它。系统提示音突然响亮，第一条任务冷冰冰地弹了出……</p>
+        `;
+        this.terminal.scrollTop = this.terminal.scrollHeight;
+    }
+
+    async handleInputSubmit() {
+        const text = this.inputElement.value.trim();
+        if (!text) return;
+
+        this.inputElement.value = "";
+        this.writePlayerInput(text);
+
+        this.currentTime.setMinutes(this.currentTime.getMinutes() + 30);
+        uiRenderer.updateTimeDisplay();
+
+        this.writeSystemLog("正在同步梦境电波信号...");
+        const responseText = await aiEngine.generateStoryProgress(text);
+        this.writeAIPilot(responseText);
+    }
 
     writeSystemLog(text) {
         const div = document.createElement("div");
@@ -93,8 +107,6 @@ class UiRenderer {
         this.terminal.appendChild(div);
         this.terminal.scrollTop = this.terminal.scrollHeight;
     }
-
-    /* ------------------- ASCII 字符排版与截断引擎 ------------------- */
 
     getCharWidth(str) {
         let width = 0;
@@ -143,18 +155,20 @@ class UiRenderer {
         return "█".repeat(filled) + "░".repeat(empty);
     }
 
-    /* ------------------- 响应式实时数据解析器 ------------------- */
-
+    /**
+     * ASCII APP 面板生成器
+     */
     async buildTargetAppUI(player, ctrl, prog) {
         const lines = [];
         lines.push("┌──────────────────────────────────────┐");
         lines.push(this.formatLine("Sweet Dream (Active)"));
         lines.push("├──────────────────────────────────────┤");
         
-        lines.push(this.formatLine(`目标编号：#3811`, `姓名：${player.profile?.identity?.name || "玩家"}`));
+        // 核心修改：使用你设计的 state 键名取值
+        lines.push(this.formatLine(`目标编号：#3811`, `姓名：${player.name || "目标"}`));
         
-        const corr = prog.corruption || 10;
-        const awak = prog.awakening || 0;
+        const corr = ctrl.corruption || 10;
+        const awak = ctrl.targetAwareness || 0;
         let cDesc = "理智尚在";
         if (corr > 80) cDesc = "彻底沦陷";
         else if (corr > 60) cDesc = "高度沉溺";
@@ -167,7 +181,7 @@ class UiRenderer {
 
         lines.push(this.formatLine("【当前进行中任务】"));
         
-        const activeTasks = ctrl.activeTasks || ["init_001", "init_004"]; 
+        const activeTasks = ["init_001", "init_004"]; 
         for (const taskId of activeTasks) {
             const staticTask = await this.db.findById("tasks", taskId);
             if (staticTask) {
@@ -186,12 +200,7 @@ class UiRenderer {
 
         const mask = ctrl.controllerProfile?.maskPrimary || "操控者";
         lines.push(this.formatLine(`【实时私信】`));
-        if (ctrl.privateMessages && ctrl.privateMessages.length > 0) {
-            const latestMsg = ctrl.privateMessages[ctrl.privateMessages.length - 1];
-            lines.push(this.formatLine(`${mask}：${latestMsg}`));
-        } else {
-            lines.push(this.formatLine(`${mask}：今天第二个任务好好做。`));
-        }
+        lines.push(this.formatLine(`${mask}：今天第二个任务好好做。`));
         lines.push("├──────────────────────────────────────┤");
 
         lines.push(this.formatLine(`【我的安全背包】`));
@@ -237,19 +246,14 @@ class UiRenderer {
 
 export const uiRenderer = new UiRenderer();
 
-// 核心过度桥接：拦截原保存角色行为，转入 Controller 生成掷点界面
+// 核心过度桥接：拦截原保存角色行为，转入 Controller 生成界面
 setTimeout(() => {
     const originalSaveCharacter = window.saveCharacter;
     if (originalSaveCharacter) {
         window.saveCharacter = function() {
-            // 1. 先执行你原始写好的保存和 IndexedDB 写入流程
             originalSaveCharacter();
-
-            // 2. 切换界面视图到掷点面板
             document.getElementById("view-creator").classList.add("hidden");
             document.getElementById("view-match").classList.remove("hidden");
-
-            // 3. 运行匹配生成管线
             startControllerRoll();
         };
     }
@@ -278,10 +282,10 @@ async function startControllerRoll() {
         }
         const masksLib = await response.json();
 
-        await printLog("读取玩家特征与性敏感度限制项中...", 300);
-        const playerProfile = window.player || {}; // 获取 creator.js 内存中的玩家设定对象
+        await printLog("读取玩家特征与限制项中...", 300);
+        const playerProfile = window.player || {}; // 获取 creator.js 内存中的数据
 
-        // 适配倾向 (增加安全可选链 ?. 保护)
+        // 适配倾向
         const rolePref = playerProfile.profile?.identity?.rolePreference || "被支配方(Sub/M)";
         let maskDirection = "dominant";
         if (rolePref.includes("Dom/S")) maskDirection = "submissive";
@@ -319,19 +323,19 @@ async function startControllerRoll() {
         // 数据写入
         await printLog("正在同步连线状态到中间变量数据库...", 300);
         
-        // 核心修正：移除 await stateManager.initialize() 这一行，直接同步写入变量
-        stateManager.set("playerProfile", playerProfile);
-        
-        // 安全读取性羞耻度
-        const shameLevel = playerProfile.psychology?.shame || "中等";
-        const baseCorruption = shameLevel === "容易羞耻" ? 15 : (shameLevel === "不易羞耻" ? 5 : 10);
+        // 核心修改：使用你设计的原生 get/set/patch 写入数据
+        stateManager.set("playerProfile", playerProfile.profile?.identity || {});
+        stateManager.set("currentProgress", {
+            name: playerProfile.profile?.identity?.name || "未知",
+            corruption: playerProfile.psychology?.shame === "容易羞耻" ? 15 : 10
+        });
 
-        // 核心修正：同步调用 stateManager.patch 写入生成的 Controller 参数
         stateManager.patch({
             controllerLevel: 1,
             controllerExperience: 0,
             orgasmValue: 12, // 初始预热值
             wakeValue: 5,
+            targetAwareness: 0,
             currentScene: "scene_bedroom",
             currentTaskId: "init_001",
             inventory: {
@@ -346,10 +350,6 @@ async function startControllerRoll() {
                 relationship: relation,
                 switches: selectedSwitches,
                 controlStart: startingPoint.description
-            },
-            currentProgress: {
-                name: playerProfile.profile?.identity?.name || "未知",
-                corruption: baseCorruption
             }
         });
 
@@ -371,6 +371,12 @@ async function startControllerRoll() {
     }
 }
 
+// 绑定全局方法，用于 View 之间的过渡驱动
+window.enterGameTerminal = () => {
+    document.getElementById("view-match").classList.add("hidden");
+    document.getElementById("view-game").classList.remove("hidden");
+    uiRenderer.start();
+};
 
 window.handleInputKey = (event) => {
     if (event.key === "Enter") {
@@ -382,6 +388,12 @@ window.sendActionText = () => {
     uiRenderer.handleInputSubmit();
 };
 
+window.rerollController = () => {
+    document.getElementById("controller-card").classList.add("hidden");
+    document.getElementById("match-actions").classList.add("hidden");
+    startControllerRoll();
+};
+
 window.showAppModal = async (tab) => {
     const overlay = document.getElementById("modal-overlay");
     const modal = document.getElementById("app-modal");
@@ -391,9 +403,10 @@ window.showAppModal = async (tab) => {
     overlay.classList.remove("hidden");
     modal.classList.remove("hidden");
 
-    const player = stateManager.getPlayer();
-    const ctrl = stateManager.getController();
-    const prog = stateManager.getProgressionState();
+    // 核心修改：使用你的 stateManager.get 语法获取数据
+    const player = stateManager.get("playerProfile") || {};
+    const ctrl = stateManager.get() || {};
+    const prog = stateManager.get("currentProgress") || {};
 
     if (tab === "tasks") {
         title.innerText = "📱 Sweet Dream APP 终端";
@@ -416,15 +429,15 @@ window.showAppModal = async (tab) => {
                 <div style="color: var(--accent-pink); font-weight: bold; font-size: 12px; margin-bottom: 8px;">📡 AI 神经连线配置</div>
                 <div style="margin-bottom: 10px;">
                     <label style="font-size: 11px; color: var(--text-muted);">API 密钥 (API Key):</label>
-                    <input type="password" id="modal-api-key" value="${aiEngine.apiConfig.apiKey || ''}" placeholder="sk-..." style="margin-top: 4px; font-size:12px; width:100%;" />
+                    <input type="password" id="modal-api-key" value="${aiEngine.apiConfig.apiKey || ''}" placeholder="sk-..." style="margin-top: 4px; font-size:12px; width: 100%;" />
                 </div>
                 <div style="margin-bottom: 10px;">
                     <label style="font-size: 11px; color: var(--text-muted);">自定义中转接口 (Endpoint):</label>
-                    <input type="text" id="modal-api-endpoint" value="${aiEngine.apiConfig.endpoint || ''}" style="margin-top: 4px; font-size:12px; width:100%;" />
+                    <input type="text" id="modal-api-endpoint" value="${aiEngine.apiConfig.endpoint || ''}" style="margin-top: 4px; font-size:12px; width: 100%;" />
                 </div>
                 <div>
                     <label style="font-size: 11px; color: var(--text-muted);">使用模型 (Model):</label>
-                    <input type="text" id="modal-api-model" value="${aiEngine.apiConfig.model || ''}" style="margin-top: 4px; font-size:12px; width:100%;" />
+                    <input type="text" id="modal-api-model" value="${aiEngine.apiConfig.model || ''}" style="margin-top: 4px; font-size:12px; width: 100%;" />
                 </div>
                 <button class="btn btn-primary" onclick="saveRuntimeApiConfig()" style="width:100%; margin-top:10px; padding: 8px; font-size:11px;">保存配置</button>
             </div>
@@ -460,15 +473,5 @@ window.closeAppModal = () => {
     document.getElementById("app-modal").classList.add("hidden");
 };
 
-
-/**
- * 确认继续 -> 进入正式游戏终端
- */
-window.enterGameTerminal = () => {
-    // 隐藏匹配面板，大敞开显示正式终端
-    document.getElementById("view-match").classList.add("hidden");
-    document.getElementById("view-game").classList.remove("hidden");
-    
-    // 启动剧情渲染器与时钟
-    uiRenderer.start();
-};
+// 全局函数绑定
+window.startControllerRoll = startControllerRoll;
