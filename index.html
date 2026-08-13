@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sweet Dream</title>
-    <!-- HTML 与 CSS 样式分离，引入外部样式表 -->
-    <link rel="stylesheet" href="css/style.css">
-<!-- 移动端虚拟控制台 (调试完毕后可随时删除) -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
-</head>
+    <!-- 强行加上版本缓存过滤器 -->
+    <link rel="stylesheet" href="css/style.css?v=2.2">
 </head>
 <body>
 
@@ -23,7 +19,7 @@
             <button onclick="saveCharacter()">完成创建</button>
         </div>
 
-        <!-- 视图 2：Controller 随机面具确认界面（包含重Roll键与继续键） -->
+        <!-- 视图 2：Controller 随机面具确认界面 -->
         <div id="view-match" class="hidden">
             <h1>⚡ 正在连线未知设备...</h1>
             <p class="subtitle">APP 正在根据您的角色倾向及性兴奋触发点，匹配相容的操控者频段。</p>
@@ -49,26 +45,30 @@
             </div>
         </div>
 
-        <!-- 视图 3：正式游戏终端（被操控者/目标视角 - 极致简约版） -->
+        <!-- 视图 3：正式游戏终端（被操控者/目标视角 - 手机窄屏极简版） -->
         <div id="view-game" class="hidden">
             <div class="game-layout">
                 <!-- 顶部：时间日期框 -->
                 <div class="system-title">⏱ CONNECTED TERMINAL - [ 正在校准电波... ]</div>
 
-                <!-- 中间：大屏剧情文字区 -->
+                <!-- 中间：大屏剧情文字区（100%满幅） -->
                 <div id="story-log">
                     <!-- 动态载入剧情及动作反馈 -->
                 </div>
 
-                <!-- 底部：输入框 + 功能弹窗按钮群 -->
+                <!-- 底部：双层堆叠操作条（解决手机侧边挤压问题） -->
                 <div class="control-bar">
+                    <!-- 第一层：APP 弹窗按钮组 -->
                     <div class="app-buttons">
                         <button class="tab-btn" onclick="showAppModal('tasks')">📱 APP 界面</button>
                         <button class="tab-btn" onclick="showAppModal('bag')">📟 操控者状态</button>
                         <button class="tab-btn" onclick="showAppModal('settings')">📖 设定书</button>
                     </div>
-                    <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
-                    <button class="btn btn-primary" onclick="sendActionText()">发送</button>
+                    <!-- 第二层：文本框与发送键并排 -->
+                    <div class="input-row">
+                        <input type="text" id="action-input" placeholder="输入你的行为或抵抗言行..." onkeydown="handleInputKey(event)">
+                        <button class="btn btn-primary send-btn" onclick="sendActionText()">发送</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,9 +86,9 @@
         </div>
     </div>
 
-    <!-- 统一使用现代浏览器 ESM 脚本加载模块，保证 import/export 链条畅通 -->
-    <script src="js/database.js"></script>
-    <script type="module" src="js/creator.js"></script>
-    <script type="module" src="js/runtime/uiRenderer.js"></script>
+    <!-- ESM 加载链 -->
+    <script src="js/database.js?v=2.2"></script>
+    <script type="module" src="js/creator.js?v=2.2"></script>
+    <script type="module" src="js/runtime/uiRenderer.js?v=2.2"></script>
 </body>
 </html>
