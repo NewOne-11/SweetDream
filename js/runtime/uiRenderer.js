@@ -370,7 +370,7 @@ async function startControllerRoll() {
         console.error("游戏连线阶段崩溃详情:", e);
     }
 }
-}
+
 
 window.handleInputKey = (event) => {
     if (event.key === "Enter") {
